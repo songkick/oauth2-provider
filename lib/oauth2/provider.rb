@@ -1,5 +1,4 @@
 require 'uri'
-require 'cgi'
 require 'net/http'
 require 'oauth2/rack'
 

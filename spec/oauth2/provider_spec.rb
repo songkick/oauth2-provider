@@ -19,7 +19,7 @@ describe OAuth2::Provider do
   end
   
   def get(query_params)
-    qs  = params.map { |k,v| "#{ CGI.escape k.to_s }=#{ CGI.escape v.to_s }" }.join('&')
+    qs  = params.map { |k,v| "#{ URI.escape k.to_s }=#{ URI.escape v.to_s }" }.join('&')
     uri = URI.parse(provider_uri + '?' + qs)
     Net::HTTP.get_response(uri)
   end
@@ -52,7 +52,7 @@ describe OAuth2::Provider do
       it "redirects to the client's redirect_uri on error" do
         response = get(params)
         response.code.to_i.should == 302
-        response['location'].should == 'https://client.example.com/cb?error=invalid_request&error_description=Missing+required+parameter+response_type'
+        response['location'].should == 'https://client.example.com/cb?error=invalid_request&error_description=Missing%20required%20parameter%20response_type'
       end
       
       describe "with a state parameter" do
@@ -61,7 +61,7 @@ describe OAuth2::Provider do
         it "redirects to the client, including the state param" do
           response = get(params)
           response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb?error=invalid_request&error_description=Missing+required+parameter+response_type&state=foo'
+          response['location'].should == 'https://client.example.com/cb?error=invalid_request&error_description=Missing%20required%20parameter%20response_type&state=foo'
         end
       end
     end

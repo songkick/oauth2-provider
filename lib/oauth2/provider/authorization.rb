@@ -22,12 +22,12 @@ module OAuth2
       
       def redirect_url
         qs = %w[error error_description].map { |key|
-          value = CGI.escape(instance_variable_get("@#{key}"))
+          value = URI.escape(instance_variable_get("@#{key}"))
           "#{ key }=#{ value }"
         }.join('&')
         
         if @params['state']
-          qs << "&state=#{ CGI.escape(@params['state']) }"
+          qs << "&state=#{ URI.escape(@params['state']) }"
         end
         
         "#{ @params['redirect_uri'] }?#{ qs }"
