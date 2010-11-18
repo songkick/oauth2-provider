@@ -1,12 +1,22 @@
 require 'spec_helper'
 
 describe OAuth2::Provider::Authorization do
-  let(:authorization) { OAuth2::Provider::Authorization.new(params) }
+  include OAuth2
+  
+  let(:authorization) { Provider::Authorization.new(params) }
   
   let(:params) { { :response_type => 'code',
                    :client_id     => 's6BhdRkqt3',
                    :redirect_uri  => 'https://client.example.com/cb' }
                }
+  
+  before do
+    @client = Model::Client.create(:client_id => 's6BhdRkqt3', :redirect_uri => 'https://client.example.com/cb')
+  end
+  
+  after do
+    @client.destroy
+  end
   
   describe "with valid parameters" do
     it "is valid" do
@@ -23,12 +33,30 @@ describe OAuth2::Provider::Authorization do
     end
   end
   
-  describe "missing response_type" do
+  describe "with a bad response_type" do
+    before { params[:response_type] = "no_such_type" }
+    
+    it "is invalid" do
+      authorization.error.should == "unsupported_response_type"
+      authorization.error_description.should == "Response type no_such_type is not supported"
+    end
+  end
+  
+  describe "missing client_id" do
     before { params.delete(:client_id) }
     
     it "is invalid" do
       authorization.error.should == "invalid_request"
       authorization.error_description.should == "Missing required parameter client_id"
+    end
+  end
+  
+  describe "with an unknown client_id" do
+    before { params[:client_id] = "unknown" }
+    
+    it "is invalid" do
+      authorization.error.should == "invalid_client"
+      authorization.error_description.should == "Unknown client ID unknown"
     end
   end
   
@@ -38,6 +66,15 @@ describe OAuth2::Provider::Authorization do
     it "is invalid" do
       authorization.error.should == "invalid_request"
       authorization.error_description.should == "Missing required parameter redirect_uri"
+    end
+  end
+  
+  describe "with a mismatched redirect_uri" do
+    before { params[:redirect_uri] = "http://songkick.com" }
+    
+    it "is invalid" do
+      authorization.error.should == "redirect_uri_mismatch"
+      authorization.error_description.should == "Parameter redirect_uri does not match registered URI"
     end
   end
 end

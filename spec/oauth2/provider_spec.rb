@@ -1,12 +1,20 @@
 require 'spec_helper'
 
 describe OAuth2::Provider do
+  include OAuth2
+  
   before { TestApp::Provider.start(8000) }
   after  { TestApp::Provider.stop }
   
   let(:provider_uri) { 'http://localhost:8000/authorize' }
   
-  include OAuth2
+  before do
+    @client = Model::Client.create(:client_id => 's6BhdRkqt3', :redirect_uri => 'https://client.example.com/cb')
+  end
+  
+  after do
+    @client.destroy
+  end
   
   def get(query_params)
     qs  = params.map { |k,v| "#{ CGI.escape k.to_s }=#{ CGI.escape v.to_s }" }.join('&')
@@ -20,9 +28,34 @@ describe OAuth2::Provider do
                      :redirect_uri  => 'https://client.example.com/cb' }
                  }
     
-    it "creates an authorization" do
-      Provider::Authorization.should_receive(:new).with(params)
-      get(params)
+    describe "with valid parameters" do
+      it "creates an authorization" do
+        auth = mock(Provider::Authorization)
+        Provider::Authorization.should_receive(:new).with(params).and_return(auth)
+        auth.should_receive(:should_redirect?).and_return(false)
+        response = get(params)
+        response.code.to_i.should == 200
+      end
+    end
+    
+    describe "with an invalid request" do
+      before { params.delete(:response_type) }
+      
+      it "redirects to the client's redirect_uri on error" do
+        response = get(params)
+        response.code.to_i.should == 302
+        response['location'].should == 'https://client.example.com/cb?error=invalid_request&error_description=Missing+required+parameter+response_type'
+      end
+      
+      describe "with a state parameter" do
+        before { params[:state] = 'foo' }
+      
+        it "redirects to the client, including the state param" do
+          response = get(params)
+          response.code.to_i.should == 302
+          response['location'].should == 'https://client.example.com/cb?error=invalid_request&error_description=Missing+required+parameter+response_type&state=foo'
+        end
+      end
     end
   end
 end

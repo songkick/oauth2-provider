@@ -19,6 +19,8 @@ module TestApp
     
     get '/authorize' do
       request = OAuth2::Rack.request(env)
+      redirect request.redirect_url if request.should_redirect?
+      'OK'
     end
     
   end
