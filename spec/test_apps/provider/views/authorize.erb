@@ -1,8 +1,15 @@
 <h1>Authorize OAuth client</h1>
 
-<p>Do you want to allow <%= @client.name %> to act on your behalf?</p>
+<p>Do you want to allow <%= @request.client.name %> to act on your behalf?</p>
 
 <form method="post" action="/allow">
-  <input type="submit" value="Yes, please!">
+  <% @request.params.each do |key, value| %>
+    <input type="hidden" name="<%= key %>" value="<%= value %>">
+  <% end %>
+  
+  <input type="checkbox" name="allow" id="allow" value="1">
+  <label for="allow">Allow this application</label>
+  
+  <input type="submit" value="Go!">
 </form>
 

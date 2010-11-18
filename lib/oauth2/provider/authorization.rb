@@ -2,22 +2,22 @@ module OAuth2
   class Provider
     
     class Authorization
-      attr_reader :client, :error, :error_description
+      attr_reader :params, :client, :error, :error_description
       
       REQUIRED_PARAMS      = %w[response_type client_id redirect_uri]
       VALID_RESPONSES      = %w[code token code_and_token]
+      
+      EXPIRY_TIME          = 3600
+      
       INVALID_REQUEST      = 'invalid_request'
       UNSUPPORTED_RESPONSE = 'unsupported_response_type'
       REDIRECT_MISMATCH    = 'redirect_uri_mismatch'
       INVALID_CLIENT       = 'invalid_client'
+      ACCESS_DENIED        = 'access_denied'
       
       def initialize(params)
         @params = params
         validate!
-      end
-      
-      def valid?
-        @error.nil?
       end
       
       def scope
@@ -25,17 +25,30 @@ module OAuth2
         scope ? scope.split(/\s+/).delete_if { |s| s.empty? } : []
       end
       
+      def allow_access!
+        @code = OAuth2.random_string
+        @expires_in = EXPIRY_TIME
+      end
+      
+      def deny_access!
+        @error = ACCESS_DENIED
+        @error_description = "The user denied you access"
+      end
+      
       def redirect_uri
-        qs = %w[error error_description].map { |key|
-          value = URI.escape(instance_variable_get("@#{key}"))
-          "#{ key }=#{ value }"
-        }.join('&')
+        qs = valid? ?
+             to_query_string(:code, :access_token, :expires_in) :
+             to_query_string(:error, :error_description)
         
         if @params['state']
           qs << "&state=#{ URI.escape(@params['state']) }"
         end
         
         "#{ @params['redirect_uri'] }?#{ qs }"
+      end
+      
+      def valid?
+        @error.nil?
       end
       
     private
@@ -64,6 +77,13 @@ module OAuth2
           @error = REDIRECT_MISMATCH
           @error_description = "Parameter redirect_uri does not match registered URI"
         end
+      end
+      
+      def to_query_string(*ivars)
+        ivars.map { |key|
+          value = instance_variable_get("@#{key}")
+          value ? "#{ key }=#{ URI.escape(value.to_s) }" : nil
+        }.compact.join('&')
       end
     end
     
