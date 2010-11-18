@@ -29,7 +29,7 @@ module TestApp
     post '/allow' do
       @request = OAuth2::Provider::Authorization.new(params)
       if params['allow'] == '1'
-        @request.allow_access!
+        @request.grant_access!
       else
         @request.deny_access!
       end

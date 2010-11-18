@@ -94,19 +94,19 @@ describe OAuth2::Provider::Authorization do
     end
   end
   
-  describe "#allow_access!" do
+  describe "#grant_access!" do
     describe "for code requests" do
       before { params['response_type'] = 'code' }
       
       it "creates a code for the authorization" do
-        authorization.allow_access!
+        authorization.grant_access!
         authorization.code.should == "random_string"
         authorization.access_token.should be_nil
         authorization.expires_in.should == 3600
       end
       
       it "creates an AccessCode in the database" do
-        authorization.allow_access!
+        authorization.grant_access!
         access_code = Model::AccessCode.first
         access_code.client.should == @client
         access_code.code.should == "random_string"

@@ -70,18 +70,25 @@ describe OAuth2::Provider do
   end
   
   describe "authorization confirmation from the user" do
+    let(:mock_auth) do
+      mock = mock(Provider::Authorization)
+      mock.stub(:redirect_uri).and_return('http://example.com/')
+      Provider::Authorization.stub(:new).and_return(mock)
+      mock
+    end
+    
     describe "without the user's permission" do
       before { params['allow'] = '' }
+      
+      it "does not grant access" do
+        mock_auth.should_receive(:deny_access!)
+        post(params)
+      end
       
       it "redirects to the client with an error" do
         response = post(params)
         response.code.to_i.should == 302
         response['location'].should == 'https://client.example.com/cb?error=access_denied&error_description=The%20user%20denied%20you%20access'
-      end
-      
-      it "does not create an access code" do
-        Model::AccessCode.should_not_receive(:create)
-        post(params)
       end
     end
     
@@ -89,14 +96,9 @@ describe OAuth2::Provider do
       before { OAuth2.stub(:random_string).and_return('foo') }
       before { params['allow'] = '1' }
       
-      it "creates an access code" do
+      it "grants access" do
+        mock_auth.should_receive(:grant_access!)
         post(params)
-        access_code = Model::AccessCode.first
-        access_code.client.should == @client
-        access_code.code.should == "foo"
-        
-        expiry = access_code.expires_at - Time.now
-        expiry.ceil.should == 3600
       end
       
       it "redirects to the client with an authorization code" do

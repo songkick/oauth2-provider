@@ -26,7 +26,7 @@ module OAuth2
         @scope ? @scope.split(/\s+/).delete_if { |s| s.empty? } : []
       end
       
-      def allow_access!
+      def grant_access!
         @code        = OAuth2.random_string
         @expires_in  = EXPIRY_TIME
         expiry       = Time.now + EXPIRY_TIME
