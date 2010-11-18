@@ -1,0 +1,36 @@
+= OAuth2::Provider
+
+This gem provides a toolkit for adding OAuth2 provider capabilities to a Ruby
+web app. It handles most of the protocol for you, all you have to do is
+authenticate your users and let them grant permission to applications.
+
+
+== Example
+
+A pretty brain-dead demo; so far we can recognize the initial auth request,
+let the user click 'Allow', and notify the client of what happened. Clients
+and auth tokens are persisted using ActiveRecord.
+
+  require 'sinatra'
+  
+  get '/authorize' do
+    @request = OAuth2::Rack.request(env)
+    redirect @request.redirect_uri unless @request.valid?
+    erb :authorize
+  end
+  
+  post '/allow' do
+    @request = OAuth2::Provider::Authorization.new(params)
+    if params['allow'] == '1'
+      @request.allow_access!
+    else
+      @request.deny_access!
+    end
+    redirect @request.redirect_uri
+  end
+
+
+== Copyright
+
+Copyright (c) 2010 Songkick.com
+
