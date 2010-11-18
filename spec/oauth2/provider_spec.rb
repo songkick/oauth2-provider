@@ -20,10 +20,6 @@ describe OAuth2::Provider do
                                    :redirect_uri => 'https://client.example.com/cb')
   end
   
-  after do
-    @client.destroy
-  end
-  
   def get(query_params)
     qs  = params.map { |k,v| "#{ URI.escape k.to_s }=#{ URI.escape v.to_s }" }.join('&')
     uri = URI.parse(authorization_uri + '?' + qs)
@@ -82,13 +78,28 @@ describe OAuth2::Provider do
         response.code.to_i.should == 302
         response['location'].should == 'https://client.example.com/cb?error=access_denied&error_description=The%20user%20denied%20you%20access'
       end
+      
+      it "does not create an access code" do
+        Model::AccessCode.should_not_receive(:create)
+        post(params)
+      end
     end
     
     describe "with valid parameters and user permission" do
+      before { OAuth2.stub(:random_string).and_return('foo') }
       before { params['allow'] = '1' }
       
+      it "creates an access code" do
+        post(params)
+        access_code = Model::AccessCode.first
+        access_code.client.should == @client
+        access_code.code.should == "foo"
+        
+        expiry = access_code.expires_at - Time.now
+        expiry.ceil.should == 3600
+      end
+      
       it "redirects to the client with an authorization code" do
-        OAuth2.stub(:random_string).and_return('foo')
         response = post(params)
         response.code.to_i.should == 302
         response['location'].should == 'https://client.example.com/cb?code=foo&expires_in=3600'

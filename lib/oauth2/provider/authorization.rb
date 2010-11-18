@@ -26,8 +26,11 @@ module OAuth2
       end
       
       def allow_access!
-        @code = OAuth2.random_string
-        @expires_in = EXPIRY_TIME
+        @code        = OAuth2.random_string
+        @expires_in  = EXPIRY_TIME
+        expiry       = Time.now + EXPIRY_TIME
+        
+        Model::AccessCode.create(:client => @client, :code => @code, :expires_at => expiry)
       end
       
       def deny_access!

@@ -9,12 +9,13 @@ module TestApp
           @server = server
         end
       end
-      sleep 0.2 until @server
+      sleep 0.1 until @server
     end
     
     def self.stop
       @server.stop if @server
       @server = nil
+      sleep 0.1 while EM.reactor_running?
     end
     
     set :views, File.dirname(__FILE__) + '/views'

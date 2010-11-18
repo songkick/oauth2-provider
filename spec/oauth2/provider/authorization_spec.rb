@@ -18,10 +18,6 @@ describe OAuth2::Provider::Authorization do
     OAuth2.stub(:random_string).and_return('random_string')
   end
   
-  after do
-    @client.destroy
-  end
-  
   describe "with valid parameters" do
     it "is valid" do
       authorization.error.should be_nil
@@ -108,6 +104,16 @@ describe OAuth2::Provider::Authorization do
         authorization.access_token.should be_nil
         authorization.expires_in.should == 3600
       end
+      
+      it "creates an AccessCode in the database" do
+        authorization.allow_access!
+        access_code = Model::AccessCode.first
+        access_code.client.should == @client
+        access_code.code.should == "random_string"
+        
+        expiry = access_code.expires_at - Time.now
+        expiry.ceil.should == 3600
+      end
     end
   end
   
@@ -116,6 +122,11 @@ describe OAuth2::Provider::Authorization do
       authorization.deny_access!
       authorization.error.should == "access_denied"
       authorization.error_description.should == "The user denied you access"
+    end
+    
+    it "does not create an AccessCode" do
+      Model::AccessCode.should_not_receive(:create)
+      authorization.deny_access!
     end
   end
 end
