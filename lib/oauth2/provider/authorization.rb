@@ -20,6 +20,11 @@ module OAuth2
         @error.nil?
       end
       
+      def scope
+        scope = @params['scope']
+        scope ? scope.split(/\s+/).delete_if { |s| s.empty? } : []
+      end
+      
       def redirect_uri
         qs = %w[error error_description].map { |key|
           value = URI.escape(instance_variable_get("@#{key}"))

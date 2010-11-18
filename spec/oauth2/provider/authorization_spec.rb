@@ -26,6 +26,14 @@ describe OAuth2::Provider::Authorization do
     end
   end
   
+  describe "with the state parameter" do
+    before { params['scope'] = 'foo bar qux' }
+    
+    it "exposes the scope as a list of strings" do
+      authorization.scope.should == %w[foo bar qux]
+    end
+  end
+  
   describe "missing response_type" do
     before { params.delete('response_type') }
     
