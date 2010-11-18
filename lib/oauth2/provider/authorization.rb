@@ -16,8 +16,8 @@ module OAuth2
         validate!
       end
       
-      def should_redirect?
-        not @error.nil?
+      def valid?
+        @error.nil?
       end
       
       def redirect_url

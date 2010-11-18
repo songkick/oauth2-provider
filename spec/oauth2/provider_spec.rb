@@ -32,7 +32,7 @@ describe OAuth2::Provider do
       it "creates an authorization" do
         auth = mock(Provider::Authorization)
         Provider::Authorization.should_receive(:new).with(params).and_return(auth)
-        auth.should_receive(:should_redirect?).and_return(false)
+        auth.should_receive(:valid?).and_return(true)
         response = get(params)
         response.code.to_i.should == 200
       end
