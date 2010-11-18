@@ -17,10 +17,13 @@ module TestApp
       @server = nil
     end
     
+    set :views, File.dirname(__FILE__) + '/views'
+    
     get '/authorize' do
       request = OAuth2::Rack.request(env)
       redirect request.redirect_url unless request.valid?
-      'OK'
+      @client = request.client
+      erb :authorize
     end
     
   end

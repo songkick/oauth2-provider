@@ -11,7 +11,9 @@ describe OAuth2::Provider::Authorization do
                }
   
   before do
-    @client = Model::Client.create(:client_id => 's6BhdRkqt3', :redirect_uri => 'https://client.example.com/cb')
+    @client = Model::Client.create(:client_id    => 's6BhdRkqt3',
+                                   :name         => 'Test client',
+                                   :redirect_uri => 'https://client.example.com/cb')
   end
   
   after do

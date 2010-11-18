@@ -2,7 +2,7 @@ module OAuth2
   class Provider
     
     class Authorization
-      attr_reader :error, :error_description
+      attr_reader :client, :error, :error_description
       
       REQUIRED_PARAMS      = [:response_type, :client_id, :redirect_uri]
       VALID_RESPONSES      = ['code', 'token', 'code_and_token']

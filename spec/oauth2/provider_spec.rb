@@ -9,7 +9,9 @@ describe OAuth2::Provider do
   let(:provider_uri) { 'http://localhost:8000/authorize' }
   
   before do
-    @client = Model::Client.create(:client_id => 's6BhdRkqt3', :redirect_uri => 'https://client.example.com/cb')
+    @client = Model::Client.create(:client_id    => 's6BhdRkqt3',
+                                   :name         => 'Test client',
+                                   :redirect_uri => 'https://client.example.com/cb')
   end
   
   after do
@@ -33,8 +35,14 @@ describe OAuth2::Provider do
         auth = mock(Provider::Authorization)
         Provider::Authorization.should_receive(:new).with(params).and_return(auth)
         auth.should_receive(:valid?).and_return(true)
+        auth.should_receive(:client).and_return(@client)
+        get(params)
+      end
+      
+      it "displays an authorization page" do
         response = get(params)
         response.code.to_i.should == 200
+        response.body.should =~ /Do you want to allow Test client/
       end
     end
     
