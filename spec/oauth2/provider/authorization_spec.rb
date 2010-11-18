@@ -86,6 +86,14 @@ describe OAuth2::Provider::Authorization do
       authorization.error.should == "redirect_uri_mismatch"
       authorization.error_description.should == "Parameter redirect_uri does not match registered URI"
     end
+    
+    describe "when the client has not registered a redirect_uri" do
+      before { @client.update_attribute(:redirect_uri, nil) }
+      
+      it "is valid" do
+        authorization.error.should be_nil
+      end
+    end
   end
 end
 

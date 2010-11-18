@@ -60,7 +60,7 @@ module OAuth2
           @error_description = "Unknown client ID #{@params['client_id']}"
         end
         
-        if @client and @client.redirect_uri != @params['redirect_uri']
+        if @client and @client.redirect_uri and @client.redirect_uri != @params['redirect_uri']
           @error = REDIRECT_MISMATCH
           @error_description = "Parameter redirect_uri does not match registered URI"
         end
