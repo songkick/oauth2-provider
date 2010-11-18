@@ -14,6 +14,8 @@ describe OAuth2::Provider::Authorization do
     @client = Model::Client.create(:client_id    => 's6BhdRkqt3',
                                    :name         => 'Test client',
                                    :redirect_uri => 'https://client.example.com/cb')
+    
+    OAuth2.stub(:random_string).and_return('random_string')
   end
   
   after do
@@ -93,6 +95,27 @@ describe OAuth2::Provider::Authorization do
       it "is valid" do
         authorization.error.should be_nil
       end
+    end
+  end
+  
+  describe "#allow_access!" do
+    describe "for code requests" do
+      before { params['response_type'] = 'code' }
+      
+      it "creates a code for the authorization" do
+        authorization.allow_access!
+        authorization.code.should == "random_string"
+        authorization.access_token.should be_nil
+        authorization.expires_in.should == 3600
+      end
+    end
+  end
+  
+  describe "#deny_access!" do
+    it "puts the authorization in an error state" do
+      authorization.deny_access!
+      authorization.error.should == "access_denied"
+      authorization.error_description.should == "The user denied you access"
     end
   end
 end
