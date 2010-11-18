@@ -20,7 +20,7 @@ module OAuth2
         @error.nil?
       end
       
-      def redirect_url
+      def redirect_uri
         qs = %w[error error_description].map { |key|
           value = URI.escape(instance_variable_get("@#{key}"))
           "#{ key }=#{ value }"

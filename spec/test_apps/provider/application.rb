@@ -21,7 +21,7 @@ module TestApp
     
     get '/authorize' do
       request = OAuth2::Rack.request(env)
-      redirect request.redirect_url unless request.valid?
+      redirect request.redirect_uri unless request.valid?
       @client = request.client
       erb :authorize
     end
