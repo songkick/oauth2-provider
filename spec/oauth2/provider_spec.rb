@@ -111,6 +111,13 @@ describe OAuth2::Provider do
         response.code.to_i.should == 302
         response['location'].should == 'https://client.example.com/cb?code=foo&expires_in=3600&state=illinois'
       end
+      
+      it "passes the scope parameter through" do
+        params['scope'] = 'foo bar'
+        response = post(params)
+        response.code.to_i.should == 302
+        response['location'].should == 'https://client.example.com/cb?code=foo&expires_in=3600&scope=foo%20bar'
+      end
     end
   end
 end

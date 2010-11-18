@@ -17,13 +17,13 @@ module OAuth2
       
       def initialize(params)
         @params = params
+        @scope  = params['scope']
         @state  = params['state']
         validate!
       end
       
       def scope
-        scope = @params['scope']
-        scope ? scope.split(/\s+/).delete_if { |s| s.empty? } : []
+        @scope ? @scope.split(/\s+/).delete_if { |s| s.empty? } : []
       end
       
       def allow_access!
@@ -41,7 +41,7 @@ module OAuth2
       
       def redirect_uri
         qs = valid? ?
-             to_query_string(:code, :access_token, :expires_in, :state) :
+             to_query_string(:code, :access_token, :expires_in, :scope, :state) :
              to_query_string(:error, :error_description, :state)
         
         "#{ @params['redirect_uri'] }?#{ qs }"
@@ -82,6 +82,7 @@ module OAuth2
       def to_query_string(*ivars)
         ivars.map { |key|
           value = instance_variable_get("@#{key}")
+          value = value.join(' ') if Array === value
           value ? "#{ key }=#{ URI.escape(value.to_s) }" : nil
         }.compact.join('&')
       end
