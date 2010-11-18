@@ -104,6 +104,13 @@ describe OAuth2::Provider do
         response.code.to_i.should == 302
         response['location'].should == 'https://client.example.com/cb?code=foo&expires_in=3600'
       end
+      
+      it "passes the state parameter through" do
+        params['state'] = 'illinois'
+        response = post(params)
+        response.code.to_i.should == 302
+        response['location'].should == 'https://client.example.com/cb?code=foo&expires_in=3600&state=illinois'
+      end
     end
   end
 end

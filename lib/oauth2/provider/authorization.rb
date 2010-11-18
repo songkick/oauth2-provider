@@ -17,6 +17,7 @@ module OAuth2
       
       def initialize(params)
         @params = params
+        @state  = params['state']
         validate!
       end
       
@@ -40,12 +41,8 @@ module OAuth2
       
       def redirect_uri
         qs = valid? ?
-             to_query_string(:code, :access_token, :expires_in) :
-             to_query_string(:error, :error_description)
-        
-        if @params['state']
-          qs << "&state=#{ URI.escape(@params['state']) }"
-        end
+             to_query_string(:code, :access_token, :expires_in, :state) :
+             to_query_string(:error, :error_description, :state)
         
         "#{ @params['redirect_uri'] }?#{ qs }"
       end
