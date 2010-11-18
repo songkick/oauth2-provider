@@ -9,7 +9,7 @@ module TestApp
           @server = server
         end
       end
-      sleep 0.1 until @server
+      sleep 0.2 until @server
     end
     
     def self.stop

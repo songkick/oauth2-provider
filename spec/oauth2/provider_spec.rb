@@ -25,9 +25,9 @@ describe OAuth2::Provider do
   end
   
   describe "authorization request" do
-    let(:params) { { :response_type => 'code',
-                     :client_id     => 's6BhdRkqt3',
-                     :redirect_uri  => 'https://client.example.com/cb' }
+    let(:params) { { 'response_type' => 'code',
+                     'client_id'     => 's6BhdRkqt3',
+                     'redirect_uri'  => 'https://client.example.com/cb' }
                  }
     
     describe "with valid parameters" do
@@ -47,7 +47,7 @@ describe OAuth2::Provider do
     end
     
     describe "with an invalid request" do
-      before { params.delete(:response_type) }
+      before { params.delete('response_type') }
       
       it "redirects to the client's redirect_uri on error" do
         response = get(params)
@@ -56,7 +56,7 @@ describe OAuth2::Provider do
       end
       
       describe "with a state parameter" do
-        before { params[:state] = 'foo' }
+        before { params['state'] = 'foo' }
       
         it "redirects to the client, including the state param" do
           response = get(params)

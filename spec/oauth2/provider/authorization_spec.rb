@@ -5,9 +5,9 @@ describe OAuth2::Provider::Authorization do
   
   let(:authorization) { Provider::Authorization.new(params) }
   
-  let(:params) { { :response_type => 'code',
-                   :client_id     => 's6BhdRkqt3',
-                   :redirect_uri  => 'https://client.example.com/cb' }
+  let(:params) { { 'response_type' => 'code',
+                   'client_id'     => 's6BhdRkqt3',
+                   'redirect_uri'  => 'https://client.example.com/cb' }
                }
   
   before do
@@ -27,7 +27,7 @@ describe OAuth2::Provider::Authorization do
   end
   
   describe "missing response_type" do
-    before { params.delete(:response_type) }
+    before { params.delete('response_type') }
     
     it "is invalid" do
       authorization.error.should == "invalid_request"
@@ -36,7 +36,7 @@ describe OAuth2::Provider::Authorization do
   end
   
   describe "with a bad response_type" do
-    before { params[:response_type] = "no_such_type" }
+    before { params['response_type'] = "no_such_type" }
     
     it "is invalid" do
       authorization.error.should == "unsupported_response_type"
@@ -45,7 +45,7 @@ describe OAuth2::Provider::Authorization do
   end
   
   describe "missing client_id" do
-    before { params.delete(:client_id) }
+    before { params.delete('client_id') }
     
     it "is invalid" do
       authorization.error.should == "invalid_request"
@@ -54,7 +54,7 @@ describe OAuth2::Provider::Authorization do
   end
   
   describe "with an unknown client_id" do
-    before { params[:client_id] = "unknown" }
+    before { params['client_id'] = "unknown" }
     
     it "is invalid" do
       authorization.error.should == "invalid_client"
@@ -63,7 +63,7 @@ describe OAuth2::Provider::Authorization do
   end
   
   describe "missing redirect_uri" do
-    before { params.delete(:redirect_uri) }
+    before { params.delete('redirect_uri') }
     
     it "is invalid" do
       authorization.error.should == "invalid_request"
@@ -72,7 +72,7 @@ describe OAuth2::Provider::Authorization do
   end
   
   describe "with a mismatched redirect_uri" do
-    before { params[:redirect_uri] = "http://songkick.com" }
+    before { params['redirect_uri'] = "http://songkick.com" }
     
     it "is invalid" do
       authorization.error.should == "redirect_uri_mismatch"
