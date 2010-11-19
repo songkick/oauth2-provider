@@ -1,8 +1,6 @@
 require 'spec_helper'
 
 describe OAuth2::Provider do
-  include OAuth2
-  
   before { TestApp::Provider.start(8000) }
   after  { TestApp::Provider.stop }
   
@@ -15,9 +13,9 @@ describe OAuth2::Provider do
                }
   
   before do
-    @client = Model::Client.create(:client_id    => 's6BhdRkqt3',
-                                   :name         => 'Test client',
-                                   :redirect_uri => 'https://client.example.com/cb')
+    @client = OAuth2::Model::Client.create(:client_id    => 's6BhdRkqt3',
+                                           :name         => 'Test client',
+                                           :redirect_uri => 'https://client.example.com/cb')
   end
   
   def get(query_params)
@@ -33,8 +31,8 @@ describe OAuth2::Provider do
   describe "authorization request" do
     describe "with valid parameters" do
       it "creates an authorization" do
-        auth = mock(Provider::Authorization)
-        Provider::Authorization.should_receive(:new).with(params).and_return(auth)
+        auth = mock(OAuth2::Provider::Authorization)
+        OAuth2::Provider::Authorization.should_receive(:new).with(params).and_return(auth)
         auth.should_receive(:valid?).and_return(true)
         auth.should_receive(:client).and_return(@client)
         auth.should_receive(:params).and_return({})
@@ -71,9 +69,9 @@ describe OAuth2::Provider do
   
   describe "authorization confirmation from the user" do
     let(:mock_auth) do
-      mock = mock(Provider::Authorization)
+      mock = mock(OAuth2::Provider::Authorization)
       mock.stub(:redirect_uri).and_return('http://example.com/')
-      Provider::Authorization.stub(:new).and_return(mock)
+      OAuth2::Provider::Authorization.stub(:new).and_return(mock)
       mock
     end
     

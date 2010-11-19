@@ -1,9 +1,7 @@
 require 'spec_helper'
 
 describe OAuth2::Provider::Authorization do
-  include OAuth2
-  
-  let(:authorization) { Provider::Authorization.new(params) }
+  let(:authorization) { OAuth2::Provider::Authorization.new(params) }
   
   let(:params) { { 'response_type' => 'code',
                    'client_id'     => 's6BhdRkqt3',
@@ -11,9 +9,9 @@ describe OAuth2::Provider::Authorization do
                }
   
   before do
-    @client = Model::Client.create(:client_id    => 's6BhdRkqt3',
-                                   :name         => 'Test client',
-                                   :redirect_uri => 'https://client.example.com/cb')
+    @client = OAuth2::Model::Client.create(:client_id    => 's6BhdRkqt3',
+                                           :name         => 'Test client',
+                                           :redirect_uri => 'https://client.example.com/cb')
     
     OAuth2.stub(:random_string).and_return('random_string')
   end
@@ -107,7 +105,7 @@ describe OAuth2::Provider::Authorization do
       
       it "creates an AccessCode in the database" do
         authorization.grant_access!
-        access_code = Model::AccessCode.first
+        access_code = OAuth2::Model::AccessCode.first
         access_code.client.should == @client
         access_code.code.should == "random_string"
         
@@ -125,7 +123,7 @@ describe OAuth2::Provider::Authorization do
     end
     
     it "does not create an AccessCode" do
-      Model::AccessCode.should_not_receive(:create)
+      OAuth2::Model::AccessCode.should_not_receive(:create)
       authorization.deny_access!
     end
   end

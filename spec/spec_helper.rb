@@ -4,7 +4,8 @@ $:.unshift(dir)
 
 require 'rubygems'
 require 'oauth2/provider'
-require 'test_apps/provider/application'
+require 'test_app/helper'
+require 'test_app/provider/application'
 
 require 'thin'
 Thin::Logging.silent = true
@@ -15,7 +16,7 @@ ActiveRecord::Schema.define(&OAuth2::Model::SCHEMA)
 
 RSpec.configure do |config|
   config.after do
-    [Model::Client, Model::AccessCode].each { |k| k.destroy_all }
+    [OAuth2::Model::Client, OAuth2::Model::AccessCode].each { |k| k.destroy_all }
   end
 end
 
