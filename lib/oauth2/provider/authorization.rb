@@ -23,7 +23,7 @@ module OAuth2
         @expires_in  = EXPIRY_TIME
         expiry       = Time.now + EXPIRY_TIME
         
-        Model::AuthorizationCode.create(
+        Model::Authorization.create(
           :client     => @client,
           :code       => @code,
           :scope      => @scope,

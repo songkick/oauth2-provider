@@ -10,7 +10,7 @@ module OAuth2
         t.string :redirect_uri
       end
       
-      create_table :oauth2_authorization_codes, :force => true do |t|
+      create_table :oauth2_authorizations, :force => true do |t|
         t.timestamps
         t.belongs_to :client
         t.string     :code

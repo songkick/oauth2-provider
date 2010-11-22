@@ -5,8 +5,7 @@ module OAuth2
       attr_reader :error, :error_description
       
       REQUIRED_PARAMS    = %w[client_id client_secret grant_type]
-      AUTHORIZATION_CODE = 'authorization_code'
-      VALID_GRANT_TYPES  = [AUTHORIZATION_CODE]
+      VALID_GRANT_TYPES  = %w[authorization_code]
       
       RESPONSE_HEADERS = {
         'Cache-Control' => 'no-store',
@@ -89,7 +88,7 @@ module OAuth2
       end
       
       def validate_scope
-        if @authorization_code and not @authorization_code.in_scope?(scope)
+        if @authorization and not @authorization.in_scope?(scope)
           @error = INVALID_SCOPE
           @error_description = 'The request scope was never granted by the user'
         end
@@ -113,13 +112,13 @@ module OAuth2
         
         return if @error
         
-        @authorization_code = @client.authorization_codes.find_by_code(@params['code'])
-        unless @authorization_code
+        @authorization = @client.authorizations.find_by_code(@params['code'])
+        unless @authorization
           @error = INVALID_GRANT
           @error_description = 'The access grant you supplied is invalid'
         end
         
-        if @authorization_code and @authorization_code.expired?
+        if @authorization and @authorization.expired?
           @error = INVALID_GRANT
           @error_description = 'The access grant you supplied is invalid'
         end

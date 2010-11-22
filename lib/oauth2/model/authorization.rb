@@ -1,8 +1,8 @@
 module OAuth2
   module Model
     
-    class AuthorizationCode < ActiveRecord::Base
-      set_table_name :oauth2_authorization_codes
+    class Authorization < ActiveRecord::Base
+      set_table_name :oauth2_authorizations
       belongs_to :client, :class_name => 'OAuth2::Model::Client'
       
       def expired?

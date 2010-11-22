@@ -141,7 +141,7 @@ describe OAuth2::Provider do
   describe "access token request" do
     before do
       @client = Factory(:client)
-      @authorization_code = Factory(:authorization_code, :client => @client)
+      @authorization = Factory(:authorization, :client => @client)
     end
     
     let(:auth_params)  { { 'client_id'     => @client.client_id,
@@ -158,7 +158,7 @@ describe OAuth2::Provider do
     describe "using authorization_code request" do
       let(:query_params) { { 'client_id'    => @client.client_id,
                              'grant_type'   => 'authorization_code',
-                             'code'         =>  @authorization_code.code,
+                             'code'         =>  @authorization.code,
                              'redirect_uri' => @client.redirect_uri }
                          }
       

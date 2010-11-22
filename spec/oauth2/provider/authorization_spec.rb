@@ -103,14 +103,14 @@ describe OAuth2::Provider::Authorization do
         authorization.expires_in.should == 3600
       end
       
-      it "creates an AuthorizationCode in the database" do
+      it "creates an Authorization in the database" do
         authorization.grant_access!
-        authorization_code = OAuth2::Model::AuthorizationCode.first
-        authorization_code.client.should == @client
-        authorization_code.code.should == "random_string"
-        authorization_code.scope_list.should == %w[foo bar]
+        authorization = OAuth2::Model::Authorization.first
+        authorization.client.should == @client
+        authorization.code.should == "random_string"
+        authorization.scope_list.should == %w[foo bar]
         
-        expiry = authorization_code.expires_at - Time.now
+        expiry = authorization.expires_at - Time.now
         expiry.ceil.should == 3600
       end
     end
@@ -123,8 +123,8 @@ describe OAuth2::Provider::Authorization do
       authorization.error_description.should == "The user denied you access"
     end
     
-    it "does not create an AuthorizationCode" do
-      OAuth2::Model::AuthorizationCode.should_not_receive(:create)
+    it "does not create an Authorization" do
+      OAuth2::Model::Authorization.should_not_receive(:create)
       authorization.deny_access!
     end
   end
