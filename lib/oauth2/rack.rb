@@ -6,16 +6,20 @@ module OAuth2
     
     def self.request(env)
       request = ::Rack::Request.new(env)
+      params  = request.params
       auth    = auth_params(request)
-      params  = auth.merge(request.params)
       
-      klass = if params['grant_type']
-        request.post? ? Provider::Token : Provider::Error
-      else
-        Provider::Authorization
+      if auth['client_id'] and auth['client_id'] != params['client_id']
+        return Provider::Error.new("client_id from Basic Auth and request body do not match")
       end
       
-      klass.new(params)
+      params  = params.merge(auth)
+      
+      if params['grant_type']
+        request.post? ? Provider::Token.new(params) : Provider::Error.new
+      else
+        Provider::Authorization.new(params)
+      end
     end
     
     def self.auth_params(request)

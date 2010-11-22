@@ -2,12 +2,17 @@ module OAuth2
   class Provider
     
     class Error
+      def initialize(message = nil)
+        @message = message
+      end
+      
       def redirect?
         false
       end
       
       def response_body
-        JSON.unparse(:error => INVALID_REQUEST, :error_description => 'Bad request')
+        message = 'Bad request' + (@message ? ": #{@message}" : '')
+        JSON.unparse(:error => INVALID_REQUEST, :error_description => message)
       end
       
       def response_headers

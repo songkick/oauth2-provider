@@ -156,7 +156,8 @@ describe OAuth2::Provider do
     end
     
     describe "using authorization_code request" do
-      let(:query_params) { { 'grant_type'   => 'authorization_code',
+      let(:query_params) { { 'client_id'    => @client.client_id,
+                             'grant_type'   => 'authorization_code',
                              'code'         =>  @authorization_code.code,
                              'redirect_uri' => @client.redirect_uri }
                          }
@@ -204,6 +205,18 @@ describe OAuth2::Provider do
           validate_response(response, 400,
             'error'             => 'invalid_request',
             'error_description' => 'Missing required parameter code'
+          )
+        end
+      end
+      
+      describe "with mismatched client_id in POST params and Basic Auth params" do
+        before { query_params['client_id'] = 'foo' }
+        
+        it "returns an error response" do
+          response = post_basic_auth(auth_params, query_params)
+          validate_response(response, 400,
+            'error'             => 'invalid_request',
+            'error_description' => 'Bad request: client_id from Basic Auth and request body do not match'
           )
         end
       end
