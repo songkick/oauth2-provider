@@ -8,6 +8,14 @@ module OAuth2
       def expired?
         expires_at < Time.now
       end
+      
+      def in_scope?(request_scope)
+        [*request_scope].all?(&scope_list.method(:include?))
+      end
+      
+      def scope_list
+        scope ? scope.split(/\s+/) : []
+      end
     end
     
   end

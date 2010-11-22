@@ -91,7 +91,10 @@ describe OAuth2::Provider::Authorization do
   
   describe "#grant_access!" do
     describe "for code requests" do
-      before { params['response_type'] = 'code' }
+      before do
+        params['response_type'] = 'code'
+        params['scope'] = 'foo bar'
+      end
       
       it "creates a code for the authorization" do
         authorization.grant_access!
@@ -105,6 +108,7 @@ describe OAuth2::Provider::Authorization do
         authorization_code = OAuth2::Model::AuthorizationCode.first
         authorization_code.client.should == @client
         authorization_code.code.should == "random_string"
+        authorization_code.scope_list.should == %w[foo bar]
         
         expiry = authorization_code.expires_at - Time.now
         expiry.ceil.should == 3600

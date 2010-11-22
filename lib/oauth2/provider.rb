@@ -17,6 +17,7 @@ module OAuth2
     UNSUPPORTED_GRANT_TYPE = 'unsupported_grant_type'
     INVALID_GRANT          = 'invalid_grant'
     INVALID_CLIENT         = 'invalid_client'
+    INVALID_SCOPE          = 'invalid_scope'
     ACCESS_DENIED          = 'access_denied'
     
     EXPIRY_TIME          = 3600

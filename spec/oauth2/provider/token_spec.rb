@@ -3,7 +3,7 @@ require 'spec_helper'
 describe OAuth2::Provider::Token do
   before do
     @client = Factory(:client)
-    @authorization_code = Factory(:authorization_code, :client => @client)
+    @authorization_code = Factory(:authorization_code, :client => @client, :scope => 'foo bar')
     OAuth2.stub(:random_string).and_return('random_string')
   end
   
@@ -61,6 +61,23 @@ describe OAuth2::Provider::Token do
       it "is invalid" do
         token.error.should == "invalid_client"
         token.error_description.should == "Parameter client_secret does not match"
+      end
+    end
+    
+    describe "with lesser scope than the authorization code represents" do
+      before { params['scope'] = 'bar' }
+      
+      it "is valid" do
+        token.error.should be_nil
+      end
+    end
+    
+    describe "with scopes not covered by the authorization code" do
+      before { params['scope'] = 'qux' }
+      
+      it "is invalid" do
+        token.error.should == 'invalid_scope'
+        token.error_description.should == 'The request scope was never granted by the user'
       end
     end
   end

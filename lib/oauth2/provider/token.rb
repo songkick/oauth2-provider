@@ -15,8 +15,13 @@ module OAuth2
       
       def initialize(params)
         @params     = params
+        @scope      = params['scope']
         @grant_type = @params['grant_type']
         validate!
+      end
+      
+      def scope
+        @scope ? @scope.split(/\s+/).delete_if { |s| s.empty? } : []
       end
       
       def redirect?
@@ -59,6 +64,7 @@ module OAuth2
         return if @error
         
         __send__("validate_#{@grant_type}")
+        validate_scope
       end
       
       def validate_required_params
@@ -79,6 +85,13 @@ module OAuth2
         if @client and @client.client_secret != @params['client_secret']
           @error = INVALID_CLIENT
           @error_description = 'Parameter client_secret does not match'
+        end
+      end
+      
+      def validate_scope
+        if @authorization_code and not @authorization_code.in_scope?(scope)
+          @error = INVALID_SCOPE
+          @error_description = 'The request scope was never granted by the user'
         end
       end
       

@@ -14,6 +14,7 @@ module OAuth2
         t.timestamps
         t.belongs_to :client
         t.string     :code
+        t.string     :scope
         t.datetime   :expires_at
       end
     end
