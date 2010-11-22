@@ -148,6 +148,13 @@ describe OAuth2::Provider do
                            'client_secret' => @client.client_secret }
                        }
     
+    def validate_response(response, status, body)
+      response.code.to_i.should == status
+      JSON.parse(response.body).should == body
+      response['Content-Type'].should == 'application/json'
+      response['Cache-Control'].should == 'no-store'
+    end
+    
     describe "using authorization_code request" do
       let(:query_params) { { 'grant_type'   => 'authorization_code',
                              'code'         =>  @access_code.code,
@@ -161,13 +168,10 @@ describe OAuth2::Provider do
           OAuth2::Provider::Authorization.should_not_receive(:new)
           OAuth2::Provider::Token.should_not_receive(:new)
           response = get(params)
-          response.code.to_i.should == 400
-          JSON.parse(response.body).should == {
+          validate_response(response, 400,
             'error'             => 'invalid_request',
             'error_description' => 'Bad request'
-          }
-          response['Content-Type'].should == 'application/json'
-          response['Cache-Control'].should == 'no-store'
+          )
         end
         
         it "creates a Token when using Basic Auth" do
@@ -184,14 +188,11 @@ describe OAuth2::Provider do
         
         it "returns a successful response" do
           response = post_basic_auth(auth_params, query_params)
-          response.code.to_i.should == 200
-          JSON.parse(response.body).should == {
+          validate_response(response, 200,
             'access_token'  => 'SlAV32hkKG',
             'expires_in'    => 3600,
             'refresh_token' => '8xLOxBtZp8'
-          }
-          response['Content-Type'].should == 'application/json'
-          response['Cache-Control'].should == 'no-store'
+          )
         end
       end
       
@@ -200,13 +201,10 @@ describe OAuth2::Provider do
         
         it "returns an error response" do
           response = post_basic_auth(auth_params, query_params)
-          response.code.to_i.should == 400
-          JSON.parse(response.body).should == {
+          validate_response(response, 400,
             'error'             => 'invalid_request',
             'error_description' => 'Missing required parameter code'
-          }
-          response['Content-Type'].should == 'application/json'
-          response['Cache-Control'].should == 'no-store'
+          )
         end
       end
     end
