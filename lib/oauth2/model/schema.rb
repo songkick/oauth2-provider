@@ -9,6 +9,7 @@ module OAuth2
         t.string :client_secret
         t.string :redirect_uri
       end
+      add_index :oauth2_clients, :client_id
       
       create_table :oauth2_authorizations, :force => true do |t|
         t.timestamps
@@ -19,6 +20,9 @@ module OAuth2
         t.string     :refresh_token
         t.datetime   :expires_at
       end
+      add_index :oauth2_authorizations, [:client_id, :code]
+      add_index :oauth2_authorizations, [:client_id, :access_token]
+      add_index :oauth2_authorizations, [:client_id, :refresh_token]
     end
     
   end
