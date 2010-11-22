@@ -4,8 +4,8 @@ module OAuth2
     class Authorization
       attr_reader :params, :client, :code, :access_token, :expires_in, :error, :error_description
       
-      REQUIRED_PARAMS      = %w[response_type client_id redirect_uri]
-      VALID_RESPONSES      = %w[code token code_and_token]
+      REQUIRED_PARAMS = %w[response_type client_id redirect_uri]
+      VALID_RESPONSES = %w[code token code_and_token]
       
       def initialize(params)
         @params = params

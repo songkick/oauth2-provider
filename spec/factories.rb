@@ -1,8 +1,8 @@
 require 'factory_girl'
 
 Factory.define :client, :class => OAuth2::Model::Client do |c|
-  c.client_id     's6BhdRkqt3'
-  c.client_secret 'gX1fBat3bV'
+  c.client_id     { OAuth2.random_string }
+  c.client_secret { OAuth2.random_string }
   c.name          'Test client'
   c.redirect_uri  'https://client.example.com/cb'
 end

@@ -5,7 +5,7 @@ describe OAuth2::Provider::Authorization do
   
   let(:params) { { 'response_type' => 'code',
                    'client_id'     => @client.client_id,
-                   'redirect_uri'  => 'https://client.example.com/cb' }
+                   'redirect_uri'  => @client.redirect_uri }
                }
   
   before do

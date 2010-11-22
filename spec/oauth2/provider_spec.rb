@@ -145,12 +145,14 @@ describe OAuth2::Provider do
     end
     
     let(:auth_params)  { { 'client_id'     => @client.client_id,
-                           'client_secret' => @client.client_secret } }
+                           'client_secret' => @client.client_secret }
+                       }
     
     describe "using authorization_code request" do
       let(:query_params) { { 'grant_type'   => 'authorization_code',
                              'code'         =>  @access_code.code,
-                             'redirect_uri' => @client.redirect_uri } }
+                             'redirect_uri' => @client.redirect_uri }
+                         }
       
       let(:params) { auth_params.merge(query_params) }
       

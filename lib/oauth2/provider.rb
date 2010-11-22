@@ -11,11 +11,13 @@ module OAuth2
   end
   
   class Provider
-    INVALID_REQUEST      = 'invalid_request'
-    UNSUPPORTED_RESPONSE = 'unsupported_response_type'
-    REDIRECT_MISMATCH    = 'redirect_uri_mismatch'
-    INVALID_CLIENT       = 'invalid_client'
-    ACCESS_DENIED        = 'access_denied'
+    INVALID_REQUEST        = 'invalid_request'
+    UNSUPPORTED_RESPONSE   = 'unsupported_response_type'
+    REDIRECT_MISMATCH      = 'redirect_uri_mismatch'
+    UNSUPPORTED_GRANT_TYPE = 'unsupported_grant_type'
+    INVALID_GRANT          = 'invalid_grant'
+    INVALID_CLIENT         = 'invalid_client'
+    ACCESS_DENIED          = 'access_denied'
     
     EXPIRY_TIME          = 3600
     
