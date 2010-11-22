@@ -189,7 +189,8 @@ describe OAuth2::Provider do
           response = post_basic_auth(auth_params, query_params)
           response.code.to_i.should == 400
           JSON.parse(response.body).should == {
-            'error' => 'invalid_request'
+            'error'             => 'invalid_request',
+            'error_description' => 'Missing required parameter code'
           }
           response['Content-Type'].should == 'application/json'
           response['Cache-Control'].should == 'no-store'

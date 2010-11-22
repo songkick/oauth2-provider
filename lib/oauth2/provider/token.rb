@@ -24,7 +24,7 @@ module OAuth2
       end
       
       def response_body
-        return JSON.unparse('error' => @error) unless valid?
+        return jsonize(:error, :error_description) unless valid?
         
         JSON.unparse(
           'access_token'  => 'SlAV32hkKG',
@@ -110,6 +110,12 @@ module OAuth2
           @error = INVALID_GRANT
           @error_description = 'The access grant you supplied is invalid'
         end
+      end
+      
+      def jsonize(*ivars)
+        hash = {}
+        ivars.each { |key| hash[key] = instance_variable_get("@#{key}") }
+        JSON.unparse(hash)
       end
     end
     
