@@ -82,6 +82,27 @@ describe OAuth2::Provider::Token do
     end
   end
   
+  shared_examples_for "valid token request" do
+    before do
+      OAuth2.stub(:random_string).and_return('random_access_token', 'random_refresh_token')
+    end
+    
+    it "is valid" do
+      token.error.should be_nil
+    end
+    
+    it "updates the Authorization with tokens" do
+      token.update_authorization
+      authorization.reload
+      authorization.code.should be_nil
+      authorization.access_token.should == 'random_access_token'
+      authorization.refresh_token.should == 'random_refresh_token'
+      
+      expiry = authorization.expires_at - Time.now
+      expiry.ceil.should == 3600
+    end
+  end
+  
   describe "using authorization_code grant type" do
     let(:params) { { 'client_id'     => @client.client_id,
                      'client_secret' => @client.client_secret,
@@ -90,27 +111,12 @@ describe OAuth2::Provider::Token do
                      'redirect_uri'  => @client.redirect_uri }
                  }
     
+    let(:authorization) { @authorization }
+    
     it_should_behave_like "validates required parameters"
     
     describe "with valid parameters" do
-      before do
-        OAuth2.stub(:random_string).and_return('random_access_token', 'random_refresh_token')
-      end
-      
-      it "is valid" do
-        token.error.should be_nil
-      end
-      
-      it "updates the Authorization with tokens" do
-        token.update_authorization
-        @authorization.reload
-        @authorization.code.should be_nil
-        @authorization.access_token.should == 'random_access_token'
-        @authorization.refresh_token.should == 'random_refresh_token'
-        
-        expiry = @authorization.expires_at - Time.now
-        expiry.ceil.should == 3600
-      end
+      it_should_behave_like "valid token request"
     end
     
     describe "missing redirect_uri" do
@@ -165,6 +171,39 @@ describe OAuth2::Provider::Token do
         token.error_description.should == "The access grant you supplied is invalid"
       end
     end
+  end
+  
+  describe "using refresh_token grant type" do
+    before do
+      @refresher = Factory(:authorization, :client => @client,
+                                           :scope  => 'foo bar',
+                                           :code   => nil,
+                                           :refresh_token => 'roflscale')
+    end
+    
+    let(:params) { { 'client_id'     => @client.client_id,
+                     'client_secret' => @client.client_secret,
+                     'grant_type'    => 'refresh_token',
+                     'refresh_token' => 'roflscale' }
+                 }
+    
+    let(:authorization) { @refresher }
+    
+    it_should_behave_like "validates required parameters"
+    
+    describe "with valid parameters" do
+      it_should_behave_like "valid token request"
+    end
+    
+    describe "with unknown refresh_token" do
+      before { params['refresh_token'] = 'woops' }
+      
+      it "is invalid" do
+        token.error.should == "invalid_grant"
+        token.error_description.should == "The access grant you supplied is invalid"
+      end
+    end
+  
   end
 end
 

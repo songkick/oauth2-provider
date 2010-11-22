@@ -5,7 +5,7 @@ module OAuth2
       attr_reader :error, :error_description
       
       REQUIRED_PARAMS    = %w[client_id client_secret grant_type]
-      VALID_GRANT_TYPES  = %w[authorization_code]
+      VALID_GRANT_TYPES  = %w[authorization_code refresh_token]
       
       RESPONSE_HEADERS = {
         'Cache-Control' => 'no-store',
@@ -62,6 +62,12 @@ module OAuth2
       end
       
     private
+      
+      def jsonize(*ivars)
+        hash = {}
+        ivars.each { |key| hash[key] = instance_variable_get("@#{key}") }
+        JSON.unparse(hash)
+      end
       
       def validate!
         validate_required_params
@@ -126,10 +132,7 @@ module OAuth2
         return if @error
         
         @authorization = @client.authorizations.find_by_code(@params['code'])
-        unless @authorization
-          @error = INVALID_GRANT
-          @error_description = 'The access grant you supplied is invalid'
-        end
+        validate_authorization
         
         if @authorization and @authorization.expired?
           @error = INVALID_GRANT
@@ -137,10 +140,16 @@ module OAuth2
         end
       end
       
-      def jsonize(*ivars)
-        hash = {}
-        ivars.each { |key| hash[key] = instance_variable_get("@#{key}") }
-        JSON.unparse(hash)
+      def validate_refresh_token
+        @authorization = @client.authorizations.find_by_refresh_token(@params['refresh_token'])
+        validate_authorization
+      end
+      
+      def validate_authorization
+        unless @authorization
+          @error = INVALID_GRANT
+          @error_description = 'The access grant you supplied is invalid'
+        end
       end
     end
     
