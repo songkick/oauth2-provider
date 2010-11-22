@@ -105,10 +105,61 @@ describe OAuth2::Provider::Authorization do
       
       it "creates an Authorization in the database" do
         authorization.grant_access!
+        
         authorization = OAuth2::Model::Authorization.first
         authorization.client.should == @client
         authorization.code.should == "random_string"
         authorization.scope_list.should == %w[foo bar]
+        
+        expiry = authorization.expires_at - Time.now
+        expiry.ceil.should == 3600
+      end
+    end
+    
+    describe "for token requests" do
+      before { params['response_type'] = 'token' }
+      
+      it "creates a token for the authorization" do
+        authorization.grant_access!
+        authorization.code.should be_nil
+        authorization.access_token.should == "random_string"
+        authorization.refresh_token.should == "random_string"
+        authorization.expires_in.should == 3600
+      end
+      
+      it "creates an Authorization in the database" do
+        authorization.grant_access!
+        
+        authorization = OAuth2::Model::Authorization.first
+        authorization.client.should == @client
+        authorization.code.should be_nil
+        authorization.access_token.should == "random_string"
+        authorization.refresh_token.should == "random_string"
+        
+        expiry = authorization.expires_at - Time.now
+        expiry.ceil.should == 3600
+      end
+    end
+    
+    describe "for code_and_token requests" do
+      before { params['response_type'] = 'code_and_token' }
+      
+      it "creates a code and token for the authorization" do
+        authorization.grant_access!
+        authorization.code.should == "random_string"
+        authorization.access_token.should == "random_string"
+        authorization.refresh_token.should == "random_string"
+        authorization.expires_in.should == 3600
+      end
+      
+      it "creates an Authorization in the database" do
+        authorization.grant_access!
+        
+        authorization = OAuth2::Model::Authorization.first
+        authorization.client.should == @client
+        authorization.code.should == "random_string"
+        authorization.access_token.should == "random_string"
+        authorization.refresh_token.should == "random_string"
         
         expiry = authorization.expires_at - Time.now
         expiry.ceil.should == 3600

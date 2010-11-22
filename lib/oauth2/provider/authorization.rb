@@ -2,7 +2,10 @@ module OAuth2
   class Provider
     
     class Authorization
-      attr_reader :params, :client, :code, :access_token, :expires_in, :error, :error_description
+      attr_reader :params, :client,
+                  :code, :access_token,
+                  :refresh_token, :expires_in,
+                  :error, :error_description
       
       REQUIRED_PARAMS = %w[response_type client_id redirect_uri]
       VALID_RESPONSES = %w[code token code_and_token]
@@ -19,18 +22,32 @@ module OAuth2
       end
       
       def grant_access!
-        @code        = OAuth2.random_string
+        case @params['response_type']
+          when 'code'
+            @code = OAuth2.random_string
+          when 'token'
+            @access_token  = OAuth2.random_string
+            @refresh_token = OAuth2.random_string
+          when 'code_and_token'
+            @code = OAuth2.random_string
+            @access_token  = OAuth2.random_string
+            @refresh_token = OAuth2.random_string
+        end
+        
         @expires_in  = EXPIRY_TIME
         expiry       = Time.now + EXPIRY_TIME
         
         Model::Authorization.create(
-          :client     => @client,
-          :code       => @code,
-          :scope      => @scope,
-          :expires_at => expiry)
+          :client        => @client,
+          :code          => @code,
+          :access_token  => @access_token,
+          :refresh_token => @refresh_token,
+          :scope         => @scope,
+          :expires_at    => expiry)
       end
       
       def deny_access!
+        @code = @access_token = @refresh_token = @expires_in = nil
         @error = ACCESS_DENIED
         @error_description = "The user denied you access"
       end
@@ -40,11 +57,23 @@ module OAuth2
       end
       
       def redirect_uri
-        qs = valid? ?
-             to_query_string(:code, :access_token, :expires_in, :scope, :state) :
-             to_query_string(:error, :error_description, :state)
+        if not valid?
+          query = to_query_string(:error, :error_description, :state)
+          "#{ @params['redirect_uri'] }?#{ query }"
         
-        "#{ @params['redirect_uri'] }?#{ qs }"
+        elsif @params['response_type'] == 'code_and_token'
+          query    = to_query_string(:code, :state)
+          fragment = to_query_string(:access_token, :expires_in, :scope)
+          "#{ @params['redirect_uri'] }#{ query.empty? ? '' : '?' + query }##{ fragment }"
+        
+        elsif @params['response_type'] == 'token'
+          fragment = to_query_string(:access_token, :expires_in, :scope, :state)
+          "#{ @params['redirect_uri'] }##{ fragment }"
+        
+        else
+          query = to_query_string(:code, :expires_in, :scope, :state)
+          "#{ @params['redirect_uri'] }?#{ query }"
+        end
       end
       
       def response_body

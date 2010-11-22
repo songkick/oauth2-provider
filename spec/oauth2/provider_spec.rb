@@ -49,7 +49,7 @@ describe OAuth2::Provider do
   end
   
   describe "authorization request" do
-    describe "with valid parameters" do
+    shared_examples_for "creates authorization" do
       it "creates an authorization" do
         auth = mock_request(OAuth2::Provider::Authorization, :client => @client, :params => {})
         OAuth2::Provider::Authorization.should_receive(:new).with(params).and_return(auth)
@@ -61,6 +61,20 @@ describe OAuth2::Provider do
         response.code.to_i.should == 200
         response.body.should =~ /Do you want to allow Test client/
       end
+    end
+    
+    describe "with valid parameters" do
+      it_should_behave_like "creates authorization"
+    end
+    
+    describe "for token requests" do
+      before { params['response_type'] = 'token' }
+      it_should_behave_like "creates authorization"
+    end
+    
+    describe "for code_and_token requests" do
+      before { params['response_type'] = 'code_and_token' }
+      it_should_behave_like "creates authorization"
     end
     
     describe "with an invalid request" do
@@ -111,29 +125,89 @@ describe OAuth2::Provider do
       before { OAuth2.stub(:random_string).and_return('foo') }
       before { params['allow'] = '1' }
       
-      it "grants access" do
-        mock_auth.should_receive(:grant_access!)
-        allow_or_deny(params)
+      describe "for code requests" do
+        it "grants access" do
+          mock_auth.should_receive(:grant_access!)
+          allow_or_deny(params)
+        end
+        
+        it "redirects to the client with an authorization code" do
+          response = allow_or_deny(params)
+          response.code.to_i.should == 302
+          response['location'].should == 'https://client.example.com/cb?code=foo&expires_in=3600'
+        end
+        
+        it "passes the state parameter through" do
+          params['state'] = 'illinois'
+          response = allow_or_deny(params)
+          response.code.to_i.should == 302
+          response['location'].should == 'https://client.example.com/cb?code=foo&expires_in=3600&state=illinois'
+        end
+        
+        it "passes the scope parameter through" do
+          params['scope'] = 'foo bar'
+          response = allow_or_deny(params)
+          response.code.to_i.should == 302
+          response['location'].should == 'https://client.example.com/cb?code=foo&expires_in=3600&scope=foo%20bar'
+        end
       end
       
-      it "redirects to the client with an authorization code" do
-        response = allow_or_deny(params)
-        response.code.to_i.should == 302
-        response['location'].should == 'https://client.example.com/cb?code=foo&expires_in=3600'
+      describe "for token requests" do
+        before { params['response_type'] = 'token' }
+        
+        it "grants access" do
+          mock_auth.should_receive(:grant_access!)
+          allow_or_deny(params)
+        end
+        
+        it "redirects to the client with an access token" do
+          response = allow_or_deny(params)
+          response.code.to_i.should == 302
+          response['location'].should == 'https://client.example.com/cb#access_token=foo&expires_in=3600'
+        end
+        
+        it "passes the state parameter through" do
+          params['state'] = 'illinois'
+          response = allow_or_deny(params)
+          response.code.to_i.should == 302
+          response['location'].should == 'https://client.example.com/cb#access_token=foo&expires_in=3600&state=illinois'
+        end
+        
+        it "passes the scope parameter through" do
+          params['scope'] = 'foo bar'
+          response = allow_or_deny(params)
+          response.code.to_i.should == 302
+          response['location'].should == 'https://client.example.com/cb#access_token=foo&expires_in=3600&scope=foo%20bar'
+        end
       end
       
-      it "passes the state parameter through" do
-        params['state'] = 'illinois'
-        response = allow_or_deny(params)
-        response.code.to_i.should == 302
-        response['location'].should == 'https://client.example.com/cb?code=foo&expires_in=3600&state=illinois'
-      end
-      
-      it "passes the scope parameter through" do
-        params['scope'] = 'foo bar'
-        response = allow_or_deny(params)
-        response.code.to_i.should == 302
-        response['location'].should == 'https://client.example.com/cb?code=foo&expires_in=3600&scope=foo%20bar'
+      describe "for code_and_token requests" do
+        before { params['response_type'] = 'code_and_token' }
+        
+        it "grants access" do
+          mock_auth.should_receive(:grant_access!)
+          allow_or_deny(params)
+        end
+        
+        it "redirects to the client with an access token" do
+          response = allow_or_deny(params)
+          response.code.to_i.should == 302
+          response['location'].should == 'https://client.example.com/cb?code=foo#access_token=foo&expires_in=3600'
+        end
+        
+        it "passes the state parameter through" do
+          params['state'] = 'illinois'
+          response = allow_or_deny(params)
+          response.code.to_i.should == 302
+          response['location'].should == 'https://client.example.com/cb?code=foo&state=illinois#access_token=foo&expires_in=3600'
+        end
+        
+        it "passes the scope parameter through" do
+          params['scope'] = 'foo bar'
+          response = allow_or_deny(params)
+          response.code.to_i.should == 302
+          response['location'].should == 'https://client.example.com/cb?code=foo#access_token=foo&expires_in=3600&scope=foo%20bar'
+        end
       end
     end
   end
