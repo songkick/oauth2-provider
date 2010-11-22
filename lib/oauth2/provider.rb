@@ -11,6 +11,14 @@ module OAuth2
   end
   
   class Provider
+    INVALID_REQUEST      = 'invalid_request'
+    UNSUPPORTED_RESPONSE = 'unsupported_response_type'
+    REDIRECT_MISMATCH    = 'redirect_uri_mismatch'
+    INVALID_CLIENT       = 'invalid_client'
+    ACCESS_DENIED        = 'access_denied'
+    
+    EXPIRY_TIME          = 3600
+    
     autoload :Authorization, 'oauth2/provider/authorization'
     autoload :Token,         'oauth2/provider/token'
   end

@@ -9,7 +9,11 @@ module TestApp
     
     def handle_authorize
       @request = OAuth2::Rack.request(env)
-      redirect @request.redirect_uri unless @request.valid?
+      redirect @request.redirect_uri if @request.redirect?
+      
+      headers @request.response_headers
+      status  @request.response_status
+      
       @request.response_body || erb(:authorize)
     end
     

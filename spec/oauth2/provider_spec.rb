@@ -6,7 +6,7 @@ describe OAuth2::Provider do
   
   let(:params) { { 'response_type' => 'code',
                    'client_id'     => @client.client_id,
-                   'redirect_uri'  => 'https://client.example.com/cb' }
+                   'redirect_uri'  => @client.redirect_uri }
                }
   
   before do
@@ -35,8 +35,10 @@ describe OAuth2::Provider do
   def mock_request(request_class, stubs = {})
     mock_request = mock(request_class)
     method_stubs = {
-      :valid?        => true,
-      :response_body => nil
+      :redirect?        => false,
+      :response_body    => nil,
+      :response_headers => {},
+      :response_status  => 200
     }.merge(stubs)
     
     method_stubs.each do |method, value|
@@ -139,27 +141,57 @@ describe OAuth2::Provider do
   describe "access token request" do
     before do
       @client = Factory(:client)
-      Factory(:access_code, :client => @client)
+      @access_code = Factory(:access_code, :client => @client)
     end
     
     let(:auth_params)  { { 'client_id'     => @client.client_id,
                            'client_secret' => @client.client_secret } }
     
-    let(:query_params) { { 'grant_type' => 'authorization_code' } }
-    
-    let(:params) { auth_params.merge(query_params) }
-    
-    describe "with valid parameters" do
-      it "creates a Token when using Basic Auth" do
-        token = mock_request(OAuth2::Provider::Token, :response_body => 'Hello')
-        OAuth2::Provider::Token.should_receive(:new).with(params).and_return(token)
-        post_basic_auth(auth_params, query_params)
+    describe "using authorization_code request" do
+      let(:query_params) { { 'grant_type'   => 'authorization_code',
+                             'code'         =>  @access_code.code,
+                             'redirect_uri' => @client.redirect_uri } }
+      
+      let(:params) { auth_params.merge(query_params) }
+      
+      describe "with valid parameters" do
+        it "creates a Token when using Basic Auth" do
+          token = mock_request(OAuth2::Provider::Token, :response_body => 'Hello')
+          OAuth2::Provider::Token.should_receive(:new).with(params).and_return(token)
+          post_basic_auth(auth_params, query_params)
+        end
+        
+        it "creates a Token when passing params in the POST body" do
+          token = mock_request(OAuth2::Provider::Token, :response_body => 'Hello')
+          OAuth2::Provider::Token.should_receive(:new).with(params).and_return(token)
+          post(params)
+        end
+        
+        it "returns a successful response" do
+          response = post_basic_auth(auth_params, query_params)
+          response.code.to_i.should == 200
+          JSON.parse(response.body).should == {
+            'access_token'  => 'SlAV32hkKG',
+            'expires_in'    => 3600,
+            'refresh_token' => '8xLOxBtZp8'
+          }
+          response['Content-Type'].should == 'application/json'
+          response['Cache-Control'].should == 'no-store'
+        end
       end
       
-      it "creates a Token when passing params in the POST body" do
-        token = mock_request(OAuth2::Provider::Token, :response_body => 'Hello')
-        OAuth2::Provider::Token.should_receive(:new).with(params).and_return(token)
-        post(params)
+      describe "with invalid parameters" do
+        before { query_params.delete('code') }
+        
+        it "returns an error response" do
+          response = post_basic_auth(auth_params, query_params)
+          response.code.to_i.should == 400
+          JSON.parse(response.body).should == {
+            'error' => 'invalid_request'
+          }
+          response['Content-Type'].should == 'application/json'
+          response['Cache-Control'].should == 'no-store'
+        end
       end
     end
   end

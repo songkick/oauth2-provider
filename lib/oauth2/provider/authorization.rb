@@ -7,14 +7,6 @@ module OAuth2
       REQUIRED_PARAMS      = %w[response_type client_id redirect_uri]
       VALID_RESPONSES      = %w[code token code_and_token]
       
-      EXPIRY_TIME          = 3600
-      
-      INVALID_REQUEST      = 'invalid_request'
-      UNSUPPORTED_RESPONSE = 'unsupported_response_type'
-      REDIRECT_MISMATCH    = 'redirect_uri_mismatch'
-      INVALID_CLIENT       = 'invalid_client'
-      ACCESS_DENIED        = 'access_denied'
-      
       def initialize(params)
         @params = params
         @scope  = params['scope']
@@ -39,6 +31,10 @@ module OAuth2
         @error_description = "The user denied you access"
       end
       
+      def redirect?
+        not valid?
+      end
+      
       def redirect_uri
         qs = valid? ?
              to_query_string(:code, :access_token, :expires_in, :scope, :state) :
@@ -48,6 +44,14 @@ module OAuth2
       end
       
       def response_body
+      end
+      
+      def response_headers
+        {}
+      end
+      
+      def response_status
+        valid? ? 200 : 302
       end
       
       def valid?
