@@ -157,6 +157,19 @@ describe OAuth2::Provider do
       let(:params) { auth_params.merge(query_params) }
       
       describe "with valid parameters" do
+        it "does not respond to GET" do
+          OAuth2::Provider::Authorization.should_not_receive(:new)
+          OAuth2::Provider::Token.should_not_receive(:new)
+          response = get(params)
+          response.code.to_i.should == 400
+          JSON.parse(response.body).should == {
+            'error'             => 'invalid_request',
+            'error_description' => 'Bad request'
+          }
+          response['Content-Type'].should == 'application/json'
+          response['Cache-Control'].should == 'no-store'
+        end
+        
         it "creates a Token when using Basic Auth" do
           token = mock_request(OAuth2::Provider::Token, :response_body => 'Hello')
           OAuth2::Provider::Token.should_receive(:new).with(params).and_return(token)

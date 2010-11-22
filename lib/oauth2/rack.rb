@@ -7,11 +7,15 @@ module OAuth2
     def self.request(env)
       request = ::Rack::Request.new(env)
       auth    = auth_params(request)
-      params  = request.params
+      params  = auth.merge(request.params)
       
-      params['grant_type'] ?
-        Provider::Token.new(auth.merge(params)) :
-        Provider::Authorization.new(params)
+      klass = if params['grant_type']
+        request.post? ? Provider::Token : Provider::Error
+      else
+        Provider::Authorization
+      end
+      
+      klass.new(params)
     end
     
     def self.auth_params(request)

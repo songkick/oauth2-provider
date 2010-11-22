@@ -23,6 +23,7 @@ module OAuth2
     
     autoload :Authorization, 'oauth2/provider/authorization'
     autoload :Token,         'oauth2/provider/token'
+    autoload :Error,         'oauth2/provider/error'
   end
 end
 
