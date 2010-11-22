@@ -100,13 +100,13 @@ module OAuth2
         
         return if @error
         
-        @access_code = @client.access_codes.find_by_code(@params['code'])
-        unless @access_code
+        @authorization_code = @client.authorization_codes.find_by_code(@params['code'])
+        unless @authorization_code
           @error = INVALID_GRANT
           @error_description = 'The access grant you supplied is invalid'
         end
         
-        if @access_code and @access_code.expired?
+        if @authorization_code and @authorization_code.expired?
           @error = INVALID_GRANT
           @error_description = 'The access grant you supplied is invalid'
         end

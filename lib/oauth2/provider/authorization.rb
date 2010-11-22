@@ -23,7 +23,7 @@ module OAuth2
         @expires_in  = EXPIRY_TIME
         expiry       = Time.now + EXPIRY_TIME
         
-        Model::AccessCode.create(:client => @client, :code => @code, :expires_at => expiry)
+        Model::AuthorizationCode.create(:client => @client, :code => @code, :expires_at => expiry)
       end
       
       def deny_access!

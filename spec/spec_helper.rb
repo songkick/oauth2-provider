@@ -18,7 +18,7 @@ require 'factories'
 
 RSpec.configure do |config|
   config.after do
-    [OAuth2::Model::Client, OAuth2::Model::AccessCode].each { |k| k.delete_all }
+    [OAuth2::Model::Client, OAuth2::Model::AuthorizationCode].each { |k| k.delete_all }
   end
 end
 

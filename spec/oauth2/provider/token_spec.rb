@@ -3,7 +3,7 @@ require 'spec_helper'
 describe OAuth2::Provider::Token do
   before do
     @client = Factory(:client)
-    @access_code = Factory(:access_code, :client => @client)
+    @authorization_code = Factory(:authorization_code, :client => @client)
     OAuth2.stub(:random_string).and_return('random_string')
   end
   
@@ -69,7 +69,7 @@ describe OAuth2::Provider::Token do
     let(:params) { { 'client_id'     => @client.client_id,
                      'client_secret' => @client.client_secret,
                      'grant_type'    => 'authorization_code',
-                     'code'          => @access_code.code,
+                     'code'          => @authorization_code.code,
                      'redirect_uri'  => @client.redirect_uri }
                  }
     
@@ -126,7 +126,7 @@ describe OAuth2::Provider::Token do
     end
     
     describe "with an expired code" do
-      before { @access_code.update_attribute(:expires_at, 1.day.ago) }
+      before { @authorization_code.update_attribute(:expires_at, 1.day.ago) }
       
       it "is invalid" do
         token.error.should == "invalid_grant"
