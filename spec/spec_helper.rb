@@ -7,6 +7,8 @@ require 'oauth2/provider'
 require 'test_app/helper'
 require 'test_app/provider/application'
 
+require 'factories'
+
 require 'thin'
 Thin::Logging.silent = true
 
@@ -16,7 +18,7 @@ ActiveRecord::Schema.define(&OAuth2::Model::SCHEMA)
 
 RSpec.configure do |config|
   config.after do
-    [OAuth2::Model::Client, OAuth2::Model::AccessCode].each { |k| k.destroy_all }
+    [OAuth2::Model::Client, OAuth2::Model::AccessCode].each { |k| k.delete_all }
   end
 end
 

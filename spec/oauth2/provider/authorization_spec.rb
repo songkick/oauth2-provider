@@ -9,10 +9,7 @@ describe OAuth2::Provider::Authorization do
                }
   
   before do
-    @client = OAuth2::Model::Client.create(:client_id    => 's6BhdRkqt3',
-                                           :name         => 'Test client',
-                                           :redirect_uri => 'https://client.example.com/cb')
-    
+    @client = Factory(:client)
     OAuth2.stub(:random_string).and_return('random_string')
   end
   

@@ -13,9 +13,7 @@ describe OAuth2::Provider do
                }
   
   before do
-    @client = OAuth2::Model::Client.create(:client_id    => 's6BhdRkqt3',
-                                           :name         => 'Test client',
-                                           :redirect_uri => 'https://client.example.com/cb')
+    @client = Factory(:client)
   end
   
   def get(query_params)
