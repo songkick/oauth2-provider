@@ -93,8 +93,23 @@ describe OAuth2::Provider::Token do
     it_should_behave_like "validates required parameters"
     
     describe "with valid parameters" do
+      before do
+        OAuth2.stub(:random_string).and_return('random_access_token', 'random_refresh_token')
+      end
+      
       it "is valid" do
         token.error.should be_nil
+      end
+      
+      it "updates the Authorization with tokens" do
+        token.update_authorization
+        @authorization.reload
+        @authorization.code.should be_nil
+        @authorization.access_token.should == 'random_access_token'
+        @authorization.refresh_token.should == 'random_refresh_token'
+        
+        expiry = @authorization.expires_at - Time.now
+        expiry.ceil.should == 3600
       end
     end
     

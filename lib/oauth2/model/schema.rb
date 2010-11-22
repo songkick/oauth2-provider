@@ -13,8 +13,10 @@ module OAuth2
       create_table :oauth2_authorizations, :force => true do |t|
         t.timestamps
         t.belongs_to :client
-        t.string     :code
         t.string     :scope
+        t.string     :code
+        t.string     :access_token
+        t.string     :refresh_token
         t.datetime   :expires_at
       end
     end

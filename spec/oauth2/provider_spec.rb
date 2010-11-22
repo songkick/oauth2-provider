@@ -188,11 +188,13 @@ describe OAuth2::Provider do
         end
         
         it "returns a successful response" do
+          OAuth2.stub(:random_string).and_return('random_access_token', 'random_refresh_token')
+          
           response = post_basic_auth(auth_params, query_params)
           validate_response(response, 200,
-            'access_token'  => 'SlAV32hkKG',
+            'access_token'  => 'random_access_token',
             'expires_in'    => 3600,
-            'refresh_token' => '8xLOxBtZp8'
+            'refresh_token' => 'random_refresh_token'
           )
         end
       end

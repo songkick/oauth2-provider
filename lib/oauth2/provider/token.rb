@@ -29,11 +29,12 @@ module OAuth2
       
       def response_body
         return jsonize(:error, :error_description) unless valid?
+        update_authorization
         
         JSON.unparse(
-          'access_token'  => 'SlAV32hkKG',
+          'access_token'  => @authorization.access_token,
           'expires_in'    => 3600,
-          'refresh_token' => '8xLOxBtZp8')
+          'refresh_token' => @authorization.refresh_token)
       end
       
       def response_headers
@@ -42,6 +43,18 @@ module OAuth2
       
       def response_status
         valid? ? 200 : 400
+      end
+      
+      def update_authorization
+        return if not valid? or @already_updated
+        
+        @authorization.update_attributes(
+          :code          => nil,
+          :access_token  => OAuth2.random_string,
+          :refresh_token => OAuth2.random_string,
+          :expires_at    => Time.now + EXPIRY_TIME)
+        
+        @already_updated = true
       end
       
       def valid?
