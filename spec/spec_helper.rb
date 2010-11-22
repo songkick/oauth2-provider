@@ -3,22 +3,33 @@ $:.unshift(dir + '/../lib')
 $:.unshift(dir)
 
 require 'rubygems'
+
+require 'active_record'
 require 'oauth2/provider'
+
+ActiveRecord::Base.establish_connection(:adapter  => 'sqlite3', :database => 'test.db')
+ActiveRecord::Schema.define(&OAuth2::Model::SCHEMA)
+ActiveRecord::Schema.define do |version|
+  create_table :users, :force => true do |t|
+    t.string :name
+  end
+end
+
 require 'test_app/helper'
 require 'test_app/provider/application'
 
 require 'thin'
 Thin::Logging.silent = true
 
-require 'active_record'
-ActiveRecord::Base.establish_connection(:adapter  => 'sqlite3', :database => 'test.db')
-ActiveRecord::Schema.define(&OAuth2::Model::SCHEMA)
-
 require 'factories'
 
 RSpec.configure do |config|
   config.after do
-    [OAuth2::Model::Client, OAuth2::Model::Authorization].each { |k| k.delete_all }
+    [ OAuth2::Model::Client,
+      OAuth2::Model::Authorization,
+      TestApp::User
+      
+    ].each { |k| k.delete_all }
   end
 end
 

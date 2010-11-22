@@ -23,10 +23,11 @@ module TestApp
     
     post '/allow' do
       @request = OAuth2::Provider::Authorization.new(params)
+      @user = User['bob']
       if params['allow'] == '1'
-        @request.grant_access!
+        @request.grant_access(@user)
       else
-        @request.deny_access!
+        @request.deny_access
       end
       redirect @request.redirect_uri
     end

@@ -1,6 +1,16 @@
 module TestApp
-  module Helper
+  
+  class User < ActiveRecord::Base
+    set_table_name :users
     
+    include OAuth2::ResourceOwner
+    
+    def self.[](name)
+      find_or_create_by_name(name)
+    end
+  end
+  
+  module Helper
     module RackRunner
       def start(port)
         handler = Rack::Handler.get('thin')
@@ -16,7 +26,7 @@ module TestApp
         sleep 0.1 while EM.reactor_running?
       end
     end
-    
   end
+  
 end
 

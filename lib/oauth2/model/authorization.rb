@@ -3,7 +3,12 @@ module OAuth2
     
     class Authorization < ActiveRecord::Base
       set_table_name :oauth2_authorizations
+      belongs_to :oauth2_resource_owner, :polymorphic => true
       belongs_to :client, :class_name => 'OAuth2::Model::Client'
+      
+      def owner
+        oauth2_resource_owner
+      end
       
       def expired?
         expires_at < Time.now

@@ -110,7 +110,7 @@ describe OAuth2::Provider do
       before { params['allow'] = '' }
       
       it "does not grant access" do
-        mock_auth.should_receive(:deny_access!)
+        mock_auth.should_receive(:deny_access)
         allow_or_deny(params)
       end
       
@@ -127,7 +127,7 @@ describe OAuth2::Provider do
       
       describe "for code requests" do
         it "grants access" do
-          mock_auth.should_receive(:grant_access!)
+          mock_auth.should_receive(:grant_access)
           allow_or_deny(params)
         end
         
@@ -156,7 +156,7 @@ describe OAuth2::Provider do
         before { params['response_type'] = 'token' }
         
         it "grants access" do
-          mock_auth.should_receive(:grant_access!)
+          mock_auth.should_receive(:grant_access)
           allow_or_deny(params)
         end
         
@@ -185,7 +185,7 @@ describe OAuth2::Provider do
         before { params['response_type'] = 'code_and_token' }
         
         it "grants access" do
-          mock_auth.should_receive(:grant_access!)
+          mock_auth.should_receive(:grant_access)
           allow_or_deny(params)
         end
         

@@ -13,6 +13,8 @@ module OAuth2
       
       create_table :oauth2_authorizations, :force => true do |t|
         t.timestamps
+        t.string     :oauth2_resource_owner_type
+        t.integer    :oauth2_resource_owner_id
         t.belongs_to :client
         t.string     :scope
         t.string     :code
