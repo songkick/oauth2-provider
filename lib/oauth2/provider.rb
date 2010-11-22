@@ -12,6 +12,7 @@ module OAuth2
   
   class Provider
     autoload :Authorization, 'oauth2/provider/authorization'
+    autoload :Token,         'oauth2/provider/token'
   end
 end
 

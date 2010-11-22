@@ -4,11 +4,8 @@ describe OAuth2::Provider do
   before { TestApp::Provider.start(8000) }
   after  { TestApp::Provider.stop }
   
-  let(:authorization_uri) { 'http://localhost:8000/authorize' }
-  let(:confirmation_uri)  { 'http://localhost:8000/allow' }
-  
   let(:params) { { 'response_type' => 'code',
-                   'client_id'     => 's6BhdRkqt3',
+                   'client_id'     => @client.client_id,
                    'redirect_uri'  => 'https://client.example.com/cb' }
                }
   
@@ -18,22 +15,42 @@ describe OAuth2::Provider do
   
   def get(query_params)
     qs  = params.map { |k,v| "#{ URI.escape k.to_s }=#{ URI.escape v.to_s }" }.join('&')
-    uri = URI.parse(authorization_uri + '?' + qs)
+    uri = URI.parse('http://localhost:8000/authorize?' + qs)
     Net::HTTP.get_response(uri)
   end
   
+  def post_basic_auth(auth_params, query_params)
+    url = "http://#{ auth_params['client_id'] }:#{ auth_params['client_secret'] }@localhost:8000/authorize"
+    Net::HTTP.post_form(URI.parse(url), query_params)
+  end
+  
   def post(query_params)
-    Net::HTTP.post_form(URI.parse(confirmation_uri), query_params)
+    Net::HTTP.post_form(URI.parse('http://localhost:8000/authorize'), query_params)
+  end
+  
+  def allow_or_deny(query_params)
+    Net::HTTP.post_form(URI.parse('http://localhost:8000/allow'), query_params)
+  end
+  
+  def mock_request(request_class, stubs = {})
+    mock_request = mock(request_class)
+    method_stubs = {
+      :valid?        => true,
+      :response_body => nil
+    }.merge(stubs)
+    
+    method_stubs.each do |method, value|
+      mock_request.should_receive(method).and_return(value)
+    end
+    
+    mock_request
   end
   
   describe "authorization request" do
     describe "with valid parameters" do
       it "creates an authorization" do
-        auth = mock(OAuth2::Provider::Authorization)
+        auth = mock_request(OAuth2::Provider::Authorization, :client => @client, :params => {})
         OAuth2::Provider::Authorization.should_receive(:new).with(params).and_return(auth)
-        auth.should_receive(:valid?).and_return(true)
-        auth.should_receive(:client).and_return(@client)
-        auth.should_receive(:params).and_return({})
         get(params)
       end
       
@@ -78,11 +95,11 @@ describe OAuth2::Provider do
       
       it "does not grant access" do
         mock_auth.should_receive(:deny_access!)
-        post(params)
+        allow_or_deny(params)
       end
       
       it "redirects to the client with an error" do
-        response = post(params)
+        response = allow_or_deny(params)
         response.code.to_i.should == 302
         response['location'].should == 'https://client.example.com/cb?error=access_denied&error_description=The%20user%20denied%20you%20access'
       end
@@ -94,27 +111,55 @@ describe OAuth2::Provider do
       
       it "grants access" do
         mock_auth.should_receive(:grant_access!)
-        post(params)
+        allow_or_deny(params)
       end
       
       it "redirects to the client with an authorization code" do
-        response = post(params)
+        response = allow_or_deny(params)
         response.code.to_i.should == 302
         response['location'].should == 'https://client.example.com/cb?code=foo&expires_in=3600'
       end
       
       it "passes the state parameter through" do
         params['state'] = 'illinois'
-        response = post(params)
+        response = allow_or_deny(params)
         response.code.to_i.should == 302
         response['location'].should == 'https://client.example.com/cb?code=foo&expires_in=3600&state=illinois'
       end
       
       it "passes the scope parameter through" do
         params['scope'] = 'foo bar'
-        response = post(params)
+        response = allow_or_deny(params)
         response.code.to_i.should == 302
         response['location'].should == 'https://client.example.com/cb?code=foo&expires_in=3600&scope=foo%20bar'
+      end
+    end
+  end
+  
+  describe "access token request" do
+    before do
+      @client = Factory(:client)
+      Factory(:access_code, :client => @client)
+    end
+    
+    let(:auth_params)  { { 'client_id'     => @client.client_id,
+                           'client_secret' => @client.client_secret } }
+    
+    let(:query_params) { { 'grant_type' => 'authorization_code' } }
+    
+    let(:params) { auth_params.merge(query_params) }
+    
+    describe "with valid parameters" do
+      it "creates a Token when using Basic Auth" do
+        token = mock_request(OAuth2::Provider::Token, :response_body => 'Hello')
+        OAuth2::Provider::Token.should_receive(:new).with(params).and_return(token)
+        post_basic_auth(auth_params, query_params)
+      end
+      
+      it "creates a Token when passing params in the POST body" do
+        token = mock_request(OAuth2::Provider::Token, :response_body => 'Hello')
+        OAuth2::Provider::Token.should_receive(:new).with(params).and_return(token)
+        post(params)
       end
     end
   end

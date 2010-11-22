@@ -47,6 +47,9 @@ module OAuth2
         "#{ @params['redirect_uri'] }?#{ qs }"
       end
       
+      def response_body
+      end
+      
       def valid?
         @error.nil?
       end

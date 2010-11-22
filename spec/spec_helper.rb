@@ -7,14 +7,14 @@ require 'oauth2/provider'
 require 'test_app/helper'
 require 'test_app/provider/application'
 
-require 'factories'
-
 require 'thin'
 Thin::Logging.silent = true
 
 require 'active_record'
 ActiveRecord::Base.establish_connection(:adapter  => 'sqlite3', :database => 'test.db')
 ActiveRecord::Schema.define(&OAuth2::Model::SCHEMA)
+
+require 'factories'
 
 RSpec.configure do |config|
   config.after do

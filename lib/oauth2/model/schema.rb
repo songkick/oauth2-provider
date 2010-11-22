@@ -4,8 +4,9 @@ module OAuth2
     SCHEMA = lambda do |version|
       create_table :oauth2_clients, :force => true do |t|
         t.timestamps
-        t.string :client_id
         t.string :name
+        t.string :client_id
+        t.string :client_secret
         t.string :redirect_uri
       end
       

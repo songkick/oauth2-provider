@@ -7,10 +7,14 @@ module TestApp
     
     set :views, File.dirname(__FILE__) + '/views'
     
-    get '/authorize' do
+    def handle_authorize
       @request = OAuth2::Rack.request(env)
       redirect @request.redirect_uri unless @request.valid?
-      erb :authorize
+      @request.response_body || erb(:authorize)
+    end
+    
+    [:get, :post].each do |method|
+      __send__(method, '/authorize') { handle_authorize }
     end
     
     post '/allow' do
