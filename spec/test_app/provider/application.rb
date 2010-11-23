@@ -17,6 +17,16 @@ module TestApp
       @request.response_body || erb(:authorize)
     end
     
+    def serve_protected_resource
+      @user = User['Bob']
+      @auth = OAuth2::Rack.access_token(env)
+      if @user.grants_access?(@auth, 'profile')
+        JSON.unparse('data' => 'Top secret')
+      else
+        JSON.unparse('data' => 'No soup for you')
+      end
+    end
+    
     [:get, :post].each do |method|
       __send__(method, '/authorize') { handle_authorize }
     end
@@ -32,14 +42,8 @@ module TestApp
       redirect @request.redirect_uri
     end
     
-    get '/user_profile' do
-      @user = User['Bob']
-      @auth = OAuth2::Rack.access_token(env)
-      if @user.grants_access?(@auth, 'profile')
-        JSON.unparse('data' => 'Top secret')
-      else
-        JSON.unparse('data' => 'No soup for you')
-      end
+    [:get, :post].each do |method|
+      __send__(method, '/user_profile') { serve_protected_resource }
     end
     
   end

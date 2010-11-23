@@ -32,12 +32,6 @@ describe OAuth2::Provider do
     Net::HTTP.post_form(URI.parse('http://localhost:8000/authorize'), query_params)
   end
   
-  def get_resource(params = {})
-    qs  = params.map { |k,v| "#{ URI.escape k.to_s }=#{ URI.escape v.to_s }" }.join('&')
-    uri = URI.parse('http://localhost:8000/user_profile?' + qs)
-    Net::HTTP.get_response(uri)
-  end
-  
   def mock_request(request_class, stubs = {})
     mock_request = mock(request_class)
     method_stubs = {
@@ -317,32 +311,64 @@ describe OAuth2::Provider do
         :access_token => 'magic-key',
         :scope  => 'profile')
     end
-    
-    it "allows access when the key is passed in the query string" do
-      response = get_resource('access_token' => 'magic-key')
-      JSON.parse(response.body)['data'].should == 'Top secret'
+      
+    shared_examples_for "protected resource" do
+      it "allows access when the key is passed" do
+        response = request('access_token' => 'magic-key')
+        JSON.parse(response.body)['data'].should == 'Top secret'
+      end
+      
+      it "blocks access when the wrong key is passed" do
+        response = request('access_token' => 'is-the-password-books')
+        JSON.parse(response.body)['data'].should == 'No soup for you'
+      end
+      
+      it "blocks access when the key is for the wrong user" do
+        @authorization.update_attribute(:owner, TestApp::User['Alice'])
+        response = request('access_token' => 'magic-key')
+        JSON.parse(response.body)['data'].should == 'No soup for you'
+      end
+      
+      it "blocks access when the key is for the wrong scope" do
+        @authorization.update_attribute(:scope, 'wall')
+        response = request('access_token' => 'magic-key')
+        JSON.parse(response.body)['data'].should == 'No soup for you'
+      end
+      
+      it "blocks access when no key is passed" do
+        response = request
+        JSON.parse(response.body)['data'].should == 'No soup for you'
+      end
     end
     
-    it "blocks access when the wrong key is passed in the query string" do
-      response = get_resource('access_token' => 'is-the-password-books')
-      JSON.parse(response.body)['data'].should == 'No soup for you'
+    describe "for header-based requests" do
+      def request(params = {})
+        access_token = params.delete('access_token')
+        http   = Net::HTTP.new('localhost', 8000)
+        qs     = params.map { |k,v| "#{ URI.escape k.to_s }=#{ URI.escape v.to_s }" }.join('&')
+        header = {'Authorization' => "OAuth #{access_token}"}
+        http.request_get('/user_profile?' + qs, header)
+      end
+      
+      it_should_behave_like "protected resource"
     end
     
-    it "blocks access when the key is for the wrong user" do
-      @authorization.update_attribute(:owner, TestApp::User['Alice'])
-      response = get_resource('access_token' => 'magic-key')
-      JSON.parse(response.body)['data'].should == 'No soup for you'
+    describe "for GET requests" do
+      def request(params = {})
+        qs  = params.map { |k,v| "#{ URI.escape k.to_s }=#{ URI.escape v.to_s }" }.join('&')
+        uri = URI.parse('http://localhost:8000/user_profile?' + qs)
+        Net::HTTP.get_response(uri)
+      end
+      
+      it_should_behave_like "protected resource"
     end
     
-    it "blocks access when the key is for the wrong scope" do
-      @authorization.update_attribute(:scope, 'wall')
-      response = get_resource('access_token' => 'magic-key')
-      JSON.parse(response.body)['data'].should == 'No soup for you'
-    end
-    
-    it "blocks access when no key is passed in the query string" do
-      response = get_resource
-      JSON.parse(response.body)['data'].should == 'No soup for you'
+    describe "for POST requests" do
+      def request(params = {})
+        Net::HTTP.post_form(URI.parse('http://localhost:8000/user_profile'), params)
+      end
+      
+      it_should_behave_like "protected resource"
     end
   end
 end

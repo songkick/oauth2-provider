@@ -24,6 +24,7 @@ module OAuth2
       end
       add_index :oauth2_authorizations, [:client_id, :code]
       add_index :oauth2_authorizations, [:access_token]
+      add_index :oauth2_authorizations, [:client_id, :access_token]
       add_index :oauth2_authorizations, [:client_id, :refresh_token]
     end
     

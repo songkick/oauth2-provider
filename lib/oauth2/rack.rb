@@ -31,7 +31,12 @@ module OAuth2
     
     def self.access_token(env)
       request = ::Rack::Request.new(env)
-      request.params['access_token']
+      header  = request.env['HTTP_AUTHORIZATION']
+      if header
+        header.gsub(/^OAuth\s+/, '')
+      else
+        request.params['access_token']
+      end
     end
     
   end
