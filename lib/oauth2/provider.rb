@@ -3,9 +3,11 @@ require 'net/http'
 require 'oauth2/rack'
 
 module OAuth2
-  autoload :Model,         'oauth2/model'
-  autoload :SCHEMA,        'oauth2/provider/schema'
-  autoload :ResourceOwner, 'oauth2/resource_owner'
+  ROOT = File.expand_path(File.dirname(__FILE__) + '/..')
+  
+  autoload :Model,         ROOT + '/oauth2/model'
+  autoload :SCHEMA,        ROOT + '/oauth2/provider/schema'
+  autoload :ResourceOwner, ROOT + '/oauth2/resource_owner'
   
   def self.random_string
     rand(2 ** 128).to_s(36)
@@ -23,9 +25,9 @@ module OAuth2
     
     EXPIRY_TIME          = 3600
     
-    autoload :Authorization, 'oauth2/provider/authorization'
-    autoload :Token,         'oauth2/provider/token'
-    autoload :Error,         'oauth2/provider/error'
+    autoload :Authorization, ROOT + '/oauth2/provider/authorization'
+    autoload :Token,         ROOT + '/oauth2/provider/token'
+    autoload :Error,         ROOT + '/oauth2/provider/error'
   end
 end
 
