@@ -27,9 +27,19 @@ describe OAuth2::Model::Authorization do
   describe "when there are existing authorizations" do
     before do
       OAuth2::Model::Authorization.create(
-        :owner        => user,
-        :client       => impostor,
-        :access_token => 'foo')
+        :owner         => user,
+        :client        => impostor,
+        :access_token  => 'existing_access_token')
+        
+      OAuth2::Model::Authorization.create(
+        :owner         => owner,
+        :client        => client,
+        :code          => 'existing_code')
+        
+      OAuth2::Model::Authorization.create(
+        :owner         => owner,
+        :client        => client,
+        :refresh_token => 'existing_refresh_token')
     end
     
     it "is valid if its access_token is unique" do
@@ -43,25 +53,61 @@ describe OAuth2::Model::Authorization do
     end
     
     it "is not valid if its access_token is not unique" do
-      authorization.access_token = 'foo'
+      authorization.access_token = 'existing_access_token'
       authorization.should_not be_valid
     end
     
-    describe "#update_tokens" do
-      before do
-        authorization # load before stubbing random_string
-        OAuth2.stub(:random_string).and_return('foo', 'bar')
+    it "is valid if it has a unique code for its client" do
+      authorization.client = impostor
+      authorization.code = 'existing_code'
+      authorization.should be_valid
+    end
+    
+    it "is not valid if it does not have a unique client and code" do
+      authorization.code = 'existing_code'
+      authorization.should_not be_valid
+    end
+    
+    it "is valid if it has a unique refresh_token for its client" do
+      authorization.client = impostor
+      authorization.refresh_token = 'existing_refresh_token'
+      authorization.should be_valid
+    end
+    
+    it "is not valid if it does not have a unique client and refresh_token" do
+      authorization.refresh_token = 'existing_refresh_token'
+      authorization.should_not be_valid
+    end
+    
+    describe ".create_code" do
+      before { OAuth2.stub(:random_string).and_return('existing_code', 'new_code') }
+      
+      it "returns the first code the client has not used" do
+        OAuth2::Model::Authorization.create_code(client).should == 'new_code'
       end
       
-      it "saves the record" do
-        authorization.should_receive(:save)
-        authorization.update_tokens
+      it "returns the first code another client has not used" do
+        OAuth2::Model::Authorization.create_code(impostor).should == 'existing_code'
+      end
+    end
+    
+    describe ".create_access_token" do
+      before { OAuth2.stub(:random_string).and_return('existing_access_token', 'new_access_token') }
+      
+      it "returns the first unused token it can find" do
+        OAuth2::Model::Authorization.create_access_token.should == 'new_access_token'
+      end
+    end
+    
+    describe ".create_refresh_token" do
+      before { OAuth2.stub(:random_string).and_return('existing_refresh_token', 'new_refresh_token') }
+      
+      it "returns the first refresh_token the client has not used" do
+        OAuth2::Model::Authorization.create_refresh_token(client).should == 'new_refresh_token'
       end
       
-      it "tries tokens until it gets a unique one" do
-        authorization.update_tokens
-        authorization.should be_valid
-        authorization.access_token.should == 'bar'
+      it "returns the first refresh_token another client has not used" do
+        OAuth2::Model::Authorization.create_refresh_token(impostor).should == 'existing_refresh_token'
       end
     end
   end
@@ -144,6 +190,21 @@ describe OAuth2::Model::Authorization do
       it "returns false given the wrong user and an authorized scope" do
         authorization.grants_access?(user, 'foo').should be_false
       end
+    end
+  end
+  
+  describe "#update_tokens" do
+    it "saves the record" do
+      authorization.should_receive(:save)
+      authorization.update_tokens
+    end
+    
+    it "uses its helpers to find unique tokens" do
+      OAuth2::Model::Authorization.should_receive(:create_access_token).and_return('access_token')
+      OAuth2::Model::Authorization.should_receive(:create_refresh_token).with(client).and_return('refresh_token')
+      authorization.update_tokens
+      authorization.should be_valid
+      authorization.access_token.should == 'access_token'
     end
   end
 end
