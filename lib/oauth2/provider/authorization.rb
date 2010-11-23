@@ -22,29 +22,15 @@ module OAuth2
       end
       
       def grant_access(resource_owner)
-        case @params['response_type']
-          when 'code'
-            @code = OAuth2.random_string
-          when 'token'
-            @access_token  = OAuth2.random_string
-            @refresh_token = OAuth2.random_string
-          when 'code_and_token'
-            @code = OAuth2.random_string
-            @access_token  = OAuth2.random_string
-            @refresh_token = OAuth2.random_string
-        end
+        model = Model::Authorization.create_for_response_type(@params['response_type'],
+          :owner  => resource_owner,
+          :client => @client,
+          :scope  => @scope)
         
-        @expires_in  = EXPIRY_TIME
-        expiry       = Time.now + EXPIRY_TIME
-        
-        Model::Authorization.create(
-          :oauth2_resource_owner => resource_owner,
-          :client        => @client,
-          :code          => @code,
-          :access_token  => @access_token,
-          :refresh_token => @refresh_token,
-          :scope         => @scope,
-          :expires_at    => expiry)
+        @code          = model.code
+        @access_token  = model.access_token
+        @refresh_token = model.refresh_token
+        @expires_in    = model.expires_in
       end
       
       def deny_access
