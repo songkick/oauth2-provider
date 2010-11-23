@@ -72,8 +72,8 @@ module OAuth2
         (expires_at - Time.now).ceil
       end
       
-      def grants_access?(user, *scope)
-        not expired? and user == owner and in_scope?(scope)
+      def grants_access?(user, *scopes)
+        not expired? and user == owner and in_scope?(scopes)
       end
       
       def in_scope?(request_scope)

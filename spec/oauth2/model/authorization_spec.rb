@@ -179,7 +179,7 @@ describe OAuth2::Model::Authorization do
         authorization.grants_access?(owner, 'qux').should be_false
       end
       
-      it "returns false given the right user" do
+      it "returns true given the right user" do
         authorization.grants_access?(owner).should be_true
       end
       

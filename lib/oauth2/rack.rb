@@ -4,6 +4,13 @@ require 'base64'
 module OAuth2
   class Rack
     
+    def self.auth_params(request)
+      return {} unless basic = request.env['HTTP_AUTHORIZATION']
+      parts = basic.split(/\s+/)
+      username, password = Base64.decode64(parts.last).split(':')
+      {'client_id' => username, 'client_secret' => password}
+    end
+    
     def self.request(env)
       request = ::Rack::Request.new(env)
       params  = request.params
@@ -22,11 +29,9 @@ module OAuth2
       end
     end
     
-    def self.auth_params(request)
-      return {} unless basic = request.env['HTTP_AUTHORIZATION']
-      parts = basic.split(/\s+/)
-      username, password = Base64.decode64(parts.last).split(':')
-      {'client_id' => username, 'client_secret' => password}
+    def self.access_token(env)
+      request = ::Rack::Request.new(env)
+      request.params['access_token']
     end
     
   end
