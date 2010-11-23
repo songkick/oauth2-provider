@@ -91,7 +91,7 @@ describe OAuth2::Provider::Authorization do
     end
   end
   
-  describe "#grant_access" do
+  describe "#grant_access!" do
     describe "for code requests" do
       before do
         params['response_type'] = 'code'
@@ -99,14 +99,14 @@ describe OAuth2::Provider::Authorization do
       end
       
       it "creates a code for the authorization" do
-        authorization.grant_access(resource_owner)
+        authorization.grant_access!(resource_owner)
         authorization.code.should == "random_string"
         authorization.access_token.should be_nil
         authorization.expires_in.should == 3600
       end
       
       it "creates an Authorization in the database" do
-        authorization.grant_access(resource_owner)
+        authorization.grant_access!(resource_owner)
         
         authorization = OAuth2::Model::Authorization.first
         authorization.owner.should == resource_owner
@@ -123,7 +123,7 @@ describe OAuth2::Provider::Authorization do
       before { params['response_type'] = 'token' }
       
       it "creates a token for the authorization" do
-        authorization.grant_access(resource_owner)
+        authorization.grant_access!(resource_owner)
         authorization.code.should be_nil
         authorization.access_token.should == "random_string"
         authorization.refresh_token.should == "random_string"
@@ -131,7 +131,7 @@ describe OAuth2::Provider::Authorization do
       end
       
       it "creates an Authorization in the database" do
-        authorization.grant_access(resource_owner)
+        authorization.grant_access!(resource_owner)
         
         authorization = OAuth2::Model::Authorization.first
         authorization.owner.should == resource_owner
@@ -149,7 +149,7 @@ describe OAuth2::Provider::Authorization do
       before { params['response_type'] = 'code_and_token' }
       
       it "creates a code and token for the authorization" do
-        authorization.grant_access(resource_owner)
+        authorization.grant_access!(resource_owner)
         authorization.code.should == "random_string"
         authorization.access_token.should == "random_string"
         authorization.refresh_token.should == "random_string"
@@ -157,7 +157,7 @@ describe OAuth2::Provider::Authorization do
       end
       
       it "creates an Authorization in the database" do
-        authorization.grant_access(resource_owner)
+        authorization.grant_access!(resource_owner)
         
         authorization = OAuth2::Model::Authorization.first
         authorization.owner.should == resource_owner
@@ -172,16 +172,16 @@ describe OAuth2::Provider::Authorization do
     end
   end
   
-  describe "#deny_access!" do
+  describe "#deny_access!!" do
     it "puts the authorization in an error state" do
-      authorization.deny_access
+      authorization.deny_access!
       authorization.error.should == "access_denied"
       authorization.error_description.should == "The user denied you access"
     end
     
     it "does not create an Authorization" do
       OAuth2::Model::Authorization.should_not_receive(:create)
-      authorization.deny_access
+      authorization.deny_access!
     end
   end
 end

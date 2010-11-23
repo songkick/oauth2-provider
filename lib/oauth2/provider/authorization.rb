@@ -21,7 +21,7 @@ module OAuth2
         @scope ? @scope.split(/\s+/).delete_if { |s| s.empty? } : []
       end
       
-      def grant_access(resource_owner)
+      def grant_access!(resource_owner)
         model = Model::Authorization.create_for_response_type(@params['response_type'],
           :owner  => resource_owner,
           :client => @client,
@@ -33,7 +33,7 @@ module OAuth2
         @expires_in    = model.expires_in
       end
       
-      def deny_access
+      def deny_access!
         @code = @access_token = @refresh_token = @expires_in = nil
         @error = ACCESS_DENIED
         @error_description = "The user denied you access"
