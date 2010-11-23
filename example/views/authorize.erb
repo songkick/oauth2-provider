@@ -5,6 +5,7 @@
 
 <ul>
   <% @oauth2.scope.each do |scope| %>
+    <% next unless PERMISSIONS[scope] %>
     <li><%= PERMISSIONS[scope] %></li>
   <% end %>
 </ul>
