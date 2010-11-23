@@ -1,0 +1,27 @@
+<h3>Authorize OAuth client</h3>
+
+<p>This application <b><%= @oauth2.client.name %></b> wants
+  the following permissions:</p>
+
+<ul>
+  <% @oauth2.scope.each do |scope| %>
+    <li><%= PERMISSIONS[scope] %></li>
+  <% end %>
+</ul>
+
+<form method="post" action="/oauth/allow">
+  <% @oauth2.params.each do |key, value| %>
+    <input type="hidden" name="<%= key %>" value="<%= value %>">
+  <% end %>
+  <input type="hidden" name="user_id" value="<%= @user.id %>">
+  
+  <fieldset>
+    <input type="checkbox" name="allow" id="allow" value="1">
+    <label for="allow">Allow this application</label>
+  </fieldset>
+  
+  <fieldset>
+    <input type="submit" value="Go!">
+  </fieldset>
+</form>
+

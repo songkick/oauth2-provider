@@ -1,0 +1,13 @@
+<h3>Client app: <%= @client.name %></h3>
+
+<table>
+  <tbody>
+    <% %w[name client_id client_secret].each do |field| %>
+      <tr>
+        <th scope="row"><%= field %></th>
+        <td><%= @client.attributes[field] %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+

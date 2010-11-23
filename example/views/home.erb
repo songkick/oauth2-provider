@@ -1,0 +1,25 @@
+<p>Welcome to the <b>Songkick OAuth 2.0 demo</b>. The endpoint you should direct
+  users to is:</p>
+
+<pre>    <%= host %>/oauth/authorize</pre>
+
+<p>This handles both user authorization and token exchange requests. Before you
+can use this though, you&rsquo;ll need to register your application.</p>
+
+<ul>
+  <li><a href="/oauth/apps/new">Register your application</a></li>
+</ul>
+
+<p>This application is a note-taking app. It exposes a JSON API for reading a
+  user&rsquo;s notes, but you need an access token for this. Use the OAuth
+  protocol to get one, or see if you can hack in without permission! When
+  requesting access, be sure to ask for the <b><code>read_notes</code></b>
+  scope.</p>
+
+<p>The following resources are available:</p>
+
+<ul>
+  <li><code>/users/:user_id/notes</code></li>
+  <li><code>/users/:user_id/notes/:note_id</code></li>
+</ul>
+
