@@ -10,7 +10,7 @@ describe OAuth2::Provider do
                }
   
   before do
-    @client = Factory(:client)
+    @client = Factory(:client, :name => 'Test client')
   end
   
   def get(query_params)
@@ -215,7 +215,8 @@ describe OAuth2::Provider do
   describe "access token request" do
     before do
       @client = Factory(:client)
-      @authorization = Factory(:authorization, :client => @client)
+      @owner  = Factory(:owner)
+      @authorization = Factory(:authorization, :client => @client, :owner => @owner)
     end
     
     let(:auth_params)  { { 'client_id'     => @client.client_id,

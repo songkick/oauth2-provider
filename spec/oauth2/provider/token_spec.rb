@@ -3,7 +3,8 @@ require 'spec_helper'
 describe OAuth2::Provider::Token do
   before do
     @client = Factory(:client)
-    @authorization = Factory(:authorization, :client => @client, :scope => 'foo bar')
+    @owner  = Factory(:owner)
+    @authorization = Factory(:authorization, :client => @client, :owner => @owner, :scope => 'foo bar')
     OAuth2.stub(:random_string).and_return('random_string')
   end
   
@@ -176,6 +177,7 @@ describe OAuth2::Provider::Token do
   describe "using refresh_token grant type" do
     before do
       @refresher = Factory(:authorization, :client => @client,
+                                           :owner  => @owner,
                                            :scope  => 'foo bar',
                                            :code   => nil,
                                            :refresh_token => 'roflscale')

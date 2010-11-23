@@ -47,13 +47,7 @@ module OAuth2
       
       def update_authorization
         return if not valid? or @already_updated
-        
-        @authorization.update_attributes(
-          :code          => nil,
-          :access_token  => OAuth2.random_string,
-          :refresh_token => OAuth2.random_string,
-          :expires_at    => Time.now + EXPIRY_TIME)
-        
+        @authorization.update_tokens
         @already_updated = true
       end
       
