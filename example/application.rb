@@ -43,7 +43,13 @@ end
 # /oauth/authorize?response_type=token&client_id=7uljxxdgsksmecn5cycvug46v&redirect_uri=http%3A%2F%2Fexample.com%2Fcb&scope=read_notes
 [:get, :post].each do |method|
   __send__ method, '/oauth/authorize' do
-    respond_to_oauth { erb(:login) }
+    @oauth2 = OAuth2::Provider.parse(request)
+    redirect @oauth2.redirect_uri if @oauth2.redirect?
+        
+    headers @oauth2.response_headers
+    status  @oauth2.response_status
+    
+    @oauth2.response_body || erb(:login)
   end
 end
 
@@ -97,18 +103,6 @@ end
 
 
 helpers do
-  #================================================================
-  # Generic handler for incoming OAuth requests
-  def respond_to_oauth
-    @oauth2 = OAuth2::Provider.parse(request)
-    redirect @oauth2.redirect_uri if @oauth2.redirect?
-        
-    headers @oauth2.response_headers
-    status  @oauth2.response_status
-    
-    @oauth2.response_body || yield
-  end
-  
   #================================================================
   # Check for OAuth access before rendering a resource
   def verify_access(scope)
