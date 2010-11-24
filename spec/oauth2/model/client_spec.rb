@@ -21,6 +21,11 @@ describe OAuth2::Model::Client do
     @client.should_not be_valid
   end
   
+  it "is invalid with a non-URI redirect_uri" do
+    @client.redirect_uri = 'foo'
+    @client.should_not be_valid
+  end
+  
   it "cannot mass-assign client_id" do
     @client.update_attributes(:client_id => 'foo')
     @client.client_id.should_not == 'foo'

@@ -7,6 +7,7 @@ module OAuth2
       
       validates_uniqueness_of :client_id
       validates_presence_of   :name, :redirect_uri
+      validate :check_format_of_redirect_uri
       
       attr_accessible :name, :redirect_uri
       
@@ -16,6 +17,15 @@ module OAuth2
         OAuth2.generate_id do |client_id|
           count(:conditions => {:client_id => client_id}).zero?
         end
+      end
+      
+    private
+      
+      def check_format_of_redirect_uri
+        uri = URI.parse(redirect_uri)
+        errors.add(:redirect_uri, 'must be an absolute URI') unless uri.absolute?
+      rescue
+        errors.add(:redirect_uri, 'must be a URI')
       end
       
       def generate_credentials
