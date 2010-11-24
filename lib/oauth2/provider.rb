@@ -22,6 +22,8 @@ module OAuth2
   end
   
   class Provider
+    VERSION = '0.1.0'
+    
     def self.parse(*args)
       Router.parse(*args)
     end
