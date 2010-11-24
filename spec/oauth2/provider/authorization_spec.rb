@@ -176,5 +176,22 @@ describe OAuth2::Provider::Authorization do
       authorization.deny_access!
     end
   end
+  
+  describe "#params" do
+    before do
+      params['scope'] = params['state'] = 'valid'
+      params['controller'] = 'invalid'
+    end
+    
+    it "only exposes OAuth-related parameters" do
+      authorization.params.should == {
+        'response_type' => 'code',
+        'client_id'     => @client.client_id,
+        'redirect_uri'  => @client.redirect_uri,
+        'state'         => 'valid',
+        'scope'         => 'valid'
+      }
+    end
+  end
 end
 

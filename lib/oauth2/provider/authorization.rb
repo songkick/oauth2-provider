@@ -2,12 +2,11 @@ module OAuth2
   class Provider
     
     class Authorization
-      attr_reader :params, :client,
-                  :code, :access_token,
-                  :refresh_token,
+      attr_reader :client, :code, :access_token, :refresh_token,
                   :error, :error_description
       
       REQUIRED_PARAMS = %w[response_type client_id redirect_uri]
+      VALID_PARAMS    = REQUIRED_PARAMS + %w[scope state]
       VALID_RESPONSES = %w[code token code_and_token]
       
       def initialize(params)
@@ -36,6 +35,11 @@ module OAuth2
         @code = @access_token = @refresh_token = nil
         @error = ACCESS_DENIED
         @error_description = "The user denied you access"
+      end
+      
+      def params
+        pairs = VALID_PARAMS.map { |key| [key, @params[key]] }
+        Hash[pairs]
       end
       
       def redirect?
