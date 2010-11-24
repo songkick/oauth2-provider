@@ -15,7 +15,7 @@ environment, namely they:
 * respond to <tt>#env</tt>, returning the HTTP environment <tt>Hash</tt>
 
 It stores the clients and authorizations using ActiveRecord; the schema is in
-<tt>oauth2/provider/model/schema.rb</tt>. Run it to update your database to
+<tt>lib/oauth2/model/schema.rb</tt>. Run it to update your database to
 store OAuth data:
 
   OAuth2::Model::Schema.up
