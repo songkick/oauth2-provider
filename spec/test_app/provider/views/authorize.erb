@@ -1,9 +1,9 @@
 <h1>Authorize OAuth client</h1>
 
-<p>Do you want to allow <%= @request.client.name %> to act on your behalf?</p>
+<p>Do you want to allow <%= @oauth2.client.name %> to act on your behalf?</p>
 
 <form method="post" action="/allow">
-  <% @request.params.each do |key, value| %>
+  <% @oauth2.params.each do |key, value| %>
     <input type="hidden" name="<%= key %>" value="<%= value %>">
   <% end %>
   

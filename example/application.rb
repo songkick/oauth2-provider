@@ -44,7 +44,7 @@ get '/oauth/authorize' do
 end
 
 post '/login' do
-  @oauth2 = OAuth2::Rack.request(env)
+  @oauth2 = OAuth2::Provider.parse(request)
   @user = User.find_by_username(params[:username])
   erb(@user ? :authorize : :login)
 end
@@ -86,7 +86,7 @@ helpers do
   #================================================================
   # Generic handler for incoming OAuth requests
   def respond_to_oauth
-    @oauth2 = OAuth2::Rack.request(env)
+    @oauth2 = OAuth2::Provider.parse(request)
     redirect @oauth2.redirect_uri if @oauth2.redirect?
         
     headers @oauth2.response_headers
@@ -99,7 +99,7 @@ helpers do
   # Check for OAuth access before rendering a resource
   def verify_access(scope)
     user  = User.find_by_id(params[:user_id])
-    token = OAuth2::Rack.access_token(env)
+    token = OAuth2::Rack.access_token(request)
     
     unless user and user.grants_access?(token, scope.to_s)
       return JSON.unparse('error' => 'No soup for you!')

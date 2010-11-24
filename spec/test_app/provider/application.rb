@@ -8,18 +8,18 @@ module TestApp
     set :views, File.dirname(__FILE__) + '/views'
     
     def handle_authorize
-      @request = OAuth2::Rack.request(env)
-      redirect @request.redirect_uri if @request.redirect?
+      @oauth2 = OAuth2::Provider.parse(request)
+      redirect @oauth2.redirect_uri if @oauth2.redirect?
       
-      headers @request.response_headers
-      status  @request.response_status
+      headers @oauth2.response_headers
+      status  @oauth2.response_status
       
-      @request.response_body || erb(:authorize)
+      @oauth2.response_body || erb(:authorize)
     end
     
     def serve_protected_resource
       @user = User['Bob']
-      @auth = OAuth2::Rack.access_token(env)
+      @auth = OAuth2::Rack.access_token(request)
       if @user.grants_access?(@auth, 'profile')
         JSON.unparse('data' => 'Top secret')
       else
@@ -32,14 +32,14 @@ module TestApp
     end
     
     post '/allow' do
-      @request = OAuth2::Provider::Authorization.new(params)
+      @oauth2 = OAuth2::Provider::Authorization.new(params)
       @user = User['bob']
       if params['allow'] == '1'
-        @request.grant_access!(@user)
+        @oauth2.grant_access!(@user)
       else
-        @request.deny_access!
+        @oauth2.deny_access!
       end
-      redirect @request.redirect_uri
+      redirect @oauth2.redirect_uri
     end
     
     [:get, :post].each do |method|

@@ -11,8 +11,7 @@ module OAuth2
       {'client_id' => username, 'client_secret' => password}
     end
     
-    def self.request(env)
-      request = ::Rack::Request.new(env)
+    def self.parse(request)
       params  = request.params
       auth    = auth_params(request)
       
@@ -20,7 +19,7 @@ module OAuth2
         return Provider::Error.new("client_id from Basic Auth and request body do not match")
       end
       
-      params  = params.merge(auth)
+      params = params.merge(auth)
       
       if params['grant_type']
         request.post? ? Provider::Token.new(params) : Provider::Error.new
@@ -29,9 +28,8 @@ module OAuth2
       end
     end
     
-    def self.access_token(env)
-      request = ::Rack::Request.new(env)
-      header  = request.env['HTTP_AUTHORIZATION']
+    def self.access_token(request)
+      header = request.env['HTTP_AUTHORIZATION']
       if header
         header.gsub(/^OAuth\s+/, '')
       else
