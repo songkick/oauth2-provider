@@ -1,33 +1,179 @@
 = OAuth2::Provider
 
 This gem provides a toolkit for adding OAuth2 provider capabilities to a Ruby
-web app. It handles most of the protocol for you, all you have to do is
-authenticate your users and let them grant permission to applications.
+web app. It handles most of the protocol for you: it is designed to provide
+a sufficient level of abstraction that it can implement updates to the protocol
+without affecting your application code at all. All you have to deal with is
+authenticating your users and letting them grant access to client apps.
+
+It is also designed to be usable within any web frontend, at least those of
+Rails and Sinatra. It assumes very little about the request objects in your
+environment, namely they:
+
+* respond to <tt>#params</tt> with a <tt>Hash</tt> of request parameters
+* respond to <tt>#get?</tt> and <tt>#post?</tt>
+* respond to <tt>#env</tt>, returning the HTTP environment <tt>Hash</tt>
+
+It stores the clients and authorizations using ActiveRecord; the schema is in
+<tt>oauth2/provider/model/schema.rb</tt>.
+
+The current imeplementation is based on draft-10[http://tools.ietf.org/html/draft-ietf-oauth-v2-10].
 
 
-== Example
+== Usage
 
-A pretty brain-dead demo; so far we can recognize the initial auth request,
-let the user click 'Allow', and notify the client of what happened. Clients
-and auth tokens are persisted using ActiveRecord.
+A basic example is in <tt>example/application.rb</tt>. To implement OAuth, you
+need to provide four things:
 
-  require 'sinatra'
-  
-  get '/authorize' do
-    @request = OAuth2::Rack.request(env)
-    redirect @request.redirect_uri unless @request.valid?
-    erb :authorize
+* Some UI to register client applications
+* The OAuth request endpoint
+* A flow for logged-in users to grant access to clients
+* Resources protected by access tokens
+
+
+=== Registering client applications
+
+Clients are modelled by the <tt>OAuth2::Model::Client</tt> class, which is an
+ActiveRecord model. You just need to implement a UI for creating them, for
+example in a Sinatra app:
+
+  get '/oauth/apps/new' do
+    @client = OAuth2::Model::Client.new
+    erb :new_client
   end
-  
-  post '/allow' do
-    @request = OAuth2::Provider::Authorization.new(params)
-    if params['allow'] == '1'
-      @request.allow_access!
-    else
-      @request.deny_access!
+
+  post '/oauth/apps' do
+    @client = OAuth2::Model::Client.new(params)
+    @client.save ? redirect("/oauth/apps/#{@client.id}") : erb(:new_client)
+  end
+
+  get '/oauth/apps/:id' do
+    @client = OAuth2::Model::Client.find_by_id(params[:id])
+    erb :show_client
+  end
+
+Client applications must have a <tt>name</tt> and a <tt>redirect_uri</tt>:
+provide fields for editing these but do not allow the other fields to be edited,
+since they are the client's access credentials.
+
+
+=== OAuth request endpoint
+
+This is a path that your application exposes in order for clients to communicate
+with your application. It is also the page that the client will send users to
+so they can authenticate and grant access. Many requests to this endpoint will
+be protocol-level requests that do not involve the user, and <tt>OAuth2::Provider</tt>
+gives you a generic way to handle all that.
+
+You should use this to get the right response, status code and headers to send to
+the client. In the event that <tt>OAuth2::Provider</tt> does not provide a response,
+you should render a page that lets the user begin to authenticate and grant access.
+
+This endpoint must be accessible via GET and POST. In this example we will expose
+the OAuth service through the path <tt>/oauth/authorize</tt>.
+
+  [:get, :post].each do |method|
+    __send__ method, '/oauth/authorize' do
+      @oauth2 = OAuth2::Provider.parse(request)
+      redirect @oauth2.redirect_uri if @oauth2.redirect?
+          
+      headers @oauth2.response_headers
+      status  @oauth2.response_status
+      
+      @oauth2.response_body || erb(:login)
     end
-    redirect @request.redirect_uri
   end
+
+
+There is a set of parameters that you will need to hold on to for when your app
+needs to redirect back to the client. You could store them in the session, or
+pass them through forms as the user completes the flow. For example to embed
+them in the login form, do this:
+
+  <% @oauth2.params.each do |key, value| %>
+    <input type="hidden" name="<%= key %>" value="<%= value %>">
+  <% end %>
+
+You may also want to use scopes to provide granular access to your domain using
+<i>scopes</i>. The <tt>@oauth2</tt> object exposes the scopes the client has asked
+for so you can display them to the user:
+
+  <p>The application <%= @oauth2.client.name %> wants the following permissions:</p>
+  
+  <ul>
+    <% @oauth2.scopes.each do |scope| %>
+      <li><%= PERMISSION_UI_STRINGS[scope] %></li>
+    <% end %>
+  </ul>
+
+
+=== Granting access to clients
+
+Your application will probably have some concept of a user, or a <i>resource
+owner</i> in OAuth lingo. Add this mixin to the model that represents your
+users:
+
+  class User < ActiveRecord::Base
+    include OAuth2::ResourceOwner
+  end
+
+This just adds a couple of relations and methods to the model to let it interact
+with the <tt>OAuth2</tt> models.
+
+Once the user has authenticated you should show them a page to let them grant
+or deny access to the client application. This is straightforward; let's say
+the user checks a box before posting a form to indicate their intent:
+
+  post '/oauth/allow' do
+    @user = User.find_by_id(session[:user_id])
+    @auth = OAuth2::Provider::Authorization.new(params)
+    if params['allow'] == '1'
+      @auth.grant_access!(@user)
+    else
+      @auth.deny_access!
+    end
+    redirect @auth.redirect_uri
+  end
+
+After granting or denying access, we just redirect back to the client using a
+URI that <tt>OAuth2::Provider</tt> will provide for you.
+
+
+=== Protecting resources with access tokens
+
+To protect the user's resources you need to check for access tokens. This is
+simple, for example a call to get a user's notes:
+
+  get '/user/:username/notes' do
+    user  = User.find_by_username(params[:username])
+    token = OAuth2::Provider.access_token(request)
+    if user.grants_access?(token, 'read_notes')
+      JSON.unparse('notes' => user.notes)
+    else
+      JSON.unparse('error' => 'No notes for you!')
+    end
+  end
+
+<tt>OAuth2::ResourceOwner#grants_access?</tt> takes a <tt>token</tt> object from
+the <tt>Provider.access_token</tt> method, and zero or more scopes that are
+required to access the resource. If the token was not granted for the required
+scopes, has expired or is simply invalid, the call returns <tt>false</tt>.
+
+It is also common to provide a dynamic resource for getting some basic data
+about a user by supplying their access token. This is also simple:
+
+  get '/me' do
+    token = OAuth2::Provider.access_token(request)
+    if token
+      JSON.unparse('username' => token.owner.username)
+    else
+      JSON.unparse('error' => 'Keep out!')
+    end
+  end
+
+<tt>token.owner</tt> returns the <tt>ResourceOwner</tt> that issued the token.
+A token represents the fact that a single owner gave a single client a set of
+permissions.
 
 
 == Copyright
