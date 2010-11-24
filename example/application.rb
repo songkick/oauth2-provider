@@ -82,7 +82,7 @@ end
 get '/users/:username/notes' do
   verify_access :read_notes do |user|
     notes = user.notes.map do |n|
-      {:note_id => n.id, :url => "#{host}/users/#{user.id}/notes/#{n.id}"}
+      {:note_id => n.id, :url => "#{host}/users/#{user.username}/notes/#{n.id}"}
     end
     JSON.unparse(:notes => notes)
   end
