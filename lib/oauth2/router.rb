@@ -1,4 +1,3 @@
-require 'rack'
 require 'base64'
 
 module OAuth2
