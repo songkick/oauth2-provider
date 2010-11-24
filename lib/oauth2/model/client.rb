@@ -8,6 +8,8 @@ module OAuth2
       validates_uniqueness_of :client_id
       validates_presence_of   :name, :redirect_uri
       
+      attr_accessible :name, :redirect_uri
+      
       before_create :generate_credentials
       
       def self.create_client_id
