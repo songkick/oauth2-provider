@@ -38,8 +38,9 @@ module OAuth2
       end
       
       def params
-        pairs = VALID_PARAMS.map { |key| [key, @params[key]] }
-        Hash[pairs]
+        params = {}
+        VALID_PARAMS.each { |key| params[key] = @params[key] if @params.has_key?(key) }
+        params
       end
       
       def redirect?

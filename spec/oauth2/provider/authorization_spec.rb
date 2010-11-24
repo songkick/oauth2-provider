@@ -192,6 +192,16 @@ describe OAuth2::Provider::Authorization do
         'scope'         => 'valid'
       }
     end
+    
+    it "does not expose parameters with no value" do
+      params.delete('scope')
+      authorization.params.should == {
+        'response_type' => 'code',
+        'client_id'     => @client.client_id,
+        'redirect_uri'  => @client.redirect_uri,
+        'state'         => 'valid'
+      }
+    end
   end
 end
 
