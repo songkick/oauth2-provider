@@ -16,27 +16,21 @@ module OAuth2
       alias :owner= :oauth2_resource_owner=
       
       def self.create_code(client)
-        code = OAuth2.random_string
-        until client.authorizations.count(:conditions => {:code => code}).zero?
-          code = OAuth2.random_string
+        OAuth2.generate_id do |code|
+          client.authorizations.count(:conditions => {:code => code}).zero?
         end
-        code
       end
       
       def self.create_access_token
-        token = OAuth2.random_string
-        until count(:conditions => {:access_token => token}).zero?
-          token = OAuth2.random_string
+        OAuth2.generate_id do |token|
+          count(:conditions => {:access_token => token}).zero?
         end
-        token
       end
       
       def self.create_refresh_token(client)
-        refresh_token = OAuth2.random_string
-        until client.authorizations.count(:conditions => {:refresh_token => refresh_token}).zero?
-          refresh_token = OAuth2.random_string
+        OAuth2.generate_id do |refresh_token|
+          client.authorizations.count(:conditions => {:refresh_token => refresh_token}).zero?
         end
-        refresh_token
       end
       
       def self.create_for_response_type(response_type, params = {})

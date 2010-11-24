@@ -13,11 +13,9 @@ module OAuth2
       before_create :generate_credentials
       
       def self.create_client_id
-        client_id = OAuth2.random_string
-        until count(:conditions => {:client_id => client_id}).zero?
-          client_id = OAuth2.random_string
+        OAuth2.generate_id do |client_id|
+          count(:conditions => {:client_id => client_id}).zero?
         end
-        client_id
       end
       
       def generate_credentials

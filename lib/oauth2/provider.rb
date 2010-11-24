@@ -13,6 +13,12 @@ module OAuth2
     rand(2 ** 128).to_s(36)
   end
   
+  def self.generate_id(&predicate)
+    id = random_string
+    id = random_string until predicate.call(id)
+    id
+  end
+  
   class Provider
     INVALID_REQUEST        = 'invalid_request'
     UNSUPPORTED_RESPONSE   = 'unsupported_response_type'
