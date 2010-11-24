@@ -102,7 +102,6 @@ describe OAuth2::Provider::Authorization do
         authorization.grant_access!(resource_owner)
         authorization.code.should == "random_string"
         authorization.access_token.should be_nil
-        authorization.expires_in.should == 3600
       end
       
       it "creates an Authorization in the database" do
@@ -127,7 +126,6 @@ describe OAuth2::Provider::Authorization do
         authorization.code.should be_nil
         authorization.access_token.should == "random_string"
         authorization.refresh_token.should == "random_string"
-        authorization.expires_in.should == 3600
       end
       
       it "creates an Authorization in the database" do
@@ -139,9 +137,7 @@ describe OAuth2::Provider::Authorization do
         authorization.code.should be_nil
         authorization.access_token.should == "random_string"
         authorization.refresh_token.should == "random_string"
-        
-        expiry = authorization.expires_at - Time.now
-        expiry.ceil.should == 3600
+        authorization.expires_at.should be_nil
       end
     end
     
@@ -153,7 +149,6 @@ describe OAuth2::Provider::Authorization do
         authorization.code.should == "random_string"
         authorization.access_token.should == "random_string"
         authorization.refresh_token.should == "random_string"
-        authorization.expires_in.should == 3600
       end
       
       it "creates an Authorization in the database" do
@@ -165,14 +160,11 @@ describe OAuth2::Provider::Authorization do
         authorization.code.should == "random_string"
         authorization.access_token.should == "random_string"
         authorization.refresh_token.should == "random_string"
-        
-        expiry = authorization.expires_at - Time.now
-        expiry.ceil.should == 3600
       end
     end
   end
   
-  describe "#deny_access!!" do
+  describe "#deny_access!" do
     it "puts the authorization in an error state" do
       authorization.deny_access!
       authorization.error.should == "access_denied"

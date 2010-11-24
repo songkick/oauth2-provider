@@ -4,7 +4,7 @@ module OAuth2
     class Authorization
       attr_reader :params, :client,
                   :code, :access_token,
-                  :refresh_token, :expires_in,
+                  :refresh_token,
                   :error, :error_description
       
       REQUIRED_PARAMS = %w[response_type client_id redirect_uri]
@@ -30,11 +30,10 @@ module OAuth2
         @code          = model.code
         @access_token  = model.access_token
         @refresh_token = model.refresh_token
-        @expires_in    = model.expires_in
       end
       
       def deny_access!
-        @code = @access_token = @refresh_token = @expires_in = nil
+        @code = @access_token = @refresh_token = nil
         @error = ACCESS_DENIED
         @error_description = "The user denied you access"
       end
@@ -50,15 +49,15 @@ module OAuth2
         
         elsif @params['response_type'] == 'code_and_token'
           query    = to_query_string(:code, :state)
-          fragment = to_query_string(:access_token, :expires_in, :scope)
+          fragment = to_query_string(:access_token, :scope)
           "#{ @params['redirect_uri'] }#{ query.empty? ? '' : '?' + query }##{ fragment }"
         
         elsif @params['response_type'] == 'token'
-          fragment = to_query_string(:access_token, :expires_in, :scope, :state)
+          fragment = to_query_string(:access_token, :scope, :state)
           "#{ @params['redirect_uri'] }##{ fragment }"
         
         else
-          query = to_query_string(:code, :expires_in, :scope, :state)
+          query = to_query_string(:code, :scope, :state)
           "#{ @params['redirect_uri'] }?#{ query }"
         end
       end

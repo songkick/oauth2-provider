@@ -98,9 +98,7 @@ describe OAuth2::Provider::Token do
       authorization.code.should be_nil
       authorization.access_token.should == 'random_access_token'
       authorization.refresh_token.should == 'random_refresh_token'
-      
-      expiry = authorization.expires_at - Time.now
-      expiry.ceil.should == 3600
+      authorization.expires_at.should be_nil
     end
   end
   

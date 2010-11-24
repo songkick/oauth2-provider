@@ -33,7 +33,6 @@ module OAuth2
         
         JSON.unparse(
           'access_token'  => @authorization.access_token,
-          'expires_in'    => 3600,
           'refresh_token' => @authorization.refresh_token)
       end
       
