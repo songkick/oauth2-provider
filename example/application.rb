@@ -39,8 +39,10 @@ end
 
 # Initial request exmample:
 # /oauth/authorize?response_type=token&client_id=7uljxxdgsksmecn5cycvug46v&redirect_uri=http%3A%2F%2Fexample.com%2Fcb&scope=read_notes
-get '/oauth/authorize' do
-  respond_to_oauth { erb(:login) }
+[:get, :post].each do |method|
+  __send__ method, '/oauth/authorize' do
+    respond_to_oauth { erb(:login) }
+  end
 end
 
 post '/login' do
