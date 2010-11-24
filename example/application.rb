@@ -79,7 +79,7 @@ get '/me' do
   end
 end
 
-get '/users/:user_id/notes' do
+get '/users/:username/notes' do
   verify_access :read_notes do |user|
     notes = user.notes.map do |n|
       {:note_id => n.id, :url => "#{host}/users/#{user.id}/notes/#{n.id}"}
@@ -88,7 +88,7 @@ get '/users/:user_id/notes' do
   end
 end
 
-get '/users/:user_id/notes/:note_id' do
+get '/users/:username/notes/:note_id' do
   verify_access :read_notes do |user|
     note = user.notes.find_by_id(params[:note_id])
     note ? note.to_json : JSON.unparse(:error => 'No such note')
@@ -113,7 +113,7 @@ helpers do
   #================================================================
   # Check for OAuth access before rendering a resource
   def verify_access(scope)
-    user  = User.find_by_id(params[:user_id])
+    user  = User.find_by_username(params[:username])
     token = OAuth2::Provider.access_token(request)
     
     unless user and user.grants_access?(token, scope.to_s)
