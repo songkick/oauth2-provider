@@ -44,38 +44,46 @@ module OAuth2
       end
       
       def redirect?
-        not valid?
+        @client and not valid?
       end
       
       def redirect_uri
+        return nil unless @client
+        base_redirect_uri = @client.redirect_uri
+        
         if not valid?
           query = to_query_string(:error, :error_description, :state)
-          "#{ @params['redirect_uri'] }?#{ query }"
+          "#{ base_redirect_uri }?#{ query }"
         
         elsif @params['response_type'] == 'code_and_token'
           query    = to_query_string(:code, :state)
           fragment = to_query_string(:access_token, :scope)
-          "#{ @params['redirect_uri'] }#{ query.empty? ? '' : '?' + query }##{ fragment }"
+          "#{ base_redirect_uri }#{ query.empty? ? '' : '?' + query }##{ fragment }"
         
         elsif @params['response_type'] == 'token'
           fragment = to_query_string(:access_token, :scope, :state)
-          "#{ @params['redirect_uri'] }##{ fragment }"
+          "#{ base_redirect_uri }##{ fragment }"
         
         else
           query = to_query_string(:code, :scope, :state)
-          "#{ @params['redirect_uri'] }?#{ query }"
+          "#{ base_redirect_uri }?#{ query }"
         end
       end
       
       def response_body
+        return nil if @client and valid?
+        JSON.unparse(
+          'error'             => INVALID_REQUEST,
+          'error_description' => 'This is not a valid OAuth request')
       end
       
       def response_headers
-        {}
+        Token::RESPONSE_HEADERS
       end
       
       def response_status
-        valid? ? 200 : 302
+        return 200 if valid?
+        @client ? 302 : 400
       end
       
       def valid?
@@ -85,12 +93,17 @@ module OAuth2
     private
       
       def validate!
+        @client = @params['client_id'] && Model::Client.find_by_client_id(@params['client_id'])
+        unless @client
+          @error = INVALID_CLIENT
+          @error_description = "Unknown client ID #{@params['client_id']}"
+        end
+        
         REQUIRED_PARAMS.each do |param|
           next if @params.has_key?(param)
           @error = INVALID_REQUEST
           @error_description = "Missing required parameter #{param}"
         end
-        
         return if @error
         
         unless VALID_RESPONSES.include?(@params['response_type'])

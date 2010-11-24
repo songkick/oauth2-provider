@@ -32,6 +32,13 @@ describe OAuth2::Provider do
     Net::HTTP.post_form(URI.parse('http://localhost:8000/authorize'), query_params)
   end
   
+  def validate_json_response(response, status, body)
+    response.code.to_i.should == status
+    JSON.parse(response.body).should == body
+    response['Content-Type'].should == 'application/json'
+    response['Cache-Control'].should == 'no-store'
+  end
+  
   def mock_request(request_class, stubs = {})
     mock_request = mock(request_class)
     method_stubs = {
@@ -75,6 +82,41 @@ describe OAuth2::Provider do
     describe "for code_and_token requests" do
       before { params['response_type'] = 'code_and_token' }
       it_should_behave_like "creates authorization"
+    end
+    
+    describe "with no parameters" do
+      let(:params) { {} }
+      
+      it "renders an error page" do
+        response = get(params)
+        validate_json_response(response, 400,
+          'error'             => 'invalid_request',
+          'error_description' => 'This is not a valid OAuth request'
+        )
+      end
+    end
+    
+    describe "with a redirect_uri and no client_id" do
+      let(:params) { {'redirect_uri' => 'http://evilsite.com/callback'} }
+      
+      it "renders an error page" do
+        response = get(params)
+        validate_json_response(response, 400,
+          'error'             => 'invalid_request',
+          'error_description' => 'This is not a valid OAuth request'
+        )
+      end
+    end
+    
+    describe "with a client_id and a bad redirect_uri" do
+      let(:params) { {'redirect_uri' => 'http://evilsite.com/callback',
+                      'client_id'    => @client.client_id} }
+      
+      it "redirects to the client's registered redirect_uri" do
+        response = get(params)
+        response.code.to_i.should == 302
+        response['location'].should == 'https://client.example.com/cb?error=invalid_request&error_description=Missing%20required%20parameter%20response_type'
+      end
     end
     
     describe "with an invalid request" do
@@ -223,13 +265,6 @@ describe OAuth2::Provider do
                            'client_secret' => @client.client_secret }
                        }
     
-    def validate_response(response, status, body)
-      response.code.to_i.should == status
-      JSON.parse(response.body).should == body
-      response['Content-Type'].should == 'application/json'
-      response['Cache-Control'].should == 'no-store'
-    end
-    
     describe "using authorization_code request" do
       let(:query_params) { { 'client_id'    => @client.client_id,
                              'grant_type'   => 'authorization_code',
@@ -244,7 +279,7 @@ describe OAuth2::Provider do
           OAuth2::Provider::Authorization.should_not_receive(:new)
           OAuth2::Provider::Token.should_not_receive(:new)
           response = get(params)
-          validate_response(response, 400,
+          validate_json_response(response, 400,
             'error'             => 'invalid_request',
             'error_description' => 'Bad request'
           )
@@ -266,7 +301,7 @@ describe OAuth2::Provider do
           OAuth2.stub(:random_string).and_return('random_access_token', 'random_refresh_token')
           
           response = post_basic_auth(auth_params, query_params)
-          validate_response(response, 200,
+          validate_json_response(response, 200,
             'access_token'  => 'random_access_token',
             'refresh_token' => 'random_refresh_token'
           )
@@ -278,7 +313,7 @@ describe OAuth2::Provider do
         
         it "returns an error response" do
           response = post_basic_auth(auth_params, query_params)
-          validate_response(response, 400,
+          validate_json_response(response, 400,
             'error'             => 'invalid_request',
             'error_description' => 'Missing required parameter code'
           )
@@ -290,7 +325,7 @@ describe OAuth2::Provider do
         
         it "returns an error response" do
           response = post_basic_auth(auth_params, query_params)
-          validate_response(response, 400,
+          validate_json_response(response, 400,
             'error'             => 'invalid_request',
             'error_description' => 'Bad request: client_id from Basic Auth and request body do not match'
           )
