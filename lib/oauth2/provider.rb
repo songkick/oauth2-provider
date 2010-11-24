@@ -1,6 +1,5 @@
 require 'uri'
 require 'net/http'
-require 'oauth2/rack'
 
 module OAuth2
   ROOT = File.expand_path(File.dirname(__FILE__) + '/..')
@@ -8,6 +7,7 @@ module OAuth2
   autoload :Model,         ROOT + '/oauth2/model'
   autoload :SCHEMA,        ROOT + '/oauth2/provider/schema'
   autoload :ResourceOwner, ROOT + '/oauth2/resource_owner'
+  autoload :Rack,          ROOT + '/oauth2/rack'
   
   def self.random_string
     rand(2 ** 128).to_s(36)
