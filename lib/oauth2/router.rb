@@ -2,7 +2,7 @@ require 'rack'
 require 'base64'
 
 module OAuth2
-  class Rack
+  class Router
     
     def self.auth_params(request)
       return {} unless basic = request.env['HTTP_AUTHORIZATION']

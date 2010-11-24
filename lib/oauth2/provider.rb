@@ -1,5 +1,6 @@
 require 'uri'
 require 'net/http'
+require 'forwardable'
 
 module OAuth2
   ROOT = File.expand_path(File.dirname(__FILE__) + '/..')
@@ -8,7 +9,7 @@ module OAuth2
   autoload :Model,         ROOT + '/oauth2/model'
   autoload :SCHEMA,        ROOT + '/oauth2/provider/schema'
   autoload :ResourceOwner, ROOT + '/oauth2/resource_owner'
-  autoload :Rack,          ROOT + '/oauth2/rack'
+  autoload :Router,        ROOT + '/oauth2/router'
   
   def self.random_string
     rand(2 ** TOKEN_SIZE).to_s(36)
@@ -21,6 +22,14 @@ module OAuth2
   end
   
   class Provider
+    def self.parse(request)
+      Router.parse(request)
+    end
+    
+    def self.access_token(request)
+      Router.access_token(request)
+    end
+    
     INVALID_REQUEST        = 'invalid_request'
     UNSUPPORTED_RESPONSE   = 'unsupported_response_type'
     REDIRECT_MISMATCH      = 'redirect_uri_mismatch'
@@ -35,10 +44,6 @@ module OAuth2
     autoload :Authorization, ROOT + '/oauth2/provider/authorization'
     autoload :Token,         ROOT + '/oauth2/provider/token'
     autoload :Error,         ROOT + '/oauth2/provider/error'
-    
-    def self.parse(request)
-      Rack.parse(request)
-    end
   end
 end
 

@@ -19,7 +19,7 @@ module TestApp
     
     def serve_protected_resource
       @user = User['Bob']
-      @auth = OAuth2::Rack.access_token(request)
+      @auth = OAuth2::Provider.access_token(request)
       if @user.grants_access?(@auth, 'profile')
         JSON.unparse('data' => 'Top secret')
       else

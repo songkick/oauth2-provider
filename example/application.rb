@@ -99,7 +99,7 @@ helpers do
   # Check for OAuth access before rendering a resource
   def verify_access(scope)
     user  = User.find_by_id(params[:user_id])
-    token = OAuth2::Rack.access_token(request)
+    token = OAuth2::Provider.access_token(request)
     
     unless user and user.grants_access?(token, scope.to_s)
       return JSON.unparse('error' => 'No soup for you!')
