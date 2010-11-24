@@ -6,8 +6,7 @@ module OAuth2
       belongs_to :oauth2_resource_owner, :polymorphic => true
       belongs_to :client, :class_name => 'OAuth2::Model::Client'
       
-      validates_presence_of   :client
-      validates_presence_of   :owner
+      validates_presence_of :client, :owner
       
       validates_uniqueness_of :code, :scope => :client_id, :allow_nil => true
       validates_uniqueness_of :refresh_token, :scope => :client_id, :allow_nil => true

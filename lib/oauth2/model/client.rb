@@ -6,6 +6,7 @@ module OAuth2
       has_many :authorizations, :class_name => 'OAuth2::Model::Authorization', :dependent => :destroy
       
       validates_uniqueness_of :client_id
+      validates_presence_of   :name, :redirect_uri
       
       before_create :generate_credentials
       

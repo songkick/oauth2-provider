@@ -11,6 +11,16 @@ describe OAuth2::Model::Client do
     @client.should be_valid
   end
   
+  it "is invalid without a name" do
+    @client.name = nil
+    @client.should_not be_valid
+  end
+  
+  it "is invalid without a redirect_uri" do
+    @client.redirect_uri = nil
+    @client.should_not be_valid
+  end
+  
   it "has client_id and client_secret filled in" do
     @client.client_id.should_not be_nil
     @client.client_secret.should_not be_nil

@@ -19,12 +19,13 @@ get('/') { erb(:home) }
 # Register applications
 
 get '/oauth/apps/new' do
+  @client = OAuth2::Model::Client.new
   erb :new_client
 end
 
 post '/oauth/apps' do
-  @client = OAuth2::Model::Client.create(params)
-  redirect "/oauth/apps/#{@client.id}"
+  @client = OAuth2::Model::Client.new(params)
+  @client.save ? redirect("/oauth/apps/#{@client.id}") : erb(:new_client)
 end
 
 get '/oauth/apps/:id' do

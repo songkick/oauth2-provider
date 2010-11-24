@@ -1,5 +1,13 @@
 <h3>Register you application</h3>
 
+<% if @client.errors.any? %>
+  <ul class="errors">
+    <% @client.errors.full_messages.each do |message| %>
+      <li><%= message %></li>
+    <% end %>
+  </ul>
+<% end %>
+
 <form method="post" action="/oauth/apps">
   <fieldset>
     <label for="name">Application name</label>
