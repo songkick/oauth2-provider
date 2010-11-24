@@ -70,7 +70,7 @@ end
 
 get '/me' do
   access_token  = OAuth2::Provider.access_token(request)
-  authorization = OAuth2::Model::Authorization.find_by_access_token(access_token)
+  authorization = access_token && OAuth2::Model::Authorization.find_by_access_token(access_token)
   if authorization
     user = authorization.owner
     JSON.unparse('username' => user.username)
