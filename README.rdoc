@@ -15,7 +15,10 @@ environment, namely they:
 * respond to <tt>#env</tt>, returning the HTTP environment <tt>Hash</tt>
 
 It stores the clients and authorizations using ActiveRecord; the schema is in
-<tt>oauth2/provider/model/schema.rb</tt>.
+<tt>oauth2/provider/model/schema.rb</tt>. Run it to update your database to
+store OAuth data:
+
+  OAuth2::Model::Schema.up
 
 The current imeplementation is based on draft-10[http://tools.ietf.org/html/draft-ietf-oauth-v2-10].
 
