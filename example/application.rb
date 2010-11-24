@@ -12,6 +12,8 @@ PERMISSIONS = {
   'read_notes' => 'Read all your notes'
 }
 
+ERROR_RESPONSE = JSON.unparse('error' => 'No soup for you!')
+
 get('/') { erb(:home) }
 
 
@@ -66,6 +68,17 @@ end
 #================================================================
 # Domain API
 
+get '/me' do
+  access_token  = OAuth2::Provider.access_token(request)
+  authorization = OAuth2::Model::Authorization.find_by_access_token(access_token)
+  if authorization
+    user = authorization.owner
+    JSON.unparse('username' => user.username)
+  else
+    ERROR_RESPONSE
+  end
+end
+
 get '/users/:user_id/notes' do
   verify_access :read_notes do |user|
     notes = user.notes.map do |n|
@@ -104,7 +117,7 @@ helpers do
     token = OAuth2::Provider.access_token(request)
     
     unless user and user.grants_access?(token, scope.to_s)
-      return JSON.unparse('error' => 'No soup for you!')
+      return ERROR_RESPONSE
     end
     
     yield user
