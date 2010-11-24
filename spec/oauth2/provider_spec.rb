@@ -67,6 +67,7 @@ describe OAuth2::Provider do
         response = get(params)
         response.code.to_i.should == 200
         response.body.should =~ /Do you want to allow Test client/
+        response['Content-Type'].should =~ /text\/html/
       end
     end
     
