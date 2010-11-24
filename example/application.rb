@@ -69,8 +69,7 @@ end
 # Domain API
 
 get '/me' do
-  access_token  = OAuth2::Provider.access_token(request)
-  authorization = access_token && OAuth2::Model::Authorization.find_by_access_token(access_token)
+  authorization = OAuth2::Provider.access_token(request)
   if authorization
     user = authorization.owner
     JSON.unparse('username' => user.username)
