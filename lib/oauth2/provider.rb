@@ -22,12 +22,12 @@ module OAuth2
   end
   
   class Provider
-    def self.parse(request)
-      Router.parse(request)
+    def self.parse(*args)
+      Router.parse(*args)
     end
     
-    def self.access_token(request)
-      Router.access_token(request)
+    def self.access_token(*args)
+      Router.access_token(*args)
     end
     
     INVALID_REQUEST        = 'invalid_request'
