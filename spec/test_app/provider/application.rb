@@ -43,6 +43,15 @@ module TestApp
     end
     
     [:get, :post].each do |method|
+      __send__ method, '/me' do
+        access_token = OAuth2::Provider.access_token(request)
+        if access_token
+          JSON.unparse('data' => access_token.owner.name)
+        else
+          JSON.unparse('data' => 'No soup for you')
+        end
+      end
+      
       __send__(method, '/user_profile') { serve_protected_resource }
     end
     

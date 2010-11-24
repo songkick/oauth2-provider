@@ -348,50 +348,65 @@ describe OAuth2::Provider do
     end
       
     shared_examples_for "protected resource" do
+      it "can get the current user when the key is passed" do
+        response = request('/me', 'access_token' => 'magic-key')
+        JSON.parse(response.body)['data'].should == 'Bob'
+      end
+      
       it "allows access when the key is passed" do
-        response = request('access_token' => 'magic-key')
+        response = request('/user_profile', 'access_token' => 'magic-key')
         JSON.parse(response.body)['data'].should == 'Top secret'
       end
       
+      it "cannot get the current user when the wrong key is passed" do
+        response = request('/me', 'access_token' => 'is-the-password-books')
+        JSON.parse(response.body)['data'].should == 'No soup for you'
+      end
+      
       it "blocks access when the wrong key is passed" do
-        response = request('access_token' => 'is-the-password-books')
+        response = request('/user_profile', 'access_token' => 'is-the-password-books')
         JSON.parse(response.body)['data'].should == 'No soup for you'
       end
       
       it "blocks access when the key is for the wrong user" do
         @authorization.update_attribute(:owner, TestApp::User['Alice'])
-        response = request('access_token' => 'magic-key')
+        response = request('/user_profile', 'access_token' => 'magic-key')
         JSON.parse(response.body)['data'].should == 'No soup for you'
       end
       
       it "blocks access when the key is for the wrong scope" do
         @authorization.update_attribute(:scope, 'wall')
-        response = request('access_token' => 'magic-key')
+        response = request('/user_profile', 'access_token' => 'magic-key')
+        JSON.parse(response.body)['data'].should == 'No soup for you'
+      end
+      
+      it "cannot get the current user when no key is passed" do
+        response = request('/me')
         JSON.parse(response.body)['data'].should == 'No soup for you'
       end
       
       it "blocks access when no key is passed" do
-        response = request
+        response = request('/user_profile')
         JSON.parse(response.body)['data'].should == 'No soup for you'
       end
     end
     
     describe "for header-based requests" do
-      def request(params = {})
+      def request(path, params = {})
         access_token = params.delete('access_token')
         http   = Net::HTTP.new('localhost', 8000)
         qs     = params.map { |k,v| "#{ URI.escape k.to_s }=#{ URI.escape v.to_s }" }.join('&')
         header = {'Authorization' => "OAuth #{access_token}"}
-        http.request_get('/user_profile?' + qs, header)
+        http.request_get(path + '?' + qs, header)
       end
       
       it_should_behave_like "protected resource"
     end
     
     describe "for GET requests" do
-      def request(params = {})
+      def request(path, params = {})
         qs  = params.map { |k,v| "#{ URI.escape k.to_s }=#{ URI.escape v.to_s }" }.join('&')
-        uri = URI.parse('http://localhost:8000/user_profile?' + qs)
+        uri = URI.parse('http://localhost:8000' + path + '?' + qs)
         Net::HTTP.get_response(uri)
       end
       
@@ -399,8 +414,8 @@ describe OAuth2::Provider do
     end
     
     describe "for POST requests" do
-      def request(params = {})
-        Net::HTTP.post_form(URI.parse('http://localhost:8000/user_profile'), params)
+      def request(path, params = {})
+        Net::HTTP.post_form(URI.parse('http://localhost:8000' + path), params)
       end
       
       it_should_behave_like "protected resource"

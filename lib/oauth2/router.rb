@@ -32,7 +32,11 @@ module OAuth2
       params ||= request.params
       header = request.env['HTTP_AUTHORIZATION']
       
-      header ? header.gsub(/^OAuth\s+/, '') : request.params['access_token']
+      access_token = header ?
+                     header.gsub(/^OAuth\s+/, '') :
+                     params['access_token']
+      
+      access_token && Model::Authorization.find_by_access_token(access_token)
     end
     
   end
