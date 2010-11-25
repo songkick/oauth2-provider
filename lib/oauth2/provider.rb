@@ -1,6 +1,7 @@
+require 'forwardable'
 require 'uri'
 require 'net/http'
-require 'forwardable'
+require 'digest/sha1'
 
 module OAuth2
   ROOT = File.expand_path(File.dirname(__FILE__) + '/..')

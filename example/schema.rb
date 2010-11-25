@@ -9,8 +9,6 @@ require dir + '/models/connection'
 FileUtils.mkdir_p(dir + '/db')
 
 ActiveRecord::Schema.define do |version|
-  instance_eval(&OAuth2::Model::SCHEMA)
-  
   create_table :users, :force => true do |t|
     t.timestamps
     t.string :username
@@ -23,4 +21,6 @@ ActiveRecord::Schema.define do |version|
     t.text       :body
   end
 end
+
+OAuth2::Model::Schema.up
 

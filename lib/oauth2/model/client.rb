@@ -19,6 +19,20 @@ module OAuth2
         end
       end
       
+      attr_reader :client_secret
+      
+      def client_secret=(secret)
+        @client_secret = secret
+        self.client_secret_salt = OAuth2.random_string
+        self.client_secret_hash = Digest::SHA1.hexdigest(secret + client_secret_salt)
+      end
+      
+      def valid_client_secret?(secret)
+        return false unless String === secret
+        hash = Digest::SHA1.hexdigest(secret + client_secret_salt)
+        client_secret_hash == hash
+      end
+      
     private
       
       def check_format_of_redirect_uri

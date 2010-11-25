@@ -93,7 +93,7 @@ module OAuth2
           @error_description = "Unknown client ID #{@params['client_id']}"
         end
         
-        if @client and @client.client_secret != @params['client_secret']
+        if @client and not @client.valid_client_secret? @params['client_secret']
           @error = INVALID_CLIENT
           @error_description = 'Parameter client_secret does not match'
         end

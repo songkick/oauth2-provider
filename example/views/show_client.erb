@@ -2,12 +2,14 @@
 
 <table>
   <tbody>
-    <% %w[name client_id client_secret].each do |field| %>
-      <tr>
-        <th scope="row"><%= field %></th>
-        <td><%= @client.attributes[field] %></td>
-      </tr>
-    <% end %>
+    <tr>
+      <th scope="row">client_id</th>
+      <td><%= @client.client_id %></td>
+    </tr>
+    <tr>
+      <th scope="row">client_secret</th>
+      <td><%= @client_secret %></td>
+    </tr>
   </tbody>
 </table>
 

@@ -7,7 +7,8 @@ module OAuth2
           t.timestamps
           t.string :name
           t.string :client_id
-          t.string :client_secret
+          t.string :client_secret_hash, :limit => 40
+          t.string :client_secret_salt, :limit => 32
           t.string :redirect_uri
         end
         add_index :oauth2_clients, :client_id

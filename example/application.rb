@@ -7,6 +7,7 @@ require 'json'
 set :static, true
 set :public, dir + '/public'
 set :views,  dir + '/views'
+enable :sessions
 
 PERMISSIONS = {
   'read_notes' => 'Read all your notes'
@@ -27,11 +28,17 @@ end
 
 post '/oauth/apps' do
   @client = OAuth2::Model::Client.new(params)
-  @client.save ? redirect("/oauth/apps/#{@client.id}") : erb(:new_client)
+  if @client.save
+    session[:client_secret] = @client.client_secret
+    redirect("/oauth/apps/#{@client.id}")
+  else
+    erb :new_client
+  end
 end
 
 get '/oauth/apps/:id' do
   @client = OAuth2::Model::Client.find_by_id(params[:id])
+  @client_secret = session[:client_secret]
   erb :show_client
 end
 
@@ -56,11 +63,12 @@ end
 post '/login' do
   @oauth2 = OAuth2::Provider.parse(request)
   @user = User.find_by_username(params[:username])
+  session[:user_id] = @user.id
   erb(@user ? :authorize : :login)
 end
 
 post '/oauth/allow' do
-  @user = User.find_by_id(params[:user_id])
+  @user = User.find_by_id(session[:user_id])
   @auth = OAuth2::Provider::Authorization.new(params)
   if params['allow'] == '1'
     @auth.grant_access!(@user)
