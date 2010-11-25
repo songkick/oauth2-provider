@@ -10,7 +10,7 @@ module OAuth2
       {'client_id' => username, 'client_secret' => password}
     end
     
-    def self.parse(request, params = nil)
+    def self.parse(resource_owner, request, params = nil)
       params ||= request.params
       auth = auth_params(request)
       
@@ -21,9 +21,9 @@ module OAuth2
       params = params.merge(auth)
       
       if params['grant_type']
-        request.post? ? Provider::Token.new(params) : Provider::Error.new
+        request.post? ? Provider::Token.new(resource_owner, params) : Provider::Error.new
       else
-        Provider::Authorization.new(params)
+        Provider::Authorization.new(resource_owner, params)
       end
     end
     

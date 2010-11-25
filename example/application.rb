@@ -50,7 +50,8 @@ end
 # /oauth/authorize?response_type=token&client_id=7uljxxdgsksmecn5cycvug46v&redirect_uri=http%3A%2F%2Fexample.com%2Fcb&scope=read_notes
 [:get, :post].each do |method|
   __send__ method, '/oauth/authorize' do
-    @oauth2 = OAuth2::Provider.parse(request)
+    @user = User.find_by_id(session[:user_id])
+    @oauth2 = OAuth2::Provider.parse(@user, request)
     redirect @oauth2.redirect_uri if @oauth2.redirect?
         
     headers @oauth2.response_headers
@@ -69,9 +70,9 @@ end
 
 post '/oauth/allow' do
   @user = User.find_by_id(session[:user_id])
-  @auth = OAuth2::Provider::Authorization.new(params)
+  @auth = OAuth2::Provider::Authorization.new(@user, params)
   if params['allow'] == '1'
-    @auth.grant_access!(@user)
+    @auth.grant_access!
   else
     @auth.deny_access!
   end

@@ -8,7 +8,7 @@ describe OAuth2::Provider::Token do
     OAuth2.stub(:random_string).and_return('random_string')
   end
   
-  let(:token) { OAuth2::Provider::Token.new(params) }
+  let(:token) { OAuth2::Provider::Token.new(@owner, params) }
   
   shared_examples_for "validates required parameters" do
     describe "missing grant_type" do

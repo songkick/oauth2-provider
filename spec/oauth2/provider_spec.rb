@@ -11,6 +11,7 @@ describe OAuth2::Provider do
   
   before do
     @client = Factory(:client, :name => 'Test client')
+    @owner  = TestApp::User['Bob']
   end
   
   def get(query_params)
@@ -59,7 +60,7 @@ describe OAuth2::Provider do
     shared_examples_for "creates authorization" do
       it "creates an authorization" do
         auth = mock_request(OAuth2::Provider::Authorization, :client => @client, :params => {})
-        OAuth2::Provider::Authorization.should_receive(:new).with(params).and_return(auth)
+        OAuth2::Provider::Authorization.should_receive(:new).with(@owner, params).and_return(auth)
         get(params)
       end
       
@@ -83,6 +84,21 @@ describe OAuth2::Provider do
     describe "for code_and_token requests" do
       before { params['response_type'] = 'code_and_token' }
       it_should_behave_like "creates authorization"
+    end
+    
+    describe "when there is already a pending authorization from the user" do
+      before do
+        OAuth2::Model::Authorization.create(
+          :owner  => @owner,
+          :client => @client,
+          :code   => 'pending_code')
+      end
+      
+      it "immediately redirects with the code" do
+        response = get(params)
+        response.code.to_i.should == 302
+        response['location'].should == 'https://client.example.com/cb?code=pending_code'
+      end
     end
     
     describe "with no parameters" do
@@ -258,7 +274,6 @@ describe OAuth2::Provider do
   describe "access token request" do
     before do
       @client = Factory(:client)
-      @owner  = Factory(:owner)
       @authorization = Factory(:authorization, :client => @client, :owner => @owner)
     end
     
@@ -269,7 +284,7 @@ describe OAuth2::Provider do
     describe "using authorization_code request" do
       let(:query_params) { { 'client_id'    => @client.client_id,
                              'grant_type'   => 'authorization_code',
-                             'code'         =>  @authorization.code,
+                             'code'         => @authorization.code,
                              'redirect_uri' => @client.redirect_uri }
                          }
       
@@ -288,13 +303,13 @@ describe OAuth2::Provider do
         
         it "creates a Token when using Basic Auth" do
           token = mock_request(OAuth2::Provider::Token, :response_body => 'Hello')
-          OAuth2::Provider::Token.should_receive(:new).with(params).and_return(token)
+          OAuth2::Provider::Token.should_receive(:new).with(@owner, params).and_return(token)
           post_basic_auth(auth_params, query_params)
         end
         
         it "creates a Token when passing params in the POST body" do
           token = mock_request(OAuth2::Provider::Token, :response_body => 'Hello')
-          OAuth2::Provider::Token.should_receive(:new).with(params).and_return(token)
+          OAuth2::Provider::Token.should_receive(:new).with(@owner, params).and_return(token)
           post(params)
         end
         
@@ -335,7 +350,6 @@ describe OAuth2::Provider do
   describe "protected resource request" do
     before do
       @client = Factory(:client)
-      @owner  = TestApp::User['Bob']
       
       @authorization = Factory(:authorization,
         :client => @client,

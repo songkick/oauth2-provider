@@ -8,7 +8,7 @@ module TestApp
     set :views, File.dirname(__FILE__) + '/views'
     
     def handle_authorize
-      @oauth2 = OAuth2::Provider.parse(request)
+      @oauth2 = OAuth2::Provider.parse(User['Bob'], request)
       redirect @oauth2.redirect_uri if @oauth2.redirect?
       
       headers @oauth2.response_headers
@@ -32,10 +32,10 @@ module TestApp
     end
     
     post '/allow' do
-      @oauth2 = OAuth2::Provider::Authorization.new(params)
       @user = User['bob']
+      @oauth2 = OAuth2::Provider::Authorization.new(@user, params)
       if params['allow'] == '1'
-        @oauth2.grant_access!(@user)
+        @oauth2.grant_access!
       else
         @oauth2.deny_access!
       end

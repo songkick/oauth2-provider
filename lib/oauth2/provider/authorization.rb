@@ -10,20 +10,31 @@ module OAuth2
       VALID_PARAMS    = REQUIRED_PARAMS + %w[scope state]
       VALID_RESPONSES = %w[code token code_and_token]
       
-      def initialize(params)
+      def initialize(resource_owner, params)
+        @owner  = resource_owner
         @params = params
         @scope  = params['scope']
         @state  = params['state']
+        
         validate!
+        return unless @owner and not @error
+        
+        authorization = @owner.oauth2_authorizations.
+                        find(:first, :conditions => {:client_id => @client.id})
+        
+        return unless authorization and authorization.code
+        
+        @authorized = true
+        @code = authorization.code
       end
       
       def scope
         @scope ? @scope.split(/\s+/).delete_if { |s| s.empty? } : []
       end
       
-      def grant_access!(resource_owner)
+      def grant_access!
         model = Model::Authorization.create_for_response_type(@params['response_type'],
-          :owner  => resource_owner,
+          :owner  => @owner,
           :client => @client,
           :scope  => @scope)
         
@@ -49,7 +60,7 @@ module OAuth2
       end
       
       def redirect?
-        @client and not valid?
+        @client and (@authorized or not valid?)
       end
       
       def redirect_uri

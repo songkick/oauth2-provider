@@ -1,14 +1,14 @@
 require 'spec_helper'
 
 describe OAuth2::Provider::Authorization do
-  let(:authorization) { OAuth2::Provider::Authorization.new(params) }
+  let(:resource_owner) { TestApp::User['Bob'] }
+  
+  let(:authorization) { OAuth2::Provider::Authorization.new(resource_owner, params) }
   
   let(:params) { { 'response_type' => 'code',
                    'client_id'     => @client.client_id,
                    'redirect_uri'  => @client.redirect_uri }
                }
-  
-  let(:resource_owner) { TestApp::User['Bob'] }
   
   before do
     @client = Factory(:client)
@@ -99,14 +99,14 @@ describe OAuth2::Provider::Authorization do
       end
       
       it "creates a code for the authorization" do
-        authorization.grant_access!(resource_owner)
+        authorization.grant_access!
         authorization.code.should == "random_string"
         authorization.access_token.should be_nil
         authorization.expires_in.should be_nil
       end
       
       it "creates an Authorization in the database" do
-        authorization.grant_access!(resource_owner)
+        authorization.grant_access!
         
         authorization = OAuth2::Model::Authorization.first
         authorization.owner.should == resource_owner
@@ -123,7 +123,7 @@ describe OAuth2::Provider::Authorization do
       before { params['response_type'] = 'token' }
       
       it "creates a token for the authorization" do
-        authorization.grant_access!(resource_owner)
+        authorization.grant_access!
         authorization.code.should be_nil
         authorization.access_token.should == "random_string"
         authorization.refresh_token.should == "random_string"
@@ -131,7 +131,7 @@ describe OAuth2::Provider::Authorization do
       end
       
       it "creates an Authorization in the database" do
-        authorization.grant_access!(resource_owner)
+        authorization.grant_access!
         
         authorization = OAuth2::Model::Authorization.first
         authorization.owner.should == resource_owner
@@ -147,7 +147,7 @@ describe OAuth2::Provider::Authorization do
       before { params['response_type'] = 'code_and_token' }
       
       it "creates a code and token for the authorization" do
-        authorization.grant_access!(resource_owner)
+        authorization.grant_access!
         authorization.code.should == "random_string"
         authorization.access_token.should == "random_string"
         authorization.refresh_token.should == "random_string"
@@ -155,7 +155,7 @@ describe OAuth2::Provider::Authorization do
       end
       
       it "creates an Authorization in the database" do
-        authorization.grant_access!(resource_owner)
+        authorization.grant_access!
         
         authorization = OAuth2::Model::Authorization.first
         authorization.owner.should == resource_owner

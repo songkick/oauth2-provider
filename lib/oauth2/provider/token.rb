@@ -12,7 +12,7 @@ module OAuth2
         'Content-Type'  => 'application/json'
       }
       
-      def initialize(params)
+      def initialize(resource_owner, params)
         @params     = params
         @scope      = params['scope']
         @grant_type = @params['grant_type']
