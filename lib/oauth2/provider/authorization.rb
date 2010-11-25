@@ -19,15 +19,19 @@ module OAuth2
         validate!
         return unless @owner and not @error
         
-        model = Model::Authorization.for(@owner, @client)
-        return unless model and model.in_scope?(scopes)
+        @model = Model::Authorization.for(@owner, @client)
+        return unless @model and @model.in_scope?(scopes)
         
         @authorized = true
-        @code = model.code
+        @code = @model.code
       end
       
       def scopes
         @scope ? @scope.split(/\s+/).delete_if { |s| s.empty? } : []
+      end
+      
+      def unauthorized_scopes
+        @model ? scopes.select { |s| not @model.in_scope?(s) } : scopes
       end
       
       def grant_access!

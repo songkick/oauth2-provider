@@ -112,6 +112,12 @@ for so you can display them to the user:
     <% end %>
   </ul>
 
+You can also use the method <tt>@oauth2.unauthorized_scopes</tt> to get the list
+of scopes the user has not already granted to the client, in the case where the
+client already has some authorization. If no prior authorization exists between
+the user and the client, <tt>@oauth2.unauthorized_scopes</tt> just returns all
+the scopes the client has asked for.
+
 
 === Granting access to clients
 

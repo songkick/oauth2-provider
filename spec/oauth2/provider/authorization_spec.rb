@@ -21,11 +21,29 @@ describe OAuth2::Provider::Authorization do
     end
   end
   
-  describe "with the state parameter" do
+  describe "with the scope parameter" do
     before { params['scope'] = 'foo bar qux' }
     
     it "exposes the scope as a list of strings" do
       authorization.scopes.should == %w[foo bar qux]
+    end
+    
+    it "exposes the scopes the client has not yet granted" do
+      authorization.unauthorized_scopes.should == %w[foo bar qux]
+    end
+    
+    describe "when the owner has already authorized the client" do
+      before do
+        OAuth2::Model::Authorization.create(:owner => resource_owner, :client => @client, :scope => 'foo bar')
+      end
+      
+      it "exposes the scope as a list of strings" do
+        authorization.scopes.should == %w[foo bar qux]
+      end
+      
+      it "exposes the scopes the client has not yet granted" do
+        authorization.unauthorized_scopes.should == %w[qux]
+      end
     end
   end
   
