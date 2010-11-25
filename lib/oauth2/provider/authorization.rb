@@ -2,7 +2,8 @@ module OAuth2
   class Provider
     
     class Authorization
-      attr_reader :client, :code, :access_token, :refresh_token,
+      attr_reader :client, :code, :access_token,
+                  :expires_in, :refresh_token,
                   :error, :error_description
       
       REQUIRED_PARAMS = %w[response_type client_id redirect_uri]
@@ -29,6 +30,10 @@ module OAuth2
         @code          = model.code
         @access_token  = model.access_token
         @refresh_token = model.refresh_token
+        
+        unless @params['response_type'] == 'code'
+          @expires_in  = model.expires_in
+        end
       end
       
       def deny_access!
@@ -57,11 +62,11 @@ module OAuth2
         
         elsif @params['response_type'] == 'code_and_token'
           query    = to_query_string(:code, :state)
-          fragment = to_query_string(:access_token, :scope)
+          fragment = to_query_string(:access_token, :expires_in, :scope)
           "#{ base_redirect_uri }#{ query.empty? ? '' : '?' + query }##{ fragment }"
         
         elsif @params['response_type'] == 'token'
-          fragment = to_query_string(:access_token, :scope, :state)
+          fragment = to_query_string(:access_token, :expires_in, :scope, :state)
           "#{ base_redirect_uri }##{ fragment }"
         
         else

@@ -47,9 +47,7 @@ module OAuth2
             instance.refresh_token = create_refresh_token(params[:client])
         end
         
-        instance.expires_at = (response_type == 'code') ?
-                              Time.now + Provider::EXPIRY_TIME :
-                              nil
+        instance.expires_at = Time.now + Provider::EXPIRY_TIME
         
         params.each do |key, value|
           instance.__send__("#{key}=", value)
@@ -61,6 +59,10 @@ module OAuth2
       def expired?
         return false unless expires_at
         expires_at < Time.now
+      end
+      
+      def expires_in
+        expires_at && (expires_at - Time.now).ceil
       end
       
       def grants_access?(user, *scopes)
