@@ -201,10 +201,15 @@ describe OAuth2::Model::Authorization do
     
     it "uses its helpers to find unique tokens" do
       OAuth2::Model::Authorization.should_receive(:create_access_token).and_return('access_token')
-      OAuth2::Model::Authorization.should_receive(:create_refresh_token).with(client).and_return('refresh_token')
+      authorization.update_tokens
+      authorization.access_token.should == 'access_token'
+    end
+    
+    it "updates the tokens correctly" do
       authorization.update_tokens
       authorization.should be_valid
-      authorization.access_token.should == 'access_token'
+      authorization.refresh_token.should be_nil
+      authorization.expires_at.should be_nil
     end
   end
 end

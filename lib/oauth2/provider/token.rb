@@ -31,9 +31,13 @@ module OAuth2
         return jsonize(:error, :error_description) unless valid?
         update_authorization
         
-        JSON.unparse(
-          'access_token'  => @authorization.access_token,
-          'refresh_token' => @authorization.refresh_token)
+        response = {}
+        %w[access_token refresh_token].each do |key|
+          value = @authorization.attributes[key]
+          response[key] = value if value
+        end
+        
+        JSON.unparse(response)
       end
       
       def response_headers

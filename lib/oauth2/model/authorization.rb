@@ -81,7 +81,7 @@ module OAuth2
         update_attributes(
           :code          => nil,
           :access_token  => self.class.create_access_token,
-          :refresh_token => self.class.create_refresh_token(client),
+          :refresh_token => nil,
           :expires_at    => nil)
       end
     end

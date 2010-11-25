@@ -85,7 +85,7 @@ describe OAuth2::Provider::Token do
   
   shared_examples_for "valid token request" do
     before do
-      OAuth2.stub(:random_string).and_return('random_access_token', 'random_refresh_token')
+      OAuth2.stub(:random_string).and_return('random_access_token')
     end
     
     it "is valid" do
@@ -97,7 +97,7 @@ describe OAuth2::Provider::Token do
       authorization.reload
       authorization.code.should be_nil
       authorization.access_token.should == 'random_access_token'
-      authorization.refresh_token.should == 'random_refresh_token'
+      authorization.refresh_token.should be_nil
       authorization.expires_at.should be_nil
     end
   end

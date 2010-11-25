@@ -299,13 +299,10 @@ describe OAuth2::Provider do
         end
         
         it "returns a successful response" do
-          OAuth2.stub(:random_string).and_return('random_access_token', 'random_refresh_token')
+          OAuth2.stub(:random_string).and_return('random_access_token')
           
           response = post_basic_auth(auth_params, query_params)
-          validate_json_response(response, 200,
-            'access_token'  => 'random_access_token',
-            'refresh_token' => 'random_refresh_token'
-          )
+          validate_json_response(response, 200, 'access_token'  => 'random_access_token')
         end
       end
       
