@@ -19,13 +19,11 @@ module OAuth2
         validate!
         return unless @owner and not @error
         
-        authorization = @owner.oauth2_authorizations.
-                        find(:first, :conditions => {:client_id => @client.id})
-        
-        return unless authorization and authorization.code
+        model = Model::Authorization.for(@owner, @client)
+        return unless model and model.in_scope?(scope)
         
         @authorized = true
-        @code = authorization.code
+        @code = model.code
       end
       
       def scope

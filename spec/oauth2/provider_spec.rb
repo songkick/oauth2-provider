@@ -91,13 +91,29 @@ describe OAuth2::Provider do
         OAuth2::Model::Authorization.create(
           :owner  => @owner,
           :client => @client,
-          :code   => 'pending_code')
+          :code   => 'pending_code',
+          :scope  => 'offline_access')
       end
       
       it "immediately redirects with the code" do
         response = get(params)
         response.code.to_i.should == 302
         response['location'].should == 'https://client.example.com/cb?code=pending_code'
+      end
+      
+      describe "when the client is requesting scopes it already has access to" do
+        before { params['scope'] = 'offline_access' }
+        
+        it "immediately redirects with the code" do
+          response = get(params)
+          response.code.to_i.should == 302
+          response['location'].should == 'https://client.example.com/cb?code=pending_code&scope=offline_access'
+        end
+      end
+      
+      describe "when the client is requesting scopes it doesn't have yet" do
+        before { params['scope'] = 'wall_publish' }
+        it_should_behave_like "creates authorization"
       end
     end
     
