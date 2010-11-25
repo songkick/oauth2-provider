@@ -47,17 +47,16 @@ example in a Sinatra app:
 
   post '/oauth/apps' do
     @client = OAuth2::Model::Client.new(params)
-    @client.save ? redirect("/oauth/apps/#{@client.id}") : erb(:new_client)
-  end
-
-  get '/oauth/apps/:id' do
-    @client = OAuth2::Model::Client.find_by_id(params[:id])
-    erb :show_client
+    @client.save ? erb(:show_client) : erb(:new_client)
   end
 
 Client applications must have a <tt>name</tt> and a <tt>redirect_uri</tt>:
 provide fields for editing these but do not allow the other fields to be edited,
-since they are the client's access credentials.
+since they are the client's access credentials. When you've created the client,
+you should show its details to the user registering the client: its <tt>name</tt>,
+<tt>redirect_uri</tt>, <tt>client_id</tt> and <tt>client_secret</tt> (the last
+two are generated for you). <tt>client_secret</tt> is not stored in plain text
+so you can only read it when you initially create the client object.
 
 
 === OAuth request endpoint
