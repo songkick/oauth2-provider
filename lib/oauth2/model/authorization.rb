@@ -74,6 +74,11 @@ module OAuth2
         expires_at && (expires_at - Time.now).ceil
       end
       
+      def generate_code
+        self.code ||= self.class.create_code(client)
+        save && code
+      end
+      
       def grants_access?(user, *scopes)
         not expired? and user == owner and in_scope?(scopes)
       end

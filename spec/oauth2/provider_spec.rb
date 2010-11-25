@@ -56,7 +56,7 @@ describe OAuth2::Provider do
     mock_request
   end
   
-  describe "authorization request" do
+  describe "access grant request" do
     shared_examples_for "creates authorization" do
       it "creates an authorization" do
         auth = mock_request(OAuth2::Provider::Authorization, :client => @client, :params => {}, :scopes => [])
@@ -88,7 +88,7 @@ describe OAuth2::Provider do
     
     describe "when there is already a pending authorization from the user" do
       before do
-        OAuth2::Model::Authorization.create(
+        @authorization = OAuth2::Model::Authorization.create(
           :owner  => @owner,
           :client => @client,
           :code   => 'pending_code',
@@ -114,6 +114,17 @@ describe OAuth2::Provider do
       describe "when the client is requesting scopes it doesn't have yet" do
         before { params['scope'] = 'wall_publish' }
         it_should_behave_like "creates authorization"
+      end
+      
+      describe "and the authorization does not have a code" do
+        before { @authorization.update_attribute(:code, nil) }
+        
+        it "generates a new code and redirects" do
+          OAuth2.should_receive(:random_string).and_return('new_code')
+          response = get(params)
+          response.code.to_i.should == 302
+          response['location'].should == 'https://client.example.com/cb?code=new_code'
+        end
       end
     end
     

@@ -23,7 +23,7 @@ module OAuth2
         return unless @model and @model.in_scope?(scopes)
         
         @authorized = true
-        @code = @model.code
+        @code = @model.generate_code
       end
       
       def scopes
