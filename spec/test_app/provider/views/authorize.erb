@@ -2,6 +2,10 @@
 
 <p>Do you want to allow <%= @oauth2.client.name %> to act on your behalf?</p>
 
+<ul>
+  <% @oauth2.scopes.each do |scope| %><%= scope %><% end %>
+</ul>
+
 <form method="post" action="/allow">
   <% @oauth2.params.each do |key, value| %>
     <input type="hidden" name="<%= key %>" value="<%= value %>">

@@ -25,7 +25,7 @@ describe OAuth2::Provider::Authorization do
     before { params['scope'] = 'foo bar qux' }
     
     it "exposes the scope as a list of strings" do
-      authorization.scope.should == %w[foo bar qux]
+      authorization.scopes.should == %w[foo bar qux]
     end
   end
   
@@ -112,7 +112,7 @@ describe OAuth2::Provider::Authorization do
         authorization.owner.should == resource_owner
         authorization.client.should == @client
         authorization.code.should == "random_string"
-        authorization.scope_list.should == %w[foo bar]
+        authorization.scopes.should == %w[foo bar]
         
         expiry = authorization.expires_at - Time.now
         expiry.ceil.should == 3600

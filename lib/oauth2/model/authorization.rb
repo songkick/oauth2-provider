@@ -79,10 +79,10 @@ module OAuth2
       end
       
       def in_scope?(request_scope)
-        [*request_scope].all?(&scope_list.method(:include?))
+        [*request_scope].all?(&scopes.method(:include?))
       end
       
-      def scope_list
+      def scopes
         scope ? scope.split(/\s+/) : []
       end
       

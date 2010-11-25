@@ -59,7 +59,7 @@ describe OAuth2::Provider do
   describe "authorization request" do
     shared_examples_for "creates authorization" do
       it "creates an authorization" do
-        auth = mock_request(OAuth2::Provider::Authorization, :client => @client, :params => {})
+        auth = mock_request(OAuth2::Provider::Authorization, :client => @client, :params => {}, :scopes => [])
         OAuth2::Provider::Authorization.should_receive(:new).with(@owner, params).and_return(auth)
         get(params)
       end

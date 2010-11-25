@@ -4,7 +4,7 @@
   the following permissions:</p>
 
 <ul>
-  <% @oauth2.scope.each do |scope| %>
+  <% @oauth2.scopes.each do |scope| %>
     <% next unless PERMISSIONS[scope] %>
     <li><%= PERMISSIONS[scope] %></li>
   <% end %>
