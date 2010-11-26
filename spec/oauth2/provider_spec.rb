@@ -342,9 +342,23 @@ describe OAuth2::Provider do
         
         it "returns a successful response" do
           OAuth2.stub(:random_string).and_return('random_access_token')
-          
           response = post_basic_auth(auth_params, query_params)
           validate_json_response(response, 200, 'access_token'  => 'random_access_token')
+        end
+        
+        describe "with a scope parameter" do
+          before do
+            @authorization.update_attribute(:scope, 'foo bar')
+          end
+          
+          it "passes the scope back in the success response" do
+            OAuth2.stub(:random_string).and_return('random_access_token')
+            response = post_basic_auth(auth_params, query_params)
+            validate_json_response(response, 200,
+              'access_token'  => 'random_access_token',
+              'scope'         => 'foo bar'
+            )
+          end
         end
       end
       
