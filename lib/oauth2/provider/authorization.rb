@@ -145,7 +145,7 @@ module OAuth2
         ivars.map { |key|
           value = instance_variable_get("@#{key}")
           value = value.join(' ') if Array === value
-          value ? "#{ key }=#{ URI.escape(value.to_s) }" : nil
+          value ? "#{ key }=#{ CGI.escape(value.to_s) }" : nil
         }.compact.join('&')
       end
     end

@@ -159,7 +159,7 @@ describe OAuth2::Provider do
       it "redirects to the client's registered redirect_uri" do
         response = get(params)
         response.code.to_i.should == 302
-        response['location'].should == 'https://client.example.com/cb?error=invalid_request&error_description=Missing%20required%20parameter%20response_type'
+        response['location'].should == 'https://client.example.com/cb?error=invalid_request&error_description=Missing+required+parameter+response_type'
       end
     end
     
@@ -169,7 +169,7 @@ describe OAuth2::Provider do
       it "redirects to the client's redirect_uri on error" do
         response = get(params)
         response.code.to_i.should == 302
-        response['location'].should == 'https://client.example.com/cb?error=invalid_request&error_description=Missing%20required%20parameter%20response_type'
+        response['location'].should == 'https://client.example.com/cb?error=invalid_request&error_description=Missing+required+parameter+response_type'
       end
       
       describe "with a state parameter" do
@@ -178,7 +178,7 @@ describe OAuth2::Provider do
         it "redirects to the client, including the state param" do
           response = get(params)
           response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb?error=invalid_request&error_description=Missing%20required%20parameter%20response_type&state=foo'
+          response['location'].should == 'https://client.example.com/cb?error=invalid_request&error_description=Missing+required+parameter+response_type&state=foo'
         end
       end
     end
@@ -203,7 +203,7 @@ describe OAuth2::Provider do
       it "redirects to the client with an error" do
         response = allow_or_deny(params)
         response.code.to_i.should == 302
-        response['location'].should == 'https://client.example.com/cb?error=access_denied&error_description=The%20user%20denied%20you%20access'
+        response['location'].should == 'https://client.example.com/cb?error=access_denied&error_description=The+user+denied+you+access'
       end
     end
     
@@ -234,7 +234,7 @@ describe OAuth2::Provider do
           params['scope'] = 'foo bar'
           response = allow_or_deny(params)
           response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb?code=foo&scope=foo%20bar'
+          response['location'].should == 'https://client.example.com/cb?code=foo&scope=foo+bar'
         end
       end
       
@@ -263,7 +263,7 @@ describe OAuth2::Provider do
           params['scope'] = 'foo bar'
           response = allow_or_deny(params)
           response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb#access_token=foo&scope=foo%20bar'
+          response['location'].should == 'https://client.example.com/cb#access_token=foo&scope=foo+bar'
         end
       end
       
@@ -292,7 +292,7 @@ describe OAuth2::Provider do
           params['scope'] = 'foo bar'
           response = allow_or_deny(params)
           response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb?code=foo#access_token=foo&scope=foo%20bar'
+          response['location'].should == 'https://client.example.com/cb?code=foo#access_token=foo&scope=foo+bar'
         end
       end
     end

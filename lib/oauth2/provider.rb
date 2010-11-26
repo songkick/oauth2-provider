@@ -1,5 +1,5 @@
 require 'forwardable'
-require 'uri'
+require 'cgi'
 require 'net/http'
 require 'digest/sha1'
 
