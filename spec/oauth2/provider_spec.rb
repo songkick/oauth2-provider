@@ -387,34 +387,34 @@ describe OAuth2::Provider do
       
     shared_examples_for "protected resource" do
       it "can get the current user when the key is passed" do
-        response = request('/me', 'access_token' => 'magic-key')
+        response = request('/me', 'oauth_token' => 'magic-key')
         JSON.parse(response.body)['data'].should == 'Bob'
       end
       
       it "allows access when the key is passed" do
-        response = request('/user_profile', 'access_token' => 'magic-key')
+        response = request('/user_profile', 'oauth_token' => 'magic-key')
         JSON.parse(response.body)['data'].should == 'Top secret'
       end
       
       it "cannot get the current user when the wrong key is passed" do
-        response = request('/me', 'access_token' => 'is-the-password-books')
+        response = request('/me', 'oauth_token' => 'is-the-password-books')
         JSON.parse(response.body)['data'].should == 'No soup for you'
       end
       
       it "blocks access when the wrong key is passed" do
-        response = request('/user_profile', 'access_token' => 'is-the-password-books')
+        response = request('/user_profile', 'oauth_token' => 'is-the-password-books')
         JSON.parse(response.body)['data'].should == 'No soup for you'
       end
       
       it "blocks access when the key is for the wrong user" do
         @authorization.update_attribute(:owner, TestApp::User['Alice'])
-        response = request('/user_profile', 'access_token' => 'magic-key')
+        response = request('/user_profile', 'oauth_token' => 'magic-key')
         JSON.parse(response.body)['data'].should == 'No soup for you'
       end
       
       it "blocks access when the key is for the wrong scope" do
         @authorization.update_attribute(:scope, 'wall')
-        response = request('/user_profile', 'access_token' => 'magic-key')
+        response = request('/user_profile', 'oauth_token' => 'magic-key')
         JSON.parse(response.body)['data'].should == 'No soup for you'
       end
       
@@ -431,7 +431,7 @@ describe OAuth2::Provider do
     
     describe "for header-based requests" do
       def request(path, params = {})
-        access_token = params.delete('access_token')
+        access_token = params.delete('oauth_token')
         http   = Net::HTTP.new('localhost', 8000)
         qs     = params.map { |k,v| "#{ URI.escape k.to_s }=#{ URI.escape v.to_s }" }.join('&')
         header = {'Authorization' => "OAuth #{access_token}"}

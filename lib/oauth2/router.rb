@@ -33,7 +33,7 @@ module OAuth2
       
       access_token = header ?
                      header.gsub(/^OAuth\s+/, '') :
-                     params['access_token']
+                     params['oauth_token']
       
       hash = OAuth2.hashify(access_token)
       access_token && Model::Authorization.find_by_access_token_hash(hash)
