@@ -9,7 +9,8 @@ module OAuth2
     
     def grants_access?(access_token, *scopes)
       unless Model::Authorization === access_token
-        access_token = oauth2_authorizations.find_by_access_token(access_token)
+        hash = OAuth2.hashify(access_token)
+        access_token = oauth2_authorizations.find_by_access_token_hash(hash)
       end
       return false unless access_token
       access_token.grants_access?(self, *scopes)

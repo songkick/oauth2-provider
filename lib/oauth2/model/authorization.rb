@@ -3,17 +3,21 @@ module OAuth2
     
     class Authorization < ActiveRecord::Base
       set_table_name :oauth2_authorizations
+      
       belongs_to :oauth2_resource_owner, :polymorphic => true
       belongs_to :client, :class_name => 'OAuth2::Model::Client'
       
       validates_presence_of :client, :owner
       
-      validates_uniqueness_of :code, :scope => :client_id, :allow_nil => true
-      validates_uniqueness_of :refresh_token, :scope => :client_id, :allow_nil => true
-      validates_uniqueness_of :access_token, :allow_nil => true
+      validates_uniqueness_of :code,               :scope => :client_id, :allow_nil => true
+      validates_uniqueness_of :refresh_token_hash, :scope => :client_id, :allow_nil => true
+      validates_uniqueness_of :access_token_hash,                        :allow_nil => true
       
       alias :owner  :oauth2_resource_owner
       alias :owner= :oauth2_resource_owner=
+      
+      extend Hashing
+      hashes_attributes :access_token, :refresh_token
       
       def self.for(resource_owner, client)
         return nil unless resource_owner and client
@@ -32,13 +36,15 @@ module OAuth2
       
       def self.create_access_token
         OAuth2.generate_id do |token|
-          count(:conditions => {:access_token => token}).zero?
+          hash = OAuth2.hashify(token)
+          count(:conditions => {:access_token_hash => hash}).zero?
         end
       end
       
       def self.create_refresh_token(client)
         OAuth2.generate_id do |refresh_token|
-          client.authorizations.count(:conditions => {:refresh_token => refresh_token}).zero?
+          hash = OAuth2.hashify(refresh_token)
+          client.authorizations.count(:conditions => {:refresh_token_hash => hash}).zero?
         end
       end
       
@@ -64,10 +70,10 @@ module OAuth2
       end
       
       def exchange!
-        update_attributes(
-          :code          => nil,
-          :access_token  => self.class.create_access_token,
-          :refresh_token => nil)
+        self.code          = nil
+        self.access_token  = self.class.create_access_token
+        self.refresh_token = nil
+        save!
       end
       
       def expired?

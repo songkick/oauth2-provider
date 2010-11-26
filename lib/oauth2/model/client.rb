@@ -24,12 +24,12 @@ module OAuth2
       def client_secret=(secret)
         @client_secret = secret
         self.client_secret_salt = OAuth2.random_string
-        self.client_secret_hash = Digest::SHA1.hexdigest(secret + client_secret_salt)
+        self.client_secret_hash = OAuth2.hashify(secret + client_secret_salt)
       end
       
       def valid_client_secret?(secret)
         return false unless String === secret
-        hash = Digest::SHA1.hexdigest(secret + client_secret_salt)
+        hash = OAuth2.hashify(secret + client_secret_salt)
         client_secret_hash == hash
       end
       

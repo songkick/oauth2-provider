@@ -22,6 +22,11 @@ module OAuth2
     id
   end
   
+  def self.hashify(token)
+    return nil unless String === token
+    Digest::SHA1.hexdigest(token)
+  end
+  
   class Provider
     VERSION = '0.1.0'
     

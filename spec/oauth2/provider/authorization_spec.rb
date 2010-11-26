@@ -150,8 +150,8 @@ describe OAuth2::Provider::Authorization do
         authorization.owner.should == resource_owner
         authorization.client.should == @client
         authorization.code.should be_nil
-        authorization.access_token.should == "random_string"
-        authorization.refresh_token.should == "random_string"
+        authorization.access_token_hash.should == OAuth2.hashify("random_string")
+        authorization.refresh_token_hash.should == OAuth2.hashify("random_string")
       end
     end
     
@@ -172,8 +172,8 @@ describe OAuth2::Provider::Authorization do
         authorization.owner.should == resource_owner
         authorization.client.should == @client
         authorization.code.should == "random_string"
-        authorization.access_token.should == "random_string"
-        authorization.refresh_token.should == "random_string"
+        authorization.access_token_hash.should == OAuth2.hashify("random_string")
+        authorization.refresh_token_hash.should == OAuth2.hashify("random_string")
       end
     end
   end

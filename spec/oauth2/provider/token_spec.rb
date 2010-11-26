@@ -96,7 +96,7 @@ describe OAuth2::Provider::Token do
       token.update_authorization
       authorization.reload
       authorization.code.should be_nil
-      authorization.access_token.should == 'random_access_token'
+      authorization.access_token_hash.should == OAuth2.hashify('random_access_token')
       authorization.refresh_token.should be_nil
     end
   end

@@ -19,15 +19,15 @@ module OAuth2
           t.integer    :oauth2_resource_owner_id
           t.belongs_to :client
           t.string     :scope
-          t.string     :code
-          t.string     :access_token
-          t.string     :refresh_token
+          t.string     :code,               :limit => 40
+          t.string     :access_token_hash,  :limit => 40
+          t.string     :refresh_token_hash, :limit => 40
           t.datetime   :expires_at
         end
         add_index :oauth2_authorizations, [:client_id, :code]
-        add_index :oauth2_authorizations, [:access_token]
-        add_index :oauth2_authorizations, [:client_id, :access_token]
-        add_index :oauth2_authorizations, [:client_id, :refresh_token]
+        add_index :oauth2_authorizations, [:access_token_hash]
+        add_index :oauth2_authorizations, [:client_id, :access_token_hash]
+        add_index :oauth2_authorizations, [:client_id, :refresh_token_hash]
       end
       
       def self.down

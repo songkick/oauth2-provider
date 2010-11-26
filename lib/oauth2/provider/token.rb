@@ -33,7 +33,7 @@ module OAuth2
         
         response = {}
         %w[access_token refresh_token].each do |key|
-          value = @authorization.attributes[key]
+          value = @authorization.__send__(key)
           response[key] = value if value
         end
         
@@ -138,7 +138,8 @@ module OAuth2
       end
       
       def validate_refresh_token
-        @authorization = @client.authorizations.find_by_refresh_token(@params['refresh_token'])
+        refresh_token_hash = OAuth2.hashify(@params['refresh_token'])
+        @authorization = @client.authorizations.find_by_refresh_token_hash(refresh_token_hash)
         validate_authorization
       end
       

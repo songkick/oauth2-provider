@@ -114,7 +114,7 @@ describe OAuth2::Model::Authorization do
   
   describe "#exchange!" do
     it "saves the record" do
-      authorization.should_receive(:save)
+      authorization.should_receive(:save!)
       authorization.exchange!
     end
     
