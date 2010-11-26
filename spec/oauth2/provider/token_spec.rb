@@ -98,7 +98,6 @@ describe OAuth2::Provider::Token do
       authorization.code.should be_nil
       authorization.access_token.should == 'random_access_token'
       authorization.refresh_token.should be_nil
-      authorization.expires_at.should be_nil
     end
   end
   

@@ -249,21 +249,21 @@ describe OAuth2::Provider do
         it "redirects to the client with an access token" do
           response = allow_or_deny(params)
           response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb#access_token=foo&expires_in=3600'
+          response['location'].should == 'https://client.example.com/cb#access_token=foo'
         end
         
         it "passes the state parameter through" do
           params['state'] = 'illinois'
           response = allow_or_deny(params)
           response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb#access_token=foo&expires_in=3600&state=illinois'
+          response['location'].should == 'https://client.example.com/cb#access_token=foo&state=illinois'
         end
         
         it "passes the scope parameter through" do
           params['scope'] = 'foo bar'
           response = allow_or_deny(params)
           response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb#access_token=foo&expires_in=3600&scope=foo%20bar'
+          response['location'].should == 'https://client.example.com/cb#access_token=foo&scope=foo%20bar'
         end
       end
       
@@ -278,21 +278,21 @@ describe OAuth2::Provider do
         it "redirects to the client with an access token" do
           response = allow_or_deny(params)
           response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb?code=foo#access_token=foo&expires_in=3600'
+          response['location'].should == 'https://client.example.com/cb?code=foo#access_token=foo'
         end
         
         it "passes the state parameter through" do
           params['state'] = 'illinois'
           response = allow_or_deny(params)
           response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb?code=foo&state=illinois#access_token=foo&expires_in=3600'
+          response['location'].should == 'https://client.example.com/cb?code=foo&state=illinois#access_token=foo'
         end
         
         it "passes the scope parameter through" do
           params['scope'] = 'foo bar'
           response = allow_or_deny(params)
           response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb?code=foo#access_token=foo&expires_in=3600&scope=foo%20bar'
+          response['location'].should == 'https://client.example.com/cb?code=foo#access_token=foo&scope=foo%20bar'
         end
       end
     end

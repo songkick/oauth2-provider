@@ -50,7 +50,7 @@ module OAuth2
       
       def update_authorization
         return if not valid? or @already_updated
-        @authorization.update_tokens
+        @authorization.exchange!
         @already_updated = true
       end
       

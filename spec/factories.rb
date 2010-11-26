@@ -22,6 +22,6 @@ end
 Factory.define :authorization, :class => OAuth2::Model::Authorization do |ac|
   ac.client     Factory(:client)
   ac.code       'i1WsRn1uB1'
-  ac.expires_at 1.hour.from_now
+  ac.expires_at nil
 end
 

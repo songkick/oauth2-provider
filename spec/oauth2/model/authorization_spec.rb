@@ -112,6 +112,26 @@ describe OAuth2::Model::Authorization do
     end
   end
   
+  describe "#exchange!" do
+    it "saves the record" do
+      authorization.should_receive(:save)
+      authorization.exchange!
+    end
+    
+    it "uses its helpers to find unique tokens" do
+      OAuth2::Model::Authorization.should_receive(:create_access_token).and_return('access_token')
+      authorization.exchange!
+      authorization.access_token.should == 'access_token'
+    end
+    
+    it "updates the tokens correctly" do
+      authorization.exchange!
+      authorization.should be_valid
+      authorization.code.should be_nil
+      authorization.refresh_token.should be_nil
+    end
+  end
+  
   describe "#expired?" do
     it "returns false when not expiry is set" do
       authorization.should_not be_expired
@@ -190,26 +210,6 @@ describe OAuth2::Model::Authorization do
       it "returns false given the wrong user and an authorized scope" do
         authorization.grants_access?(user, 'foo').should be_false
       end
-    end
-  end
-  
-  describe "#update_tokens" do
-    it "saves the record" do
-      authorization.should_receive(:save)
-      authorization.update_tokens
-    end
-    
-    it "uses its helpers to find unique tokens" do
-      OAuth2::Model::Authorization.should_receive(:create_access_token).and_return('access_token')
-      authorization.update_tokens
-      authorization.access_token.should == 'access_token'
-    end
-    
-    it "updates the tokens correctly" do
-      authorization.update_tokens
-      authorization.should be_valid
-      authorization.refresh_token.should be_nil
-      authorization.expires_at.should be_nil
     end
   end
 end

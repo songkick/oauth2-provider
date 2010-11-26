@@ -56,13 +56,18 @@ module OAuth2
             instance.refresh_token = create_refresh_token(params[:client])
         end
         
-        instance.expires_at = Time.now + Provider::EXPIRY_TIME
-        
         params.each do |key, value|
           instance.__send__("#{key}=", value)
         end
         
         instance.save && instance
+      end
+      
+      def exchange!
+        update_attributes(
+          :code          => nil,
+          :access_token  => self.class.create_access_token,
+          :refresh_token => nil)
       end
       
       def expired?
@@ -89,14 +94,6 @@ module OAuth2
       
       def scopes
         scope ? scope.split(/\s+/) : []
-      end
-      
-      def update_tokens
-        update_attributes(
-          :code          => nil,
-          :access_token  => self.class.create_access_token,
-          :refresh_token => nil,
-          :expires_at    => nil)
       end
     end
     
