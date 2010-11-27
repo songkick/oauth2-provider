@@ -437,7 +437,7 @@ describe OAuth2::Provider do
       def request(path, params = {})
         access_token = params.delete('oauth_token')
         http   = Net::HTTP.new('localhost', 8000)
-        qs     = params.map { |k,v| "#{ URI.escape k.to_s }=#{ URI.escape v.to_s }" }.join('&')
+        qs     = params.map { |k,v| "#{ CGI.escape k.to_s }=#{ CGI.escape v.to_s }" }.join('&')
         header = {'Authorization' => "OAuth #{access_token}"}
         http.request_get(path + '?' + qs, header)
       end
@@ -447,7 +447,7 @@ describe OAuth2::Provider do
     
     describe "for GET requests" do
       def request(path, params = {})
-        qs  = params.map { |k,v| "#{ URI.escape k.to_s }=#{ URI.escape v.to_s }" }.join('&')
+        qs  = params.map { |k,v| "#{ CGI.escape k.to_s }=#{ CGI.escape v.to_s }" }.join('&')
         uri = URI.parse('http://localhost:8000' + path + '?' + qs)
         Net::HTTP.get_response(uri)
       end

@@ -2,7 +2,7 @@ module RequestHelpers
   require 'net/http'
   
   def get(query_params)
-    qs  = params.map { |k,v| "#{ URI.escape k.to_s }=#{ URI.escape v.to_s }" }.join('&')
+    qs  = params.map { |k,v| "#{ CGI.escape k.to_s }=#{ CGI.escape v.to_s }" }.join('&')
     uri = URI.parse('http://localhost:8000/authorize?' + qs)
     Net::HTTP.get_response(uri)
   end
