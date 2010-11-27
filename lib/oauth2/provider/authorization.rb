@@ -96,7 +96,7 @@ module OAuth2
       end
       
       def response_headers
-        valid? ? {} : Token::RESPONSE_HEADERS
+        valid? ? {} : Exchange::RESPONSE_HEADERS
       end
       
       def response_status

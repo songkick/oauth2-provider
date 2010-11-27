@@ -280,7 +280,7 @@ describe OAuth2::Provider do
       describe "with valid parameters" do
         it "does not respond to GET" do
           OAuth2::Provider::Authorization.should_not_receive(:new)
-          OAuth2::Provider::Token.should_not_receive(:new)
+          OAuth2::Provider::Exchange.should_not_receive(:new)
           response = get(params)
           validate_json_response(response, 400,
             'error'             => 'invalid_request',
@@ -289,14 +289,14 @@ describe OAuth2::Provider do
         end
         
         it "creates a Token when using Basic Auth" do
-          token = mock_request(OAuth2::Provider::Token, :response_body => 'Hello')
-          OAuth2::Provider::Token.should_receive(:new).with(@owner, params).and_return(token)
+          token = mock_request(OAuth2::Provider::Exchange, :response_body => 'Hello')
+          OAuth2::Provider::Exchange.should_receive(:new).with(@owner, params).and_return(token)
           post_basic_auth(auth_params, query_params)
         end
         
         it "creates a Token when passing params in the POST body" do
-          token = mock_request(OAuth2::Provider::Token, :response_body => 'Hello')
-          OAuth2::Provider::Token.should_receive(:new).with(@owner, params).and_return(token)
+          token = mock_request(OAuth2::Provider::Exchange, :response_body => 'Hello')
+          OAuth2::Provider::Exchange.should_receive(:new).with(@owner, params).and_return(token)
           post(params)
         end
         

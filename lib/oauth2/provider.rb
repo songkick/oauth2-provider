@@ -57,7 +57,7 @@ module OAuth2
     EXPIRY_TIME          = 3600
     
     autoload :Authorization, ROOT + '/oauth2/provider/authorization'
-    autoload :Token,         ROOT + '/oauth2/provider/token'
+    autoload :Exchange,      ROOT + '/oauth2/provider/exchange'
     autoload :AccessToken,   ROOT + '/oauth2/provider/access_token'
     autoload :Error,         ROOT + '/oauth2/provider/error'
   end

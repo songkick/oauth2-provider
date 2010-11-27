@@ -16,7 +16,7 @@ module OAuth2
       end
       
       def response_headers
-        Token::RESPONSE_HEADERS
+        Exchange::RESPONSE_HEADERS
       end
       
       def response_status

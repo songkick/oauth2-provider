@@ -1,7 +1,7 @@
 module OAuth2
   class Provider
     
-    class Token
+    class Exchange
       attr_reader :error, :error_description
       
       REQUIRED_PARAMS    = %w[client_id client_secret grant_type]

@@ -21,7 +21,9 @@ module OAuth2
       params = params.merge(auth)
       
       if params['grant_type']
-        request.post? ? Provider::Token.new(resource_owner, params) : Provider::Error.new
+        request.post? ?
+            Provider::Exchange.new(resource_owner, params) :
+            Provider::Error.new
       else
         Provider::Authorization.new(resource_owner, params)
       end

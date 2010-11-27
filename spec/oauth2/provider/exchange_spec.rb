@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe OAuth2::Provider::Token do
+describe OAuth2::Provider::Exchange do
   before do
     @client = Factory(:client)
     @owner  = Factory(:owner)
@@ -8,15 +8,15 @@ describe OAuth2::Provider::Token do
     OAuth2.stub(:random_string).and_return('random_string')
   end
   
-  let(:token) { OAuth2::Provider::Token.new(@owner, params) }
+  let(:exchange) { OAuth2::Provider::Exchange.new(@owner, params) }
   
   shared_examples_for "validates required parameters" do
     describe "missing grant_type" do
       before { params.delete('client_id') }
       
       it "is invalid" do
-        token.error.should == "invalid_request"
-        token.error_description.should == "Missing required parameter client_id"
+        exchange.error.should == "invalid_request"
+        exchange.error_description.should == "Missing required parameter client_id"
       end
     end
     
@@ -24,8 +24,8 @@ describe OAuth2::Provider::Token do
       before { params['grant_type'] = 'unknown' }
       
       it "is invalid" do
-        token.error.should == "unsupported_grant_type"
-        token.error_description.should == "The grant type unknown is not recognized"
+        exchange.error.should == "unsupported_grant_type"
+        exchange.error_description.should == "The grant type unknown is not recognized"
       end
     end
     
@@ -33,8 +33,8 @@ describe OAuth2::Provider::Token do
       before { params.delete('client_id') }
       
       it "is invalid" do
-        token.error.should == "invalid_request"
-        token.error_description.should == "Missing required parameter client_id"
+        exchange.error.should == "invalid_request"
+        exchange.error_description.should == "Missing required parameter client_id"
       end
     end
     
@@ -42,8 +42,8 @@ describe OAuth2::Provider::Token do
       before { params['client_id'] = "unknown" }
       
       it "is invalid" do
-        token.error.should == "invalid_client"
-        token.error_description.should == "Unknown client ID unknown"
+        exchange.error.should == "invalid_client"
+        exchange.error_description.should == "Unknown client ID unknown"
       end
     end
     
@@ -51,8 +51,8 @@ describe OAuth2::Provider::Token do
       before { params.delete('client_secret') }
       
       it "is invalid" do
-        token.error.should == "invalid_request"
-        token.error_description.should == "Missing required parameter client_secret"
+        exchange.error.should == "invalid_request"
+        exchange.error_description.should == "Missing required parameter client_secret"
       end
     end
     
@@ -60,8 +60,8 @@ describe OAuth2::Provider::Token do
       before { params['client_secret'] = "nosoupforyou" }
       
       it "is invalid" do
-        token.error.should == "invalid_client"
-        token.error_description.should == "Parameter client_secret does not match"
+        exchange.error.should == "invalid_client"
+        exchange.error_description.should == "Parameter client_secret does not match"
       end
     end
     
@@ -69,7 +69,7 @@ describe OAuth2::Provider::Token do
       before { params['scope'] = 'bar' }
       
       it "is valid" do
-        token.error.should be_nil
+        exchange.error.should be_nil
       end
     end
     
@@ -77,8 +77,8 @@ describe OAuth2::Provider::Token do
       before { params['scope'] = 'qux' }
       
       it "is invalid" do
-        token.error.should == 'invalid_scope'
-        token.error_description.should == 'The request scope was never granted by the user'
+        exchange.error.should == 'invalid_scope'
+        exchange.error_description.should == 'The request scope was never granted by the user'
       end
     end
   end
@@ -89,11 +89,11 @@ describe OAuth2::Provider::Token do
     end
     
     it "is valid" do
-      token.error.should be_nil
+      exchange.error.should be_nil
     end
     
     it "updates the Authorization with tokens" do
-      token.update_authorization
+      exchange.update_authorization
       authorization.reload
       authorization.code.should be_nil
       authorization.access_token_hash.should == OAuth2.hashify('random_access_token')
@@ -121,8 +121,8 @@ describe OAuth2::Provider::Token do
       before { params.delete('redirect_uri') }
       
       it "is invalid" do
-        token.error.should == "invalid_request"
-        token.error_description.should == "Missing required parameter redirect_uri"
+        exchange.error.should == "invalid_request"
+        exchange.error_description.should == "Missing required parameter redirect_uri"
       end
     end
     
@@ -130,15 +130,15 @@ describe OAuth2::Provider::Token do
       before { params['redirect_uri'] = "http://songkick.com" }
       
       it "is invalid" do
-        token.error.should == "redirect_uri_mismatch"
-        token.error_description.should == "Parameter redirect_uri does not match registered URI"
+        exchange.error.should == "redirect_uri_mismatch"
+        exchange.error_description.should == "Parameter redirect_uri does not match registered URI"
       end
       
       describe "when the client has not registered a redirect_uri" do
         before { @client.update_attribute(:redirect_uri, nil) }
         
         it "is valid" do
-          token.error.should be_nil
+          exchange.error.should be_nil
         end
       end
     end
@@ -147,8 +147,8 @@ describe OAuth2::Provider::Token do
       before { params.delete('code') }
       
       it "is invalid" do
-        token.error.should == "invalid_request"
-        token.error_description.should == "Missing required parameter code"
+        exchange.error.should == "invalid_request"
+        exchange.error_description.should == "Missing required parameter code"
       end
     end
     
@@ -156,8 +156,8 @@ describe OAuth2::Provider::Token do
       before { params['code'] = "unknown" }
       
       it "is invalid" do
-        token.error.should == "invalid_grant"
-        token.error_description.should == "The access grant you supplied is invalid"
+        exchange.error.should == "invalid_grant"
+        exchange.error_description.should == "The access grant you supplied is invalid"
       end
     end
     
@@ -165,8 +165,8 @@ describe OAuth2::Provider::Token do
       before { @authorization.update_attribute(:expires_at, 1.day.ago) }
       
       it "is invalid" do
-        token.error.should == "invalid_grant"
-        token.error_description.should == "The access grant you supplied is invalid"
+        exchange.error.should == "invalid_grant"
+        exchange.error_description.should == "The access grant you supplied is invalid"
       end
     end
   end
@@ -198,8 +198,8 @@ describe OAuth2::Provider::Token do
       before { params['refresh_token'] = 'woops' }
       
       it "is invalid" do
-        token.error.should == "invalid_grant"
-        token.error_description.should == "The access grant you supplied is invalid"
+        exchange.error.should == "invalid_grant"
+        exchange.error_description.should == "The access grant you supplied is invalid"
       end
     end
   
