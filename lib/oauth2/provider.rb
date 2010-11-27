@@ -12,6 +12,10 @@ module OAuth2
   autoload :ResourceOwner, ROOT + '/oauth2/resource_owner'
   autoload :Router,        ROOT + '/oauth2/router'
   
+  class << self
+    attr_accessor :realm
+  end
+  
   def self.random_string
     rand(2 ** TOKEN_SIZE).to_s(36)
   end
@@ -45,12 +49,16 @@ module OAuth2
     INVALID_GRANT          = 'invalid_grant'
     INVALID_CLIENT         = 'invalid_client'
     INVALID_SCOPE          = 'invalid_scope'
+    INVALID_TOKEN          = 'invalid_token'
+    EXPIRED_TOKEN          = 'expired_token'
+    INSUFFICIENT_SCOPE     = 'insufficient_scope'
     ACCESS_DENIED          = 'access_denied'
     
     EXPIRY_TIME          = 3600
     
     autoload :Authorization, ROOT + '/oauth2/provider/authorization'
     autoload :Token,         ROOT + '/oauth2/provider/token'
+    autoload :AccessToken,   ROOT + '/oauth2/provider/access_token'
     autoload :Error,         ROOT + '/oauth2/provider/error'
   end
 end

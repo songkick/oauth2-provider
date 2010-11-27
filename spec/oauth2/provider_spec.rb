@@ -363,43 +363,57 @@ describe OAuth2::Provider do
       it "can get the current user when the key is passed" do
         response = request('/me', 'oauth_token' => 'magic-key')
         JSON.parse(response.body)['data'].should == 'Bob'
+        response.code.to_i.should == 200
       end
       
       it "allows access when the key is passed" do
         response = request('/user_profile', 'oauth_token' => 'magic-key')
         JSON.parse(response.body)['data'].should == 'Top secret'
+        response.code.to_i.should == 200
       end
       
       it "cannot get the current user when the wrong key is passed" do
         response = request('/me', 'oauth_token' => 'is-the-password-books')
         JSON.parse(response.body)['data'].should == 'No soup for you'
+        response.code.to_i.should == 401
+        response['WWW-Authenticate'].should == "OAuth realm='Demo App', error='invalid_token'"
       end
       
       it "blocks access when the wrong key is passed" do
         response = request('/user_profile', 'oauth_token' => 'is-the-password-books')
         JSON.parse(response.body)['data'].should == 'No soup for you'
+        response.code.to_i.should == 401
+        response['WWW-Authenticate'].should == "OAuth realm='Demo App', error='invalid_token'"
       end
       
       it "blocks access when the key is for the wrong user" do
         @authorization.update_attribute(:owner, TestApp::User['Alice'])
         response = request('/user_profile', 'oauth_token' => 'magic-key')
         JSON.parse(response.body)['data'].should == 'No soup for you'
+        response.code.to_i.should == 403
+        response['WWW-Authenticate'].should == "OAuth realm='Demo App', error='insufficient_scope'"
       end
       
       it "blocks access when the key is for the wrong scope" do
         @authorization.update_attribute(:scope, 'wall')
         response = request('/user_profile', 'oauth_token' => 'magic-key')
         JSON.parse(response.body)['data'].should == 'No soup for you'
+        response.code.to_i.should == 403
+        response['WWW-Authenticate'].should == "OAuth realm='Demo App', error='insufficient_scope'"
       end
       
       it "cannot get the current user when no key is passed" do
         response = request('/me')
         JSON.parse(response.body)['data'].should == 'No soup for you'
+        response.code.to_i.should == 401
+        response['WWW-Authenticate'].should == "OAuth realm='Demo App'"
       end
       
       it "blocks access when no key is passed" do
         response = request('/user_profile')
         JSON.parse(response.body)['data'].should == 'No soup for you'
+        response.code.to_i.should == 401
+        response['WWW-Authenticate'].should == "OAuth realm='Demo App'"
       end
     end
     

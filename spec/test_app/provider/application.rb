@@ -5,6 +5,8 @@ module TestApp
     
     extend Helper::RackRunner
     
+    OAuth2.realm = 'Demo App'
+    
     set :views, File.dirname(__FILE__) + '/views'
     
     def handle_authorize
@@ -17,13 +19,21 @@ module TestApp
       @oauth2.response_body || erb(:authorize)
     end
     
+    def protect_resource_for(user = nil, scopes = [])
+      access_token = OAuth2::Provider.access_token(user, scopes, request)
+      headers access_token.response_headers
+      status  access_token.response_status
+      yield access_token
+    end
+    
     def serve_protected_resource
       @user = User['Bob']
-      @auth = OAuth2::Provider.access_token(request)
-      if @user.grants_access?(@auth, 'profile')
-        JSON.unparse('data' => 'Top secret')
-      else
-        JSON.unparse('data' => 'No soup for you')
+      protect_resource_for(@user, ['profile']) do |auth|
+        if auth.valid?
+          JSON.unparse('data' => 'Top secret')
+        else
+          JSON.unparse('data' => 'No soup for you')
+        end
       end
     end
     
@@ -44,11 +54,12 @@ module TestApp
     
     [:get, :post].each do |method|
       __send__ method, '/me' do
-        access_token = OAuth2::Provider.access_token(request)
-        if access_token
-          JSON.unparse('data' => access_token.owner.name)
-        else
-          JSON.unparse('data' => 'No soup for you')
+        protect_resource_for do |auth|
+          if auth.valid?
+            JSON.unparse('data' => auth.owner.name)
+          else
+            JSON.unparse('data' => 'No soup for you')
+          end
         end
       end
       

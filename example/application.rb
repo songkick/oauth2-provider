@@ -84,8 +84,11 @@ end
 # Domain API
 
 get '/me' do
-  authorization = OAuth2::Provider.access_token(request)
-  if authorization
+  authorization = OAuth2::Provider.access_token(nil, [], request)
+  headers authorization.response_headers
+  status  authorization.response_status
+  
+  if authorization.valid?
     user = authorization.owner
     JSON.unparse('username' => user.username)
   else
@@ -116,11 +119,12 @@ helpers do
   # Check for OAuth access before rendering a resource
   def verify_access(scope)
     user  = User.find_by_username(params[:username])
-    token = OAuth2::Provider.access_token(request)
+    token = OAuth2::Provider.access_token(user, [scope.to_s], request)
     
-    unless user and user.grants_access?(token, scope.to_s)
-      return ERROR_RESPONSE
-    end
+    headers token.response_headers
+    status  token.response_status
+    
+    return ERROR_RESPONSE unless token.valid?
     
     yield user
   end
