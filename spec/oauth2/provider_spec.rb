@@ -402,6 +402,14 @@ describe OAuth2::Provider do
         response['WWW-Authenticate'].should == "OAuth realm='Demo App', error='insufficient_scope'"
       end
       
+      it "blocks access when the key is expired" do
+        @authorization.update_attribute(:expires_at, 2.hours.ago)
+        response = request('/user_profile', 'oauth_token' => 'magic-key')
+        JSON.parse(response.body)['data'].should == 'No soup for you'
+        response.code.to_i.should == 401
+        response['WWW-Authenticate'].should == "OAuth realm='Demo App', error='expired_token'"
+      end
+      
       it "cannot get the current user when no key is passed" do
         response = request('/me')
         JSON.parse(response.body)['data'].should == 'No soup for you'
