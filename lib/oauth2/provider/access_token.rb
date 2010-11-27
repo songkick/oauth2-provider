@@ -43,14 +43,12 @@ module OAuth2
     private
       
       def validate!
-        return @error = ''            unless @access_token
-        return @error = INVALID_TOKEN unless @authorization
+        return @error = ''                 unless @access_token
+        return @error = INVALID_TOKEN      unless @authorization
+        return @error = EXPIRED_TOKEN      if @authorization.expired?
+        return @error = INSUFFICIENT_SCOPE unless @authorization.in_scope?(@scopes)
         
-        return @error = EXPIRED_TOKEN if @authorization.expired?
-        
-        return unless @resource_owner
-        
-        unless @resource_owner.grants_access?(@authorization, *@scopes)
+        if @resource_owner and @authorization.owner != @resource_owner
           @error = INSUFFICIENT_SCOPE
         end
       end
