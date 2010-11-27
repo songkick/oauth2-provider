@@ -19,7 +19,7 @@ module OAuth2
         validate!
       end
       
-      def scope
+      def scopes
         @scope ? @scope.split(/\s+/).delete_if { |s| s.empty? } : []
       end
       
@@ -32,7 +32,7 @@ module OAuth2
         update_authorization
         
         response = {}
-        %w[access_token refresh_token].each do |key|
+        %w[access_token refresh_token scope].each do |key|
           value = @authorization.__send__(key)
           response[key] = value if value
         end
@@ -104,7 +104,7 @@ module OAuth2
       end
       
       def validate_scope
-        if @authorization and not @authorization.in_scope?(scope)
+        if @authorization and not @authorization.in_scope?(scopes)
           @error = INVALID_SCOPE
           @error_description = 'The request scope was never granted by the user'
         end
