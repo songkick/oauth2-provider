@@ -30,6 +30,7 @@ spec = Gem::Specification.new do |s|
   # If you want to depend on other gems, add them here, along with any
   # relevant versions
   s.add_dependency("activerecord")
+  s.add_dependency("json")
 
   # If your tests use any gems, include them here
   s.add_development_dependency("rspec")

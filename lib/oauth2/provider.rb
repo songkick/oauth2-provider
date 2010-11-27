@@ -1,7 +1,7 @@
-require 'forwardable'
 require 'cgi'
-require 'net/http'
 require 'digest/sha1'
+require 'json'
+require 'active_record'
 
 module OAuth2
   ROOT = File.expand_path(File.dirname(__FILE__) + '/..')
