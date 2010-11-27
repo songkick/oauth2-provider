@@ -53,16 +53,6 @@ module TestApp
     end
     
     [:get, :post].each do |method|
-      __send__ method, '/me' do
-        protect_resource_for(nil, ['profile']) do |auth|
-          if auth.valid?
-            JSON.unparse('data' => auth.owner.name)
-          else
-            JSON.unparse('data' => 'No soup for you')
-          end
-        end
-      end
-      
       __send__(method, '/user_profile') { serve_protected_resource }
     end
     

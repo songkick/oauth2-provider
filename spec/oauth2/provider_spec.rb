@@ -350,20 +350,20 @@ describe OAuth2::Provider do
   
   describe "protected resource request" do
     before do
-      @client = Factory(:client)
-      
       @authorization = Factory(:authorization,
-        :client => @client,
-        :owner  => @owner,
+        :owner        => @owner,
         :access_token => 'magic-key',
-        :scope  => 'profile')
+        :scope        => 'profile')
     end
       
     shared_examples_for "protected resource" do
-      it "can get the current user when the key is passed" do
-        response = request('/me', 'oauth_token' => 'magic-key')
-        JSON.parse(response.body)['data'].should == 'Bob'
-        response.code.to_i.should == 200
+      it "creates an AccessToken response" do
+        mock_token = mock(OAuth2::Provider::AccessToken)
+        mock_token.should_receive(:response_headers).and_return({})
+        mock_token.should_receive(:response_status).and_return(200)
+        mock_token.should_receive(:valid?).and_return(true)
+        OAuth2::Provider::AccessToken.should_receive(:new).with(TestApp::User['Bob'], ['profile'], 'magic-key').and_return(mock_token)
+        request('/user_profile', 'oauth_token' => 'magic-key')
       end
       
       it "allows access when the key is passed" do
@@ -372,64 +372,11 @@ describe OAuth2::Provider do
         response.code.to_i.should == 200
       end
       
-      it "cannot get the current user when the wrong key is passed" do
-        response = request('/me', 'oauth_token' => 'is-the-password-books')
-        JSON.parse(response.body)['data'].should == 'No soup for you'
-        response.code.to_i.should == 401
-        response['WWW-Authenticate'].should == "OAuth realm='Demo App', error='invalid_token'"
-      end
-      
       it "blocks access when the wrong key is passed" do
         response = request('/user_profile', 'oauth_token' => 'is-the-password-books')
         JSON.parse(response.body)['data'].should == 'No soup for you'
         response.code.to_i.should == 401
         response['WWW-Authenticate'].should == "OAuth realm='Demo App', error='invalid_token'"
-      end
-      
-      it "blocks access when the key is for the wrong user" do
-        @authorization.update_attribute(:owner, TestApp::User['Alice'])
-        response = request('/user_profile', 'oauth_token' => 'magic-key')
-        JSON.parse(response.body)['data'].should == 'No soup for you'
-        response.code.to_i.should == 403
-        response['WWW-Authenticate'].should == "OAuth realm='Demo App', error='insufficient_scope'"
-      end
-      
-      it "blocks access when the key is for the wrong scope" do
-        @authorization.update_attribute(:scope, 'wall')
-        response = request('/user_profile', 'oauth_token' => 'magic-key')
-        JSON.parse(response.body)['data'].should == 'No soup for you'
-        response.code.to_i.should == 403
-        response['WWW-Authenticate'].should == "OAuth realm='Demo App', error='insufficient_scope'"
-      end
-      
-      it "cannot get the current user when the key is for the wrong scope" do
-        @authorization.update_attribute(:scope, 'wall')
-        response = request('/me', 'oauth_token' => 'magic-key')
-        JSON.parse(response.body)['data'].should == 'No soup for you'
-        response.code.to_i.should == 403
-        response['WWW-Authenticate'].should == "OAuth realm='Demo App', error='insufficient_scope'"
-      end
-      
-      it "blocks access when the key is expired" do
-        @authorization.update_attribute(:expires_at, 2.hours.ago)
-        response = request('/user_profile', 'oauth_token' => 'magic-key')
-        JSON.parse(response.body)['data'].should == 'No soup for you'
-        response.code.to_i.should == 401
-        response['WWW-Authenticate'].should == "OAuth realm='Demo App', error='expired_token'"
-      end
-      
-      it "cannot get the current user when no key is passed" do
-        response = request('/me')
-        JSON.parse(response.body)['data'].should == 'No soup for you'
-        response.code.to_i.should == 401
-        response['WWW-Authenticate'].should == "OAuth realm='Demo App'"
-      end
-      
-      it "blocks access when no key is passed" do
-        response = request('/user_profile')
-        JSON.parse(response.body)['data'].should == 'No soup for you'
-        response.code.to_i.should == 401
-        response['WWW-Authenticate'].should == "OAuth realm='Demo App'"
       end
     end
     

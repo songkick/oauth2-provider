@@ -17,7 +17,8 @@ module OAuth2
       end
       
       def owner
-        @authorization && @authorization.owner
+        return nil unless valid?
+        @authorization.owner
       end
       
       def response_headers
