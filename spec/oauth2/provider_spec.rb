@@ -17,7 +17,7 @@ describe OAuth2::Provider do
   include RequestHelpers
   
   describe "access grant request" do
-    shared_examples_for "creates authorization" do
+    shared_examples_for "asks for user permission" do
       it "creates an authorization" do
         auth = mock_request(OAuth2::Provider::Authorization, :client => @client, :params => {}, :scopes => [])
         OAuth2::Provider::Authorization.should_receive(:new).with(@owner, params).and_return(auth)
@@ -33,17 +33,17 @@ describe OAuth2::Provider do
     end
     
     describe "with valid parameters" do
-      it_should_behave_like "creates authorization"
+      it_should_behave_like "asks for user permission"
     end
     
     describe "for token requests" do
       before { params['response_type'] = 'token' }
-      it_should_behave_like "creates authorization"
+      it_should_behave_like "asks for user permission"
     end
     
     describe "for code_and_token requests" do
       before { params['response_type'] = 'code_and_token' }
-      it_should_behave_like "creates authorization"
+      it_should_behave_like "asks for user permission"
     end
     
     describe "when there is already a pending authorization from the user" do
@@ -73,18 +73,25 @@ describe OAuth2::Provider do
       
       describe "when the client is requesting scopes it doesn't have yet" do
         before { params['scope'] = 'wall_publish' }
-        it_should_behave_like "creates authorization"
+        it_should_behave_like "asks for user permission"
       end
       
       describe "and the authorization does not have a code" do
         before { @authorization.update_attribute(:code, nil) }
         
         it "generates a new code and redirects" do
+          OAuth2::Model::Authorization.should_not_receive(:create)
+          OAuth2::Model::Authorization.should_not_receive(:new)
           OAuth2.should_receive(:random_string).and_return('new_code')
           response = get(params)
           response.code.to_i.should == 302
           response['location'].should == 'https://client.example.com/cb?code=new_code'
         end
+      end
+      
+      describe "and the authorization is expired" do
+        before { @authorization.update_attribute(:expires_at, 2.hours.ago) }
+        it_should_behave_like "asks for user permission"
       end
     end
     

@@ -20,7 +20,7 @@ module OAuth2
         return unless @owner and not @error
         
         @model = Model::Authorization.for(@owner, @client)
-        return unless @model and @model.in_scope?(scopes)
+        return unless @model and @model.in_scope?(scopes) and not @model.expired?
         
         @authorized = true
         @code = @model.generate_code
@@ -34,15 +34,17 @@ module OAuth2
         @model ? scopes.select { |s| not @model.in_scope?(s) } : scopes
       end
       
-      def grant_access!
-        model = Model::Authorization.create_for_response_type(@params['response_type'],
-          :owner  => @owner,
-          :client => @client,
-          :scope  => @scope)
+      def grant_access!(options = {})
+        model = Model::Authorization.for_response_type(@params['response_type'],
+          :owner    => @owner,
+          :client   => @client,
+          :scope    => @scope,
+          :duration => options[:duration])
         
         @code          = model.code
         @access_token  = model.access_token
         @refresh_token = model.refresh_token
+        @expires_in    = model.expires_in
         
         unless @params['response_type'] == 'code'
           @expires_in  = model.expires_in

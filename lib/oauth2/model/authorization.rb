@@ -21,6 +21,7 @@ module OAuth2
       
       def self.for(resource_owner, client)
         return nil unless resource_owner and client
+        
         find(:first, :conditions => {
           :oauth2_resource_owner_type => resource_owner.class.name,
           :oauth2_resource_owner_id   => resource_owner.id,
@@ -48,22 +49,31 @@ module OAuth2
         end
       end
       
-      def self.create_for_response_type(response_type, params = {})
-        instance = new
+      def self.for_response_type(response_type, params = {})
+        instance = self.for(params[:owner], params[:client]) ||
+                   new(:owner => params[:owner], :client => params[:client])
+        
         case response_type
           when 'code'
-            instance.code = create_code(params[:client])
+            instance.code ||= create_code(params[:client])
           when 'token'
-            instance.access_token  = create_access_token
-            instance.refresh_token = create_refresh_token(params[:client])
+            instance.access_token  ||= create_access_token
+            instance.refresh_token ||= create_refresh_token(params[:client])
           when 'code_and_token'
             instance.code = create_code(params[:client])
-            instance.access_token  = create_access_token
-            instance.refresh_token = create_refresh_token(params[:client])
+            instance.access_token  ||= create_access_token
+            instance.refresh_token ||= create_refresh_token(params[:client])
         end
         
-        params.each do |key, value|
-          instance.__send__("#{key}=", value)
+        if params[:duration]
+          instance.expires_at = Time.now + params[:duration].to_i
+        else
+          instance.expires_at = nil
+        end
+        
+        if params[:scope]
+          scopes = instance.scopes + params[:scope].split(/\s+/)
+          instance.scope = scopes.join(' ')
         end
         
         instance.save && instance

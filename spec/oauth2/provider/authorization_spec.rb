@@ -12,7 +12,7 @@ describe OAuth2::Provider::Authorization do
   
   before do
     @client = Factory(:client)
-    OAuth2.stub(:random_string).and_return('random_string')
+    OAuth2.stub(:random_string).and_return('s1', 's2', 's3')
   end
   
   describe "with valid parameters" do
@@ -110,6 +110,59 @@ describe OAuth2::Provider::Authorization do
   end
   
   describe "#grant_access!" do
+    describe "when there is an existing authorization with no code" do
+      before do
+        @model = Factory(:authorization,
+          :owner  => resource_owner,
+          :client => @client,
+          :code   => nil)
+      end
+      
+      it "generates and returns a code to the client" do
+        authorization.grant_access!
+        @model.reload
+        @model.code.should == "s1"
+        authorization.code.should == "s1"
+      end
+    end
+    
+    describe "when there is an existing expired authorization" do
+      before do
+        @model = Factory(:authorization,
+          :owner      => resource_owner,
+          :client     => @client,
+          :expires_at => 2.months.ago,
+          :code       => 'existing_code',
+          :scope      => 'foo bar')
+      end
+      
+      it "renews the authorization" do
+        authorization.grant_access!
+        @model.reload
+        @model.expires_at.should be_nil
+      end
+      
+      it "returns a code to the client" do
+        authorization.grant_access!
+        authorization.code.should == "existing_code"
+        authorization.access_token.should be_nil
+      end
+      
+      it "sets the expiry time if a duration is given" do
+        authorization.grant_access!(:duration => 1.hour)
+        @model.reload
+        @model.expires_in.should == 3600
+        authorization.expires_in.should == 3600
+      end
+      
+      it "augments the scope" do
+        params['scope'] = 'qux'
+        authorization.grant_access!
+        @model.reload
+        @model.scopes.should == ['foo', 'bar', 'qux']
+      end
+    end
+    
     describe "for code requests" do
       before do
         params['response_type'] = 'code'
@@ -118,8 +171,9 @@ describe OAuth2::Provider::Authorization do
       
       it "creates a code for the authorization" do
         authorization.grant_access!
-        authorization.code.should == "random_string"
+        authorization.code.should == "s1"
         authorization.access_token.should be_nil
+        authorization.expires_in.should be_nil
       end
       
       it "creates an Authorization in the database" do
@@ -128,7 +182,7 @@ describe OAuth2::Provider::Authorization do
         authorization = OAuth2::Model::Authorization.first
         authorization.owner.should == resource_owner
         authorization.client.should == @client
-        authorization.code.should == "random_string"
+        authorization.code.should == "s1"
         authorization.scopes.should == %w[foo bar]
       end
     end
@@ -139,8 +193,9 @@ describe OAuth2::Provider::Authorization do
       it "creates a token for the authorization" do
         authorization.grant_access!
         authorization.code.should be_nil
-        authorization.access_token.should == "random_string"
-        authorization.refresh_token.should == "random_string"
+        authorization.access_token.should == "s1"
+        authorization.refresh_token.should == "s2"
+        authorization.expires_in.should be_nil
       end
       
       it "creates an Authorization in the database" do
@@ -150,8 +205,8 @@ describe OAuth2::Provider::Authorization do
         authorization.owner.should == resource_owner
         authorization.client.should == @client
         authorization.code.should be_nil
-        authorization.access_token_hash.should == OAuth2.hashify("random_string")
-        authorization.refresh_token_hash.should == OAuth2.hashify("random_string")
+        authorization.access_token_hash.should == OAuth2.hashify("s1")
+        authorization.refresh_token_hash.should == OAuth2.hashify("s2")
       end
     end
     
@@ -160,9 +215,10 @@ describe OAuth2::Provider::Authorization do
       
       it "creates a code and token for the authorization" do
         authorization.grant_access!
-        authorization.code.should == "random_string"
-        authorization.access_token.should == "random_string"
-        authorization.refresh_token.should == "random_string"
+        authorization.code.should == "s1"
+        authorization.access_token.should == "s2"
+        authorization.refresh_token.should == "s3"
+        authorization.expires_in.should be_nil
       end
       
       it "creates an Authorization in the database" do
@@ -171,9 +227,9 @@ describe OAuth2::Provider::Authorization do
         authorization = OAuth2::Model::Authorization.first
         authorization.owner.should == resource_owner
         authorization.client.should == @client
-        authorization.code.should == "random_string"
-        authorization.access_token_hash.should == OAuth2.hashify("random_string")
-        authorization.refresh_token_hash.should == OAuth2.hashify("random_string")
+        authorization.code.should == "s1"
+        authorization.access_token_hash.should == OAuth2.hashify("s2")
+        authorization.refresh_token_hash.should == OAuth2.hashify("s3")
       end
     end
   end
@@ -187,6 +243,7 @@ describe OAuth2::Provider::Authorization do
     
     it "does not create an Authorization" do
       OAuth2::Model::Authorization.should_not_receive(:create)
+      OAuth2::Model::Authorization.should_not_receive(:new)
       authorization.deny_access!
     end
   end
