@@ -62,8 +62,8 @@ end
 end
 
 post '/login' do
-  @oauth2 = OAuth2::Provider.parse(request)
   @user = User.find_by_username(params[:username])
+  @oauth2 = OAuth2::Provider.parse(@user, request)
   session[:user_id] = @user.id
   erb(@user ? :authorize : :login)
 end
