@@ -3,7 +3,7 @@ require 'spec_helper'
 describe OAuth2::Provider::Exchange do
   before do
     @client = Factory(:client)
-    @owner  = Factory(:owner)
+    @owner  = TestApp::User['Bob']
     @authorization = Factory(:authorization, :client => @client, :owner => @owner, :scope => 'foo bar')
     OAuth2.stub(:random_string).and_return('random_string')
   end
@@ -112,10 +112,7 @@ describe OAuth2::Provider::Exchange do
     let(:authorization) { @authorization }
     
     it_should_behave_like "validates required parameters"
-    
-    describe "with valid parameters" do
-      it_should_behave_like "valid token request"
-    end
+    it_should_behave_like "valid token request"
     
     describe "missing redirect_uri" do
       before { params.delete('redirect_uri') }
@@ -171,6 +168,80 @@ describe OAuth2::Provider::Exchange do
     end
   end
   
+  describe "using assertion grant type" do
+    let(:params) { { 'client_id'      => @client.client_id,
+                     'client_secret'  => @client.client_secret,
+                     'grant_type'     => 'assertion',
+                     'assertion_type' => 'https://graph.facebook.com/me',
+                     'assertion'      => 'Bob' }
+                 }
+    
+    let(:authorization) { @authorization }
+    
+    before do
+      OAuth2::Provider.handle_assertion do |client, assertion|
+        if client == @client and assertion.type == 'https://graph.facebook.com/me'
+          user = TestApp::User[assertion.value]
+          user.grant_access!(client, :scopes => ['foo', 'bar'])
+        else
+          nil
+        end
+      end
+    end
+    
+    it_should_behave_like "validates required parameters"
+    it_should_behave_like "valid token request"
+    
+    describe "missing assertion_type" do
+      before { params.delete('assertion_type') }
+      
+      it "is invalid" do
+        exchange.error.should == 'invalid_request'
+        exchange.error_description.should == 'Missing required parameter assertion_type'
+      end
+    end
+    
+    describe "with a non-URI assertion_type" do
+      before { params['assertion_type'] = 'invalid' }
+      
+      it "is invalid" do
+        exchange.error.should == 'invalid_request'
+        exchange.error_description.should == 'Parameter assertion_type must be an absolute URI'
+      end
+    end
+    
+    describe "missing assertion" do
+      before { params.delete('assertion') }
+      
+      it "is invalid" do
+        exchange.error.should == 'invalid_request'
+        exchange.error_description.should == 'Missing required parameter assertion'
+      end
+    end
+    
+    describe "with an unrecognized assertion_type" do
+      before { params['assertion_type'] = 'https://oauth.what.com/ohai' }
+      
+      it "is invalid" do
+        exchange.error.should == 'unauthorized_client'
+        exchange.error_description.should == 'Client cannot use the given assertion type'
+      end
+    end
+    
+    describe "with a client unauthorized to use the assertion scheme" do
+      before do
+        client = Factory(:client)
+        params['client_id'] = client.client_id
+        params['client_secret'] = client.client_secret
+      end
+      
+      it "is invalid" do
+        exchange.error.should == 'unauthorized_client'
+        exchange.error_description.should == 'Client cannot use the given assertion type'
+      end
+    end
+  end
+  
   describe "using refresh_token grant type" do
     before do
       @refresher = Factory(:authorization, :client => @client,
@@ -189,10 +260,7 @@ describe OAuth2::Provider::Exchange do
     let(:authorization) { @refresher }
     
     it_should_behave_like "validates required parameters"
-    
-    describe "with valid parameters" do
-      it_should_behave_like "valid token request"
-    end
+    it_should_behave_like "valid token request"
     
     describe "with unknown refresh_token" do
       before { params['refresh_token'] = 'woops' }

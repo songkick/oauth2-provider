@@ -5,7 +5,7 @@ module OAuth2
       attr_reader :error, :error_description
       
       REQUIRED_PARAMS    = %w[client_id client_secret grant_type]
-      VALID_GRANT_TYPES  = %w[authorization_code refresh_token]
+      VALID_GRANT_TYPES  = %w[authorization_code assertion refresh_token]
       
       RESPONSE_HEADERS = {
         'Cache-Control' => 'no-store',
@@ -130,11 +130,31 @@ module OAuth2
         
         @authorization = @client.authorizations.find_by_code(@params['code'])
         validate_authorization
-        
-        if @authorization and @authorization.expired?
-          @error = INVALID_GRANT
-          @error_description = 'The access grant you supplied is invalid'
+      end
+      
+      def validate_assertion
+        %w[assertion_type assertion].each do |param|
+          next if @params.has_key?(param)
+          @error = INVALID_REQUEST
+          @error_description = "Missing required parameter #{param}"
         end
+        
+        if @params['assertion_type']
+          uri = URI.parse(@params['assertion_type']) rescue nil
+          unless uri and uri.absolute?
+            @error = INVALID_REQUEST
+            @error_description = 'Parameter assertion_type must be an absolute URI'
+          end
+        end
+        
+        return if @error
+        
+        assertion = Assertion.new(@params)
+        @authorization = Provider.handle_assertion(@client, assertion)
+        return validate_authorization if @authorization
+        
+        @error = UNAUTHORIZED_CLIENT
+        @error_description = 'Client cannot use the given assertion type'
       end
       
       def validate_refresh_token
@@ -148,6 +168,19 @@ module OAuth2
           @error = INVALID_GRANT
           @error_description = 'The access grant you supplied is invalid'
         end
+        
+        if @authorization and @authorization.expired?
+          @error = INVALID_GRANT
+          @error_description = 'The access grant you supplied is invalid'
+        end
+      end
+    end
+    
+    class Assertion
+      attr_reader :type, :value
+      def initialize(params)
+        @type  = params['assertion_type']
+        @value = params['assertion']
       end
     end
     

@@ -34,6 +34,11 @@ module OAuth2
   class Provider
     VERSION = '0.1.0'
     
+    def self.handle_assertion(client = nil, assertion = nil, &block)
+      return @handle_assertion = block if client.nil? and block_given?
+      @handle_assertion.call(client, assertion)
+    end
+    
     def self.parse(*args)
       Router.parse(*args)
     end
@@ -48,6 +53,7 @@ module OAuth2
     UNSUPPORTED_GRANT_TYPE = 'unsupported_grant_type'
     INVALID_GRANT          = 'invalid_grant'
     INVALID_CLIENT         = 'invalid_client'
+    UNAUTHORIZED_CLIENT    = 'unauthorized_client'
     INVALID_SCOPE          = 'invalid_scope'
     INVALID_TOKEN          = 'invalid_token'
     EXPIRED_TOKEN          = 'expired_token'
