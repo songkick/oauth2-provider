@@ -169,6 +169,12 @@ describe OAuth2::Provider::Authorization do
         params['scope'] = 'foo bar'
       end
       
+      it "makes the authorization redirect" do
+        authorization.grant_access!
+        authorization.client.should_not be_nil
+        authorization.should be_redirect
+      end
+      
       it "creates a code for the authorization" do
         authorization.grant_access!
         authorization.code.should == "s1"

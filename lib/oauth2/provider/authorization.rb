@@ -35,20 +35,22 @@ module OAuth2
       end
       
       def grant_access!(options = {})
-        model = Model::Authorization.for_response_type(@params['response_type'],
+        @model = Model::Authorization.for_response_type(@params['response_type'],
           :owner    => @owner,
           :client   => @client,
           :scope    => @scope,
           :duration => options[:duration])
         
-        @code          = model.code
-        @access_token  = model.access_token
-        @refresh_token = model.refresh_token
-        @expires_in    = model.expires_in
+        @code          = @model.code
+        @access_token  = @model.access_token
+        @refresh_token = @model.refresh_token
+        @expires_in    = @model.expires_in
         
         unless @params['response_type'] == 'code'
-          @expires_in  = model.expires_in
+          @expires_in  = @model.expires_in
         end
+        
+        @authorized = true
       end
       
       def deny_access!
