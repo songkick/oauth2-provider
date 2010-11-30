@@ -4,7 +4,7 @@ module OAuth2
     class Authorization < ActiveRecord::Base
       set_table_name :oauth2_authorizations
       
-      belongs_to :oauth2_resource_owner, :polymorphic => true
+      include BelongsToOwner
       belongs_to :client, :class_name => 'OAuth2::Model::Client'
       
       validates_presence_of :client, :owner
@@ -12,9 +12,6 @@ module OAuth2
       validates_uniqueness_of :code,               :scope => :client_id, :allow_nil => true
       validates_uniqueness_of :refresh_token_hash, :scope => :client_id, :allow_nil => true
       validates_uniqueness_of :access_token_hash,                        :allow_nil => true
-      
-      alias :owner  :oauth2_resource_owner
-      alias :owner= :oauth2_resource_owner=
       
       extend Hashing
       hashes_attributes :access_token, :refresh_token

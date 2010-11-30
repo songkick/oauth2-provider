@@ -126,7 +126,7 @@ owner</i> in OAuth lingo. Add this mixin to the model that represents your
 users:
 
   class User < ActiveRecord::Base
-    include OAuth2::ResourceOwner
+    include OAuth2::Model::ResourceOwner
   end
 
 This just adds a couple of relations and methods to the model to let it interact

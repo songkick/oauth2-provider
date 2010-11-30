@@ -3,6 +3,8 @@ module OAuth2
     
     class Client < ActiveRecord::Base
       set_table_name :oauth2_clients
+      
+      include BelongsToOwner
       has_many :authorizations, :class_name => 'OAuth2::Model::Authorization', :dependent => :destroy
       
       validates_uniqueness_of :client_id

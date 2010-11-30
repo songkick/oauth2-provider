@@ -9,7 +9,6 @@ module OAuth2
   
   autoload :Model,         ROOT + '/oauth2/model'
   autoload :SCHEMA,        ROOT + '/oauth2/provider/schema'
-  autoload :ResourceOwner, ROOT + '/oauth2/resource_owner'
   autoload :Router,        ROOT + '/oauth2/router'
   
   class << self
