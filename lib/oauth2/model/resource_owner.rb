@@ -5,7 +5,8 @@ module OAuth2
       def self.included(klass)
         klass.has_many :oauth2_authorizations,
                        :class_name => 'OAuth2::Model::Authorization',
-                       :as => :oauth2_resource_owner
+                       :as => :oauth2_resource_owner,
+                       :dependent => :destroy
         
         klass.has_many :oauth2_clients,
                        :class_name => 'OAuth2::Model::Client',

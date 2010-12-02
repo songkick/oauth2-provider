@@ -33,5 +33,11 @@ describe OAuth2::Model::ResourceOwner do
       @authorization.scopes.should == ['foo', 'bar']
     end
   end
+  
+  it "destroys its authorizations on destroy" do
+    Factory(:authorization, :owner => @owner, :client => @client)
+    @owner.destroy
+    OAuth2::Model::Authorization.count.should be_zero
+  end
 end
 
