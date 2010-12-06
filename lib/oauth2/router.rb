@@ -23,7 +23,7 @@ module OAuth2
       if params['grant_type']
         request.post? ?
             Provider::Exchange.new(resource_owner, params) :
-            Provider::Error.new
+            Provider::Error.new("should be a POST request")
       else
         Provider::Authorization.new(resource_owner, params)
       end
