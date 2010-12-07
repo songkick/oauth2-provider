@@ -2,7 +2,8 @@ module OAuth2
   class Provider
     
     class Authorization
-      attr_reader :client, :code, :access_token,
+      attr_reader :owner, :client,
+                  :code, :access_token,
                   :expires_in, :refresh_token,
                   :error, :error_description
       

@@ -2,7 +2,7 @@ module OAuth2
   class Provider
     
     class Exchange
-      attr_reader :error, :error_description
+      attr_reader :client, :error, :error_description
       
       REQUIRED_PARAMS    = %w[client_id client_secret grant_type]
       VALID_GRANT_TYPES  = %w[authorization_code assertion refresh_token]
@@ -17,6 +17,10 @@ module OAuth2
         @scope      = params['scope']
         @grant_type = @params['grant_type']
         validate!
+      end
+      
+      def owner
+        @authorization && @authorization.owner
       end
       
       def scopes

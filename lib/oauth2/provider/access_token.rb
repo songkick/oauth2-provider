@@ -16,9 +16,12 @@ module OAuth2
         validate!
       end
       
+      def client
+        valid? ? @authorization.client : nil
+      end
+      
       def owner
-        return nil unless valid?
-        @authorization.owner
+        valid? ? @authorization.owner : nil
       end
       
       def response_headers
