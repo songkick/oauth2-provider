@@ -291,7 +291,7 @@ describe OAuth2::Provider do
           response = get(params)
           validate_json_response(response, 400,
             'error'             => 'invalid_request',
-            'error_description' => 'Bad request'
+            'error_description' => 'Bad request: should be a POST request'
           )
         end
         
