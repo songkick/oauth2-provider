@@ -25,14 +25,11 @@ module OAuth2
       
       def client_secret=(secret)
         @client_secret = secret
-        self.client_secret_salt = OAuth2.random_string
-        self.client_secret_hash = OAuth2.hashify(secret + client_secret_salt)
+        self.client_secret_hash = BCrypt::Password.create(secret)
       end
       
       def valid_client_secret?(secret)
-        return false unless String === secret
-        hash = OAuth2.hashify(secret + client_secret_salt)
-        client_secret_hash == hash
+        BCrypt::Password.new(client_secret_hash) == secret
       end
       
     private

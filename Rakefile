@@ -29,6 +29,7 @@ spec = Gem::Specification.new do |s|
 
   # If you want to depend on other gems, add them here, along with any
   # relevant versions
+  s.add_dependency("bcrypt-ruby")
   s.add_dependency("activerecord")
   s.add_dependency("json")
 

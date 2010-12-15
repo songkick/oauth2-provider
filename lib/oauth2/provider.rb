@@ -1,5 +1,6 @@
 require 'cgi'
 require 'digest/sha1'
+require 'bcrypt'
 require 'json'
 require 'active_record'
 
