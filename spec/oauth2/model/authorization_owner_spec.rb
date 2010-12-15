@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe OAuth2::Model::ResourceOwner do
+describe OAuth2::Model::AuthorizationOwner do
   before do
     @owner  = Factory(:owner)
     @client = Factory(:client)
