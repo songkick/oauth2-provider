@@ -15,7 +15,7 @@ describe OAuth2::Provider::AccessToken do
       :scope        => 'profile',
       :access_token => 'magic-key')
     
-    OAuth2.realm = 'Demo App'
+    OAuth2::Provider.realm = 'Demo App'
   end
   
   let :token do

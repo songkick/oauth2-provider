@@ -8,13 +8,8 @@ module OAuth2
   ROOT = File.expand_path(File.dirname(__FILE__) + '/..')
   TOKEN_SIZE = 128
   
-  autoload :Model,         ROOT + '/oauth2/model'
-  autoload :SCHEMA,        ROOT + '/oauth2/provider/schema'
-  autoload :Router,        ROOT + '/oauth2/router'
-  
-  class << self
-    attr_accessor :realm
-  end
+  autoload :Model,  ROOT + '/oauth2/model'
+  autoload :Router, ROOT + '/oauth2/router'
   
   def self.random_string
     rand(2 ** TOKEN_SIZE).to_s(36)
@@ -33,6 +28,10 @@ module OAuth2
   
   class Provider
     VERSION = '0.1.0'
+    
+    class << self
+      attr_accessor :realm
+    end
     
     def self.handle_assertion(client = nil, assertion = nil, &block)
       return @handle_assertion = block if client.nil? and block_given?
@@ -60,7 +59,7 @@ module OAuth2
     INSUFFICIENT_SCOPE     = 'insufficient_scope'
     ACCESS_DENIED          = 'access_denied'
     
-    EXPIRY_TIME          = 3600
+    EXPIRY_TIME            = 3600
     
     autoload :Authorization, ROOT + '/oauth2/provider/authorization'
     autoload :Exchange,      ROOT + '/oauth2/provider/exchange'

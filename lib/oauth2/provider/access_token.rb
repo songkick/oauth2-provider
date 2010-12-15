@@ -26,7 +26,7 @@ module OAuth2
       
       def response_headers
         return {} if valid?
-        error_message =  "OAuth realm='#{ OAuth2.realm }'"
+        error_message =  "OAuth realm='#{ Provider.realm }'"
         error_message << ", error='#{ @error }'" unless @error == ''
         {'WWW-Authenticate' => error_message}
       end

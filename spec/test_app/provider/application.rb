@@ -5,7 +5,7 @@ module TestApp
     
     extend Helper::RackRunner
     
-    OAuth2.realm = 'Demo App'
+    OAuth2::Provider.realm = 'Demo App'
     
     set :views, File.dirname(__FILE__) + '/views'
     
