@@ -4,7 +4,10 @@ module OAuth2
     class Authorization < ActiveRecord::Base
       set_table_name :oauth2_authorizations
       
-      include BelongsToOwner
+      belongs_to :oauth2_resource_owner, :polymorphic => true
+      alias :owner  :oauth2_resource_owner
+      alias :owner= :oauth2_resource_owner=
+      
       belongs_to :client, :class_name => 'OAuth2::Model::Client'
       
       validates_presence_of :client, :owner

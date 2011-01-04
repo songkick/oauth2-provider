@@ -4,7 +4,10 @@ module OAuth2
     class Client < ActiveRecord::Base
       set_table_name :oauth2_clients
       
-      include BelongsToOwner
+      belongs_to :oauth2_client_owner, :polymorphic => true
+      alias :owner  :oauth2_client_owner
+      alias :owner= :oauth2_client_owner=
+          
       has_many :authorizations, :class_name => 'OAuth2::Model::Authorization', :dependent => :destroy
       
       validates_uniqueness_of :client_id
