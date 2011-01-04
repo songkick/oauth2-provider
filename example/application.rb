@@ -18,6 +18,20 @@ ERROR_RESPONSE = JSON.unparse('error' => 'No soup for you!')
 get('/') { erb(:home) }
 
 
+get '/users/new' do
+  @user = User.new
+  erb :new_user
+end
+
+post '/users/create' do
+  @user = User.create(params)
+  if @user.save
+    erb :create_user
+  else
+    erb :new_user
+  end
+end
+
 #================================================================
 # Register applications
 
@@ -78,7 +92,6 @@ post '/oauth/allow' do
   end
   redirect @auth.redirect_uri
 end
-
 
 #================================================================
 # Domain API

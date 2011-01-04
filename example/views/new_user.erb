@@ -1,0 +1,22 @@
+<h3>Register a User</h3>
+
+<% if @user.errors.any? %>
+  <ul class="errors">
+    <% @user.errors.full_messages.each do |message| %>
+      <li><%= message %></li>
+    <% end %>
+  </ul>
+<% end %>
+
+<form method="post" action="/users/create">
+  <fieldset>
+    <label for="name">Username</label>
+    <input type="text" name="username" id="username">
+  </fieldset>
+  
+  <fieldset>
+    <input type="submit" value="Register">
+  </fieldset>
+</form>
+
+
