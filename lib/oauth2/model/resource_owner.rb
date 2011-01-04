@@ -1,7 +1,7 @@
 module OAuth2
   module Model
     
-    module AuthorizationOwner
+    module ResourceOwner
       def self.included(klass)
         klass.has_many :oauth2_authorizations,
                        :class_name => 'OAuth2::Model::Authorization',
