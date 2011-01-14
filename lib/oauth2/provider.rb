@@ -33,9 +33,25 @@ module OAuth2
       attr_accessor :realm
     end
     
-    def self.handle_assertion(client = nil, assertion = nil, &block)
-      return @handle_assertion = block if client.nil? and block_given?
-      @handle_assertion.call(client, assertion)
+    def self.clear_assertion_handlers!
+      @assertion_handlers = {}
+      @assertion_filters  = []
+    end
+    
+    clear_assertion_handlers!
+    
+    def self.filter_assertions(&filter)
+      @assertion_filters.push(filter)
+    end
+    
+    def self.handle_assertions(assertion_type, &handler)
+      @assertion_handlers[assertion_type] = handler
+    end
+    
+    def self.handle_assertion(client, assertion)
+      return nil unless @assertion_filters.all? { |f| f.call(client) }
+      handler = @assertion_handlers[assertion.type]
+      handler ? handler.call(client, assertion.value) : nil
     end
     
     def self.parse(*args)

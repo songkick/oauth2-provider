@@ -179,14 +179,16 @@ describe OAuth2::Provider::Exchange do
     let(:authorization) { @authorization }
     
     before do
-      OAuth2::Provider.handle_assertion do |client, assertion|
-        if client == @client and assertion.type == 'https://graph.facebook.com/me'
-          user = TestApp::User[assertion.value]
-          user.grant_access!(client, :scopes => ['foo', 'bar'])
-        else
-          nil
-        end
+      OAuth2::Provider.filter_assertions { |client| @client == client }
+      
+      OAuth2::Provider.handle_assertions('https://graph.facebook.com/me') do |client, assertion|
+        user = TestApp::User[assertion]
+        user.grant_access!(client, :scopes => ['foo', 'bar'])
       end
+    end
+    
+    after do
+      OAuth2::Provider.clear_assertion_handlers!
     end
     
     it_should_behave_like "validates required parameters"
