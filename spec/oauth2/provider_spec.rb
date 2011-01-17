@@ -95,6 +95,35 @@ describe OAuth2::Provider do
       end
     end
     
+    describe "when there is already a completed authorization from the user" do
+      before do
+        @authorization = OAuth2::Model::Authorization.create(
+          :owner  => @owner,
+          :client => @client,
+          :code   => nil,
+          :access_token => OAuth2.hashify('complete_token'))
+      end
+      
+      it "immediately redirects with a new code" do
+        OAuth2.should_receive(:random_string).and_return('new_code')
+        response = get(params)
+        response.code.to_i.should == 302
+        response['location'].should == 'https://client.example.com/cb?code=new_code'
+      end
+      
+      it "does not create a new Authorization" do
+        get(params)
+        OAuth2::Model::Authorization.count.should == 1
+      end
+      
+      it "keeps the code and access token on the Authorization" do
+        get(params)
+        authorization = OAuth2::Model::Authorization.first
+        authorization.code.should_not be_nil
+        authorization.access_token_hash.should_not be_nil
+      end
+    end
+    
     describe "with no parameters" do
       let(:params) { {} }
       
@@ -350,6 +379,27 @@ describe OAuth2::Provider do
             'error'             => 'invalid_request',
             'error_description' => 'Bad request: client_id from Basic Auth and request body do not match'
           )
+        end
+      end
+      
+      describe "when there is an Authorization with code and token" do
+        before do
+          @authorization.update_attributes(:code => 'pending_code', :access_token => 'working_token')
+          OAuth2.stub(:random_string).and_return('random_access_token')
+        end
+        
+        it "returns a new access token" do
+          response = post(params)
+          validate_json_response(response, 200,
+            'access_token' => 'random_access_token'
+          )
+        end
+        
+        it "exchanges the code for the new token on the existing Authorization" do
+          post(params)
+          @authorization.reload
+          @authorization.code.should be_nil
+          @authorization.access_token_hash.should == OAuth2.hashify('random_access_token')
         end
       end
     end
