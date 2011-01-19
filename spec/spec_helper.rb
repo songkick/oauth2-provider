@@ -28,6 +28,10 @@ Thin::Logging.silent = true
 require 'factories'
 
 RSpec.configure do |config|
+  config.before do
+    OAuth2::Provider.mode = 'development'
+  end
+  
   config.after do
     [ OAuth2::Model::Client,
       OAuth2::Model::Authorization,

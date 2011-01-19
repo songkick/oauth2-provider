@@ -10,9 +10,21 @@ module OAuth2
       {'client_id' => username, 'client_secret' => password}
     end
     
+    def self.transport_error(request)
+      uri = URI.parse(request.url)
+      
+      if Provider.mode != Provider::MODE_DEVELOPMENT and not uri.is_a?(URI::HTTPS)
+        return Provider::Error.new("must make requests using HTTPS")
+      end
+    end
+    
     def self.parse(resource_owner, request, params = nil)
+      if error = transport_error(request)
+        return error
+      end
+      
       params ||= request.params
-      auth = auth_params(request, params)
+      auth     = auth_params(request, params)
       
       if auth['client_id'] and auth['client_id'] != params['client_id']
         return Provider::Error.new("client_id from Basic Auth and request body do not match")
@@ -37,7 +49,10 @@ module OAuth2
                      header.gsub(/^OAuth\s+/, '') :
                      params['oauth_token']
       
-      Provider::AccessToken.new(resource_owner, scopes, access_token)
+      Provider::AccessToken.new(resource_owner,
+                                scopes,
+                                access_token,
+                                transport_error(request))
     end
     
   end

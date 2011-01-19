@@ -4,10 +4,11 @@ module OAuth2
     class AccessToken
       attr_reader :authorization
       
-      def initialize(resource_owner = nil, scopes = [], access_token = nil)
+      def initialize(resource_owner = nil, scopes = [], access_token = nil, error = nil)
         @resource_owner = resource_owner
         @scopes         = scopes
         @access_token   = access_token
+        @error          = error && INVALID_REQUEST
         
         if hash = OAuth2.hashify(access_token)
           @authorization  = Model::Authorization.find_by_access_token_hash(hash)
@@ -33,10 +34,10 @@ module OAuth2
       
       def response_status
         case @error
-          when INVALID_TOKEN, EXPIRED_TOKEN then 401
-          when INSUFFICIENT_SCOPE then 403
-          when '' then 401
-          else 200
+          when INVALID_REQUEST, INVALID_TOKEN, EXPIRED_TOKEN then 401
+          when INSUFFICIENT_SCOPE                            then 403
+          when ''                                            then 401
+                                                             else 200
         end
       end
       

@@ -30,8 +30,13 @@ module OAuth2
     VERSION = '0.1.0'
     
     class << self
-      attr_accessor :realm
+      attr_accessor :realm, :mode
     end
+    
+    MODE_DEVELOPMENT = 'development'
+    MODE_PRODUCTION  = 'production'
+    
+    self.mode = MODE_PRODUCTION
     
     def self.clear_assertion_handlers!
       @assertion_handlers = {}

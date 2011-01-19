@@ -46,6 +46,18 @@ describe OAuth2::Provider do
       it_should_behave_like "asks for user permission"
     end
     
+    describe "in production" do
+      before { OAuth2::Provider.mode = 'production' }
+      
+      it "does not allow non-SSL requests" do
+        response = get(params)
+        validate_json_response(response, 400,
+          'error'             => 'invalid_request',
+          'error_description' => 'Bad request: must make requests using HTTPS'
+        )
+      end
+    end
+    
     describe "when there is already a pending authorization from the user" do
       before do
         @authorization = OAuth2::Model::Authorization.create(
@@ -324,6 +336,18 @@ describe OAuth2::Provider do
           )
         end
         
+        describe "in production" do
+          before { OAuth2::Provider.mode = 'production' }
+          
+          it "does not allow non-SSL requests" do
+            response = get(params)
+            validate_json_response(response, 400,
+              'error'             => 'invalid_request',
+              'error_description' => 'Bad request: must make requests using HTTPS'
+            )
+          end
+        end
+        
         it "creates a Token when using Basic Auth" do
           token = mock_request(OAuth2::Provider::Exchange, :response_body => 'Hello')
           OAuth2::Provider::Exchange.should_receive(:new).with(@owner, params).and_return(token)
@@ -419,7 +443,7 @@ describe OAuth2::Provider do
         mock_token.should_receive(:response_headers).and_return({})
         mock_token.should_receive(:response_status).and_return(200)
         mock_token.should_receive(:valid?).and_return(true)
-        OAuth2::Provider::AccessToken.should_receive(:new).with(TestApp::User['Bob'], ['profile'], 'magic-key').and_return(mock_token)
+        OAuth2::Provider::AccessToken.should_receive(:new).with(TestApp::User['Bob'], ['profile'], 'magic-key', nil).and_return(mock_token)
         request('/user_profile', 'oauth_token' => 'magic-key')
       end
       
@@ -434,6 +458,17 @@ describe OAuth2::Provider do
         JSON.parse(response.body)['data'].should == 'No soup for you'
         response.code.to_i.should == 401
         response['WWW-Authenticate'].should == "OAuth realm='Demo App', error='invalid_token'"
+      end
+      
+      describe "in production" do
+        before { OAuth2::Provider.mode = 'production' }
+        
+        it "blocks access when not using HTTPS" do
+          response = request('/user_profile', 'oauth_token' => 'magic-key')
+          JSON.parse(response.body)['data'].should == 'No soup for you'
+          response.code.to_i.should == 401
+          response['WWW-Authenticate'].should == "OAuth realm='Demo App', error='invalid_request'"
+        end
       end
     end
     
