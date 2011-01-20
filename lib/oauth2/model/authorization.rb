@@ -49,30 +49,30 @@ module OAuth2
         end
       end
       
-      def self.for_response_type(response_type, params = {})
-        instance = self.for(params[:owner], params[:client]) ||
-                   new(:owner => params[:owner], :client => params[:client])
+      def self.for_response_type(response_type, attributes = {})
+        instance = self.for(attributes[:owner], attributes[:client]) ||
+                   new(:owner => attributes[:owner], :client => attributes[:client])
         
         case response_type
-          when 'code'
-            instance.code ||= create_code(params[:client])
-          when 'token'
+          when CODE
+            instance.code ||= create_code(attributes[:client])
+          when TOKEN
             instance.access_token  ||= create_access_token
-            instance.refresh_token ||= create_refresh_token(params[:client])
-          when 'code_and_token'
-            instance.code = create_code(params[:client])
+            instance.refresh_token ||= create_refresh_token(attributes[:client])
+          when CODE_AND_TOKEN
+            instance.code = create_code(attributes[:client])
             instance.access_token  ||= create_access_token
-            instance.refresh_token ||= create_refresh_token(params[:client])
+            instance.refresh_token ||= create_refresh_token(attributes[:client])
         end
         
-        if params[:duration]
-          instance.expires_at = Time.now + params[:duration].to_i
+        if attributes[:duration]
+          instance.expires_at = Time.now + attributes[:duration].to_i
         else
           instance.expires_at = nil
         end
         
-        if params[:scope]
-          scopes = instance.scopes + params[:scope].split(/\s+/)
+        if attributes[:scope]
+          scopes = instance.scopes + attributes[:scope].split(/\s+/)
           instance.scope = scopes.join(' ')
         end
         

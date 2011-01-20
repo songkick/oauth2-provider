@@ -14,8 +14,8 @@ module OAuth2
       
       def initialize(resource_owner, params)
         @params     = params
-        @scope      = params['scope']
-        @grant_type = @params['grant_type']
+        @scope      = params[SCOPE]
+        @grant_type = @params[GRANT_TYPE]
         validate!
       end
       
@@ -32,7 +32,7 @@ module OAuth2
       end
       
       def response_body
-        return jsonize(:error, :error_description) unless valid?
+        return jsonize(ERROR, ERROR_DESCRIPTION) unless valid?
         update_authorization
         
         response = {}
@@ -95,13 +95,13 @@ module OAuth2
       end
       
       def validate_client
-        @client = Model::Client.find_by_client_id(@params['client_id'])
+        @client = Model::Client.find_by_client_id(@params[CLIENT_ID])
         unless @client
           @error = INVALID_CLIENT
-          @error_description = "Unknown client ID #{@params['client_id']}"
+          @error_description = "Unknown client ID #{@params[CLIENT_ID]}"
         end
         
-        if @client and not @client.valid_client_secret? @params['client_secret']
+        if @client and not @client.valid_client_secret? @params[CLIENT_SECRET]
           @error = INVALID_CLIENT
           @error_description = 'Parameter client_secret does not match'
         end
@@ -115,24 +115,24 @@ module OAuth2
       end
       
       def validate_authorization_code
-        unless @params['code']
+        unless @params[CODE]
           @error = INVALID_REQUEST
           @error_description = "Missing required parameter code"
         end
         
-        if @client.redirect_uri and @client.redirect_uri != @params['redirect_uri']
+        if @client.redirect_uri and @client.redirect_uri != @params[REDIRECT_URI]
           @error = REDIRECT_MISMATCH
           @error_description = "Parameter redirect_uri does not match registered URI"
         end
         
-        unless @params.has_key?('redirect_uri')
+        unless @params.has_key?(REDIRECT_URI)
           @error = INVALID_REQUEST
           @error_description = "Missing required parameter redirect_uri"
         end
         
         return if @error
         
-        @authorization = @client.authorizations.find_by_code(@params['code'])
+        @authorization = @client.authorizations.find_by_code(@params[CODE])
         validate_authorization
       end
       
@@ -143,8 +143,8 @@ module OAuth2
           @error_description = "Missing required parameter #{param}"
         end
         
-        if @params['assertion_type']
-          uri = URI.parse(@params['assertion_type']) rescue nil
+        if @params[ASSERTION_TYPE]
+          uri = URI.parse(@params[ASSERTION_TYPE]) rescue nil
           unless uri and uri.absolute?
             @error = INVALID_REQUEST
             @error_description = 'Parameter assertion_type must be an absolute URI'
@@ -162,7 +162,7 @@ module OAuth2
       end
       
       def validate_refresh_token
-        refresh_token_hash = OAuth2.hashify(@params['refresh_token'])
+        refresh_token_hash = OAuth2.hashify(@params[REFRESH_TOKEN])
         @authorization = @client.authorizations.find_by_refresh_token_hash(refresh_token_hash)
         validate_authorization
       end
@@ -183,8 +183,8 @@ module OAuth2
     class Assertion
       attr_reader :type, :value
       def initialize(params)
-        @type  = params['assertion_type']
-        @value = params['assertion']
+        @type  = params[ASSERTION_TYPE]
+        @value = params[ASSERTION]
       end
     end
     

@@ -7,15 +7,15 @@ module OAuth2
                   :expires_in, :refresh_token,
                   :error, :error_description
       
-      REQUIRED_PARAMS = %w[response_type client_id redirect_uri]
-      VALID_PARAMS    = REQUIRED_PARAMS + %w[scope state]
-      VALID_RESPONSES = %w[code token code_and_token]
+      REQUIRED_PARAMS = [RESPONSE_TYPE, CLIENT_ID, REDIRECT_URI]
+      VALID_PARAMS    = REQUIRED_PARAMS + [SCOPE, STATE]
+      VALID_RESPONSES = [CODE, TOKEN, CODE_AND_TOKEN]
       
       def initialize(resource_owner, params)
         @owner  = resource_owner
         @params = params
-        @scope  = params['scope']
-        @state  = params['state']
+        @scope  = params[SCOPE]
+        @state  = params[STATE]
         
         validate!
         return unless @owner and not @error
@@ -36,7 +36,7 @@ module OAuth2
       end
       
       def grant_access!(options = {})
-        @model = Model::Authorization.for_response_type(@params['response_type'],
+        @model = Model::Authorization.for_response_type(@params[RESPONSE_TYPE],
           :owner    => @owner,
           :client   => @client,
           :scope    => @scope,
@@ -47,7 +47,7 @@ module OAuth2
         @refresh_token = @model.refresh_token
         @expires_in    = @model.expires_in
         
-        unless @params['response_type'] == 'code'
+        unless @params[RESPONSE_TYPE] == CODE
           @expires_in  = @model.expires_in
         end
         
@@ -75,20 +75,20 @@ module OAuth2
         base_redirect_uri = @client.redirect_uri
         
         if not valid?
-          query = to_query_string(:error, :error_description, :state)
+          query = to_query_string(ERROR, ERROR_DESCRIPTION, STATE)
           "#{ base_redirect_uri }?#{ query }"
         
-        elsif @params['response_type'] == 'code_and_token'
-          query    = to_query_string(:code, :state)
-          fragment = to_query_string(:access_token, :expires_in, :scope)
+        elsif @params[RESPONSE_TYPE] == CODE_AND_TOKEN
+          query    = to_query_string(CODE, STATE)
+          fragment = to_query_string(ACCESS_TOKEN, EXPIRES_IN, SCOPE)
           "#{ base_redirect_uri }#{ query.empty? ? '' : '?' + query }##{ fragment }"
         
-        elsif @params['response_type'] == 'token'
-          fragment = to_query_string(:access_token, :expires_in, :scope, :state)
+        elsif @params[RESPONSE_TYPE] == 'token'
+          fragment = to_query_string(ACCESS_TOKEN, EXPIRES_IN, SCOPE, STATE)
           "#{ base_redirect_uri }##{ fragment }"
         
         else
-          query = to_query_string(:code, :scope, :state)
+          query = to_query_string(CODE, SCOPE, STATE)
           "#{ base_redirect_uri }?#{ query }"
         end
       end
@@ -96,8 +96,8 @@ module OAuth2
       def response_body
         return nil if @client and valid?
         JSON.unparse(
-          'error'             => INVALID_REQUEST,
-          'error_description' => 'This is not a valid OAuth request')
+          ERROR             => INVALID_REQUEST,
+          ERROR_DESCRIPTION => 'This is not a valid OAuth request')
       end
       
       def response_headers
@@ -116,10 +116,10 @@ module OAuth2
     private
       
       def validate!
-        @client = @params['client_id'] && Model::Client.find_by_client_id(@params['client_id'])
+        @client = @params[CLIENT_ID] && Model::Client.find_by_client_id(@params[CLIENT_ID])
         unless @client
           @error = INVALID_CLIENT
-          @error_description = "Unknown client ID #{@params['client_id']}"
+          @error_description = "Unknown client ID #{@params[CLIENT_ID]}"
         end
         
         REQUIRED_PARAMS.each do |param|
@@ -129,18 +129,18 @@ module OAuth2
         end
         return if @error
         
-        unless VALID_RESPONSES.include?(@params['response_type'])
+        unless VALID_RESPONSES.include?(@params[RESPONSE_TYPE])
           @error = UNSUPPORTED_RESPONSE
-          @error_description = "Response type #{@params['response_type']} is not supported"
+          @error_description = "Response type #{@params[RESPONSE_TYPE]} is not supported"
         end
         
-        @client = Model::Client.find_by_client_id(@params['client_id'])
+        @client = Model::Client.find_by_client_id(@params[CLIENT_ID])
         unless @client
           @error = INVALID_CLIENT
-          @error_description = "Unknown client ID #{@params['client_id']}"
+          @error_description = "Unknown client ID #{@params[CLIENT_ID]}"
         end
         
-        if @client and @client.redirect_uri and @client.redirect_uri != @params['redirect_uri']
+        if @client and @client.redirect_uri and @client.redirect_uri != @params[REDIRECT_URI]
           @error = REDIRECT_MISMATCH
           @error_description = "Parameter redirect_uri does not match registered URI"
         end

@@ -12,7 +12,7 @@ module OAuth2
       
       def response_body
         message = 'Bad request' + (@message ? ": #{@message}" : '')
-        JSON.unparse(:error => INVALID_REQUEST, :error_description => message)
+        JSON.unparse(ERROR => INVALID_REQUEST, ERROR_DESCRIPTION => message)
       end
       
       def response_headers

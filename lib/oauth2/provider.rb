@@ -26,6 +26,39 @@ module OAuth2
     Digest::SHA1.hexdigest(token)
   end
   
+  ACCESS_TOKEN           = 'access_token'
+  ASSERTION              = 'assertion'
+  ASSERTION_TYPE         = 'assertion_type'
+  CLIENT_ID              = 'client_id'
+  CLIENT_SECRET          = 'client_secret'
+  CODE                   = 'code'
+  CODE_AND_TOKEN         = 'code_and_token'
+  DURATION               = 'duration'
+  ERROR                  = 'error'
+  ERROR_DESCRIPTION      = 'error_description'
+  EXPIRES_IN             = 'expires_in'
+  GRANT_TYPE             = 'grant_type'
+  OAUTH_TOKEN            = 'oauth_token'
+  REDIRECT_URI           = 'redirect_uri'
+  REFRESH_TOKEN          = 'refresh_token'
+  RESPONSE_TYPE          = 'response_type'
+  SCOPE                  = 'scope'
+  STATE                  = 'state'
+  TOKEN                  = 'token'
+  
+  INVALID_REQUEST        = 'invalid_request'
+  UNSUPPORTED_RESPONSE   = 'unsupported_response_type'
+  REDIRECT_MISMATCH      = 'redirect_uri_mismatch'
+  UNSUPPORTED_GRANT_TYPE = 'unsupported_grant_type'
+  INVALID_GRANT          = 'invalid_grant'
+  INVALID_CLIENT         = 'invalid_client'
+  UNAUTHORIZED_CLIENT    = 'unauthorized_client'
+  INVALID_SCOPE          = 'invalid_scope'
+  INVALID_TOKEN          = 'invalid_token'
+  EXPIRED_TOKEN          = 'expired_token'
+  INSUFFICIENT_SCOPE     = 'insufficient_scope'
+  ACCESS_DENIED          = 'access_denied'
+  
   class Provider
     VERSION = '0.1.0'
     
@@ -66,19 +99,6 @@ module OAuth2
     def self.access_token(*args)
       Router.access_token(*args)
     end
-    
-    INVALID_REQUEST        = 'invalid_request'
-    UNSUPPORTED_RESPONSE   = 'unsupported_response_type'
-    REDIRECT_MISMATCH      = 'redirect_uri_mismatch'
-    UNSUPPORTED_GRANT_TYPE = 'unsupported_grant_type'
-    INVALID_GRANT          = 'invalid_grant'
-    INVALID_CLIENT         = 'invalid_client'
-    UNAUTHORIZED_CLIENT    = 'unauthorized_client'
-    INVALID_SCOPE          = 'invalid_scope'
-    INVALID_TOKEN          = 'invalid_token'
-    EXPIRED_TOKEN          = 'expired_token'
-    INSUFFICIENT_SCOPE     = 'insufficient_scope'
-    ACCESS_DENIED          = 'access_denied'
     
     EXPIRY_TIME            = 3600
     

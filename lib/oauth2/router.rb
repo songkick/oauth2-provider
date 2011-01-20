@@ -7,7 +7,7 @@ module OAuth2
       return {} unless basic = request.env['HTTP_AUTHORIZATION']
       parts = basic.split(/\s+/)
       username, password = Base64.decode64(parts.last).split(':')
-      {'client_id' => username, 'client_secret' => password}
+      {CLIENT_ID => username, CLIENT_SECRET => password}
     end
     
     def self.transport_error(request)
@@ -26,13 +26,13 @@ module OAuth2
       params ||= request.params
       auth     = auth_params(request, params)
       
-      if auth['client_id'] and auth['client_id'] != params['client_id']
-        return Provider::Error.new("client_id from Basic Auth and request body do not match")
+      if auth[CLIENT_ID] and auth[CLIENT_ID] != params[CLIENT_ID]
+        return Provider::Error.new("#{CLIENT_ID} from Basic Auth and request body do not match")
       end
       
       params = params.merge(auth)
       
-      if params['grant_type']
+      if params[GRANT_TYPE]
         request.post? ?
             Provider::Exchange.new(resource_owner, params) :
             Provider::Error.new("should be a POST request")
@@ -47,7 +47,7 @@ module OAuth2
       
       access_token = header && header =~ /^OAuth\s+/ ?
                      header.gsub(/^OAuth\s+/, '') :
-                     params['oauth_token']
+                     params[OAUTH_TOKEN]
       
       Provider::AccessToken.new(resource_owner,
                                 scopes,
