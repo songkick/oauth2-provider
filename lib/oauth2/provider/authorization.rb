@@ -129,6 +129,14 @@ module OAuth2
         end
         return if @error
         
+        [SCOPE, STATE].each do |param|
+          next unless @params.has_key?(param)
+          if @params[param] =~ /\r\n/
+            @error = INVALID_REQUEST
+            @error_description = "Illegal value for #{param} parameter"
+          end
+        end
+        
         unless VALID_RESPONSES.include?(@params[RESPONSE_TYPE])
           @error = UNSUPPORTED_RESPONSE
           @error_description = "Response type #{@params[RESPONSE_TYPE]} is not supported"

@@ -109,6 +109,27 @@ describe OAuth2::Provider::Authorization do
     end
   end
   
+  # http://en.wikipedia.org/wiki/HTTP_response_splitting
+  # scope and state values are passed back in the redirect
+  
+  describe "with an illegal scope" do
+    before { params['scope'] = "http\r\nsplitter" }
+    
+    it "is invalid" do
+      authorization.error.should == "invalid_request"
+      authorization.error_description.should == "Illegal value for scope parameter"
+    end
+  end
+  
+  describe "with an illegal state" do
+    before { params['state'] = "http\r\nsplitter" }
+    
+    it "is invalid" do
+      authorization.error.should == "invalid_request"
+      authorization.error_description.should == "Illegal value for state parameter"
+    end
+  end
+  
   describe "#grant_access!" do
     describe "when there is an existing authorization with no code" do
       before do

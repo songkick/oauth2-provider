@@ -26,6 +26,12 @@ describe OAuth2::Model::Client do
     @client.should_not be_valid
   end
   
+  # http://en.wikipedia.org/wiki/HTTP_response_splitting
+  it "is invalid if the URI contains HTTP line breaks" do
+    @client.redirect_uri = "http://example.com/c\r\nb"
+    @client.should_not be_valid
+  end
+  
   it "cannot mass-assign client_id" do
     @client.update_attributes(:client_id => 'foo')
     @client.client_id.should_not == 'foo'
