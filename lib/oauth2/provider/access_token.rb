@@ -10,10 +10,7 @@ module OAuth2
         @access_token   = access_token
         @error          = error && INVALID_REQUEST
         
-        if hash = OAuth2.hashify(access_token)
-          @authorization  = Model::Authorization.find_by_access_token_hash(hash)
-        end
-        
+        authorize!(access_token, error)
         validate!
       end
       
@@ -46,6 +43,13 @@ module OAuth2
       end
       
     private
+      
+      def authorize!(access_token, error)
+        return unless hash = OAuth2.hashify(access_token)
+        return unless @authorization = Model::Authorization.find_by_access_token_hash(hash)
+        
+        @authorization.update_attribute(:access_token, nil) if error
+      end
       
       def validate!
         return @error = ''                 unless @access_token

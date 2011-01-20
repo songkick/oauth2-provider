@@ -463,11 +463,29 @@ describe OAuth2::Provider do
       describe "in production" do
         before { OAuth2::Provider.mode = 'production' }
         
+        let(:authorization) do
+          OAuth2::Model::Authorization.find_by_access_token_hash(OAuth2.hashify('magic-key'))
+        end
+        
         it "blocks access when not using HTTPS" do
           response = request('/user_profile', 'oauth_token' => 'magic-key')
           JSON.parse(response.body)['data'].should == 'No soup for you'
           response.code.to_i.should == 401
           response['WWW-Authenticate'].should == "OAuth realm='Demo App', error='invalid_request'"
+        end
+        
+        it "destroys the access token since it's been leaked" do
+          authorization.access_token_hash.should == OAuth2.hashify('magic-key')
+          request('/user_profile', 'oauth_token' => 'magic-key')
+          authorization.reload
+          authorization.access_token_hash.should be_nil
+        end
+        
+        it "keeps the access token if the wrong key is passed" do
+          authorization.access_token_hash.should == OAuth2.hashify('magic-key')
+          request('/user_profile', 'oauth_token' => 'is-the-password-books')
+          authorization.reload
+          authorization.access_token_hash.should == OAuth2.hashify('magic-key')
         end
       end
     end
