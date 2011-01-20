@@ -237,6 +237,31 @@ A token represents the fact that a single owner gave a single client a set of
 permissions.
 
 
+=== Transport security
+
+Your application should ensure that any endpoint that receives or returns OAuth
+data is only accessible over a secure transport such as the <tt>https:</tt>
+protocol. <tt>OAuth2::Provider</tt> enforces this where it can to make it easier
+to keep your application secure:
+
+* The <tt>OAuth2::Provider.parse</tt> method will produce error responses and
+  will not process the incoming request unless the request was made using the
+  <tt>https:</tt> protocol.
+* An access token constructed using <tt>OAuth2::Provider.access_token</tt> will
+  return <tt>false</tt> for <tt>#valid?</tt> unless the request was made using the
+  <tt>https:</tt> protocol.
+* Any access token received over an insecure connection is immediately destroyed
+  to prevent eavesdroppers getting access to the user's resources. A client
+  making an insecure request will have to send the user through the authorization
+  process again to get a new token.
+
+These features can be disabled for development and testing purposes by changing
+the <tt>mode</tt> setting. The library is in the <tt>production</tt> mode by
+default.
+
+  OAuth2::Provider.mode = 'development'
+
+
 == License
 
 Copyright (c) 2010 Songkick.com
