@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe OAuth2::Provider do
-  before { TestApp::Provider.start(8000) }
-  after  { TestApp::Provider.stop }
+  before(:all) { TestApp::Provider.start(8000) }
+  after(:all)  { TestApp::Provider.stop }
   
   let(:params) { { 'response_type' => 'code',
                    'client_id'     => @client.client_id,
