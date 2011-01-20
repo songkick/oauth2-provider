@@ -1,6 +1,7 @@
 dir = File.expand_path(File.dirname(__FILE__))
 $:.unshift(dir + '/../lib')
 
+require 'rubygems'
 require 'oauth2/provider'
 require 'fileutils'
 

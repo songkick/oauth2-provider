@@ -12,6 +12,7 @@ environment, namely they:
 
 * respond to <tt>#params</tt> with a <tt>Hash</tt> of request parameters
 * respond to <tt>#get?</tt> and <tt>#post?</tt>
+* respond to <tt>#url</tt> with the full URL string of the request
 * respond to <tt>#env</tt>, returning the HTTP environment <tt>Hash</tt>
 
 It stores the clients and authorizations using ActiveRecord; the schema is in
