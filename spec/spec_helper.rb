@@ -29,7 +29,7 @@ require 'factories'
 
 RSpec.configure do |config|
   config.before do
-    OAuth2::Provider.mode = 'development'
+    OAuth2::Provider.enforce_ssl = false
   end
   
   config.after do

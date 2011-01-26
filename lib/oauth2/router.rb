@@ -13,7 +13,7 @@ module OAuth2
     def self.transport_error(request)
       uri = URI.parse(request.url)
       
-      if Provider.mode != Provider::MODE_DEVELOPMENT and not uri.is_a?(URI::HTTPS)
+      if Provider.enforce_ssl and not uri.is_a?(URI::HTTPS)
         return Provider::Error.new("must make requests using HTTPS")
       end
     end

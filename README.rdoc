@@ -242,8 +242,9 @@ permissions.
 
 Your application should ensure that any endpoint that receives or returns OAuth
 data is only accessible over a secure transport such as the <tt>https:</tt>
-protocol. <tt>OAuth2::Provider</tt> enforces this where it can to make it easier
-to keep your application secure:
+protocol. <tt>OAuth2::Provider</tt> can enforces this to make it easier to keep
+your users' data secure. If you want to enable these behaviours, set
+<tt>OAuth2::Provider.enforce_ssl = true</tt>.
 
 * The <tt>OAuth2::Provider.parse</tt> method will produce error responses and
   will not process the incoming request unless the request was made using the
@@ -256,16 +257,10 @@ to keep your application secure:
   making an insecure request will have to send the user through the authorization
   process again to get a new token.
 
-These features can be disabled for development and testing purposes by changing
-the <tt>mode</tt> setting. The library is in the <tt>production</tt> mode by
-default.
-
-  OAuth2::Provider.mode = 'development'
-
 
 == License
 
-Copyright (c) 2010 Songkick.com
+Copyright (c) 2010-2011 Songkick.com
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

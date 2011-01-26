@@ -46,8 +46,8 @@ describe OAuth2::Provider do
       it_should_behave_like "asks for user permission"
     end
     
-    describe "in production" do
-      before { OAuth2::Provider.mode = 'production' }
+    describe "enforcing SSL" do
+      before { OAuth2::Provider.enforce_ssl = true }
       
       it "does not allow non-SSL requests" do
         response = get(params)
@@ -336,8 +336,8 @@ describe OAuth2::Provider do
           )
         end
         
-        describe "in production" do
-          before { OAuth2::Provider.mode = 'production' }
+        describe "enforcing SSL" do
+          before { OAuth2::Provider.enforce_ssl = true }
           
           it "does not allow non-SSL requests" do
             response = get(params)
@@ -460,8 +460,8 @@ describe OAuth2::Provider do
         response['WWW-Authenticate'].should == "OAuth realm='Demo App', error='invalid_token'"
       end
       
-      describe "in production" do
-        before { OAuth2::Provider.mode = 'production' }
+      describe "enforcing SSL" do
+        before { OAuth2::Provider.enforce_ssl = true }
         
         let(:authorization) do
           OAuth2::Model::Authorization.find_by_access_token_hash(OAuth2.hashify('magic-key'))
