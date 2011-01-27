@@ -35,6 +35,19 @@ need to provide four things:
 * Resources protected by access tokens
 
 
+=== Configuration
+
+<tt>OAuth2::Provider</tt> requires very little configuration. The only thing it
+needs to know about your app is its name, which is used in the headers for some
+authentication errors. To load the library, just do this:
+
+  require 'oauth2/provider'
+  OAuth2::Provider.realm = 'My OAuth app'
+
+You may also need to configure assertion handlers if your application supports
+third-party access credentials. See 'Using Assertions' below.
+
+
 === Registering client applications
 
 Clients are modelled by the <tt>OAuth2::Model::Client</tt> class, which is an
@@ -90,7 +103,6 @@ may be able to immediately redirect if the user has already authorized the clien
       @oauth2.response_body || erb(:login)
     end
   end
-
 
 There is a set of parameters that you will need to hold on to for when your app
 needs to redirect back to the client. You could store them in the session, or
