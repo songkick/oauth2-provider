@@ -4,7 +4,6 @@ $:.unshift(dir)
 
 require 'oauth2/provider'
 OAuth2::Provider.realm = 'Notes App'
-OAuth2::Provider.mode  = 'development'
 
 require 'models/connection'
 require 'models/user'
