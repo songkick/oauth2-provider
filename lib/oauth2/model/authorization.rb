@@ -59,10 +59,6 @@ module OAuth2
           when TOKEN
             instance.access_token  ||= create_access_token
             instance.refresh_token ||= create_refresh_token(attributes[:client])
-          when CODE_AND_TOKEN
-            instance.code = create_code(attributes[:client])
-            instance.access_token  ||= create_access_token
-            instance.refresh_token ||= create_refresh_token(attributes[:client])
         end
         
         if attributes[:duration]

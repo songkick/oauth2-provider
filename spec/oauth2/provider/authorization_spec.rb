@@ -236,29 +236,6 @@ describe OAuth2::Provider::Authorization do
         authorization.refresh_token_hash.should == OAuth2.hashify("s2")
       end
     end
-    
-    describe "for code_and_token requests" do
-      before { params['response_type'] = 'code_and_token' }
-      
-      it "creates a code and token for the authorization" do
-        authorization.grant_access!
-        authorization.code.should == "s1"
-        authorization.access_token.should == "s2"
-        authorization.refresh_token.should == "s3"
-        authorization.expires_in.should be_nil
-      end
-      
-      it "creates an Authorization in the database" do
-        authorization.grant_access!
-        
-        authorization = OAuth2::Model::Authorization.first
-        authorization.owner.should == resource_owner
-        authorization.client.should == @client
-        authorization.code.should == "s1"
-        authorization.access_token_hash.should == OAuth2.hashify("s2")
-        authorization.refresh_token_hash.should == OAuth2.hashify("s3")
-      end
-    end
   end
   
   describe "#deny_access!" do

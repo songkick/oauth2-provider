@@ -9,7 +9,7 @@ module OAuth2
       
       REQUIRED_PARAMS = [RESPONSE_TYPE, CLIENT_ID, REDIRECT_URI]
       VALID_PARAMS    = REQUIRED_PARAMS + [SCOPE, STATE]
-      VALID_RESPONSES = [CODE, TOKEN, CODE_AND_TOKEN]
+      VALID_RESPONSES = [CODE, TOKEN]
       
       def initialize(resource_owner, params)
         @owner  = resource_owner
@@ -77,11 +77,6 @@ module OAuth2
         if not valid?
           query = to_query_string(ERROR, ERROR_DESCRIPTION, STATE)
           "#{ base_redirect_uri }?#{ query }"
-        
-        elsif @params[RESPONSE_TYPE] == CODE_AND_TOKEN
-          query    = to_query_string(CODE, STATE)
-          fragment = to_query_string(ACCESS_TOKEN, EXPIRES_IN, SCOPE)
-          "#{ base_redirect_uri }#{ query.empty? ? '' : '?' + query }##{ fragment }"
         
         elsif @params[RESPONSE_TYPE] == 'token'
           fragment = to_query_string(ACCESS_TOKEN, EXPIRES_IN, SCOPE, STATE)

@@ -41,11 +41,6 @@ describe OAuth2::Provider do
       it_should_behave_like "asks for user permission"
     end
     
-    describe "for code_and_token requests" do
-      before { params['response_type'] = 'code_and_token' }
-      it_should_behave_like "asks for user permission"
-    end
-    
     describe "enforcing SSL" do
       before { OAuth2::Provider.enforce_ssl = true }
       
@@ -272,35 +267,6 @@ describe OAuth2::Provider do
           response = allow_or_deny(params)
           response.code.to_i.should == 302
           response['location'].should == 'https://client.example.com/cb#access_token=foo&scope=foo+bar'
-        end
-      end
-      
-      describe "for code_and_token requests" do
-        before { params['response_type'] = 'code_and_token' }
-        
-        it "grants access" do
-          mock_auth.should_receive(:grant_access!)
-          allow_or_deny(params)
-        end
-        
-        it "redirects to the client with an access token" do
-          response = allow_or_deny(params)
-          response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb?code=foo#access_token=foo'
-        end
-        
-        it "passes the state parameter through" do
-          params['state'] = 'illinois'
-          response = allow_or_deny(params)
-          response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb?code=foo&state=illinois#access_token=foo'
-        end
-        
-        it "passes the scope parameter through" do
-          params['scope'] = 'foo bar'
-          response = allow_or_deny(params)
-          response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb?code=foo#access_token=foo&scope=foo+bar'
         end
       end
     end

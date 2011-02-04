@@ -32,7 +32,6 @@ module OAuth2
   CLIENT_ID              = 'client_id'
   CLIENT_SECRET          = 'client_secret'
   CODE                   = 'code'
-  CODE_AND_TOKEN         = 'code_and_token'
   DURATION               = 'duration'
   ERROR                  = 'error'
   ERROR_DESCRIPTION      = 'error_description'
