@@ -165,10 +165,10 @@ After granting or denying access, we just redirect back to the client using a
 URI that <tt>OAuth2::Provider</tt> will provide for you.
 
 
-=== Using assertions
+=== Using extensions
 
-Assertions provide a way to access your OAuth services using user credentials
-from another service. When using assertions, the user will not authenticate on
+Extensions provide a way to access your OAuth services using user credentials
+from another service. When using extensions, the user will not authenticate on
 your web site; the OAuth client will authenticate the user using some other
 framework and obtain a token, then exchange this token for an access token on
 your domain.
@@ -180,14 +180,14 @@ access token from your site. You will typically create an account in your
 database to represent this, then have that new account grant access to the
 client.
 
-To use assertions, you must tell <tt>OAuth2::Provider</tt> how to handle
-assertions based on their type. An assertion type must be a valid URI. For
+To use extensions, you must tell <tt>OAuth2::Provider</tt> how to handle
+extensions based on their type. An extension type must be a valid URI. For
 the Facebook example we'd do the following. The block yields the <tt>Client</tt>
-object making the exchange request, and the value of the assertion, which in
-this example will be a Facebook access token.
+object making the exchange request, and the request parameters used in the
+exchange. We'll pass the Facebook token using the <tt>assertion</tt> parameter.
 
-  OAuth2::Provider.handle_assertions 'https://graph.facebook.com/me' do |client, assertion|
-    facebook = URI.parse('https://graph.facebook.com/me?access_token=' + assertion)
+  OAuth2::Provider.extension 'https://graph.facebook.com/me' do |client, params|
+    facebook = URI.parse('https://graph.facebook.com/me?access_token=' + params['assertion'])
     response = Net::HTTP.get_response(facebook)
     
     user_data = JSON.parse(response.body)
@@ -198,12 +198,12 @@ this example will be a Facebook access token.
 
 This code should run when your app boots, not during a request handler - think
 of it as configuration for <tt>OAuth2::Provider</tt>. The framework will invoke
-it when a client attempts to use assertions with your OAuth endpoint.
+it when a client attempts to use extensions with your OAuth endpoint.
 
 The final call in your handler should be to <tt>grant_access!</tt>; this returns
 an <tt>Authorization</tt> object that the framework then uses to complete the
 response to the client. If you want to deny the request for whatever reason, the
-block must return <tt>nil</tt>. If a client tries to use an assertion type you
+block must return <tt>nil</tt>. If a client tries to use an extension type you
 have no handler for, the client will get an error response.
 
 

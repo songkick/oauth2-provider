@@ -27,8 +27,6 @@ module OAuth2
   end
   
   ACCESS_TOKEN           = 'access_token'
-  ASSERTION              = 'assertion'
-  ASSERTION_TYPE         = 'assertion_type'
   CLIENT_ID              = 'client_id'
   CLIENT_SECRET          = 'client_secret'
   CODE                   = 'code'
@@ -65,25 +63,29 @@ module OAuth2
       attr_accessor :realm, :enforce_ssl
     end
     
-    def self.clear_assertion_handlers!
-      @assertion_handlers = {}
-      @assertion_filters  = []
+    def self.clear_extensions!
+      @extension_handlers = {}
+      @extension_filters  = []
     end
     
-    clear_assertion_handlers!
+    clear_extensions!
     
-    def self.filter_assertions(&filter)
-      @assertion_filters.push(filter)
+    def self.filter_extensions(&filter)
+      @extension_filters.push(filter)
     end
     
-    def self.handle_assertions(assertion_type, &handler)
-      @assertion_handlers[assertion_type] = handler
+    def self.extension(extension_uri, &handler)
+      @extension_handlers[extension_uri] = handler
     end
     
-    def self.handle_assertion(client, assertion)
-      return nil unless @assertion_filters.all? { |f| f.call(client) }
-      handler = @assertion_handlers[assertion.type]
-      handler ? handler.call(client, assertion.value) : nil
+    def self.extension_types
+      @extension_handlers.keys
+    end
+    
+    def self.handle_extension(client, extension_uri, params)
+      return nil unless @extension_filters.all? { |f| f.call(client) }
+      handler = @extension_handlers[extension_uri]
+      handler ? handler.call(client, params) : nil
     end
     
     def self.parse(*args)
@@ -94,7 +96,7 @@ module OAuth2
       Router.access_token(*args)
     end
     
-    EXPIRY_TIME            = 3600
+    EXPIRY_TIME = 3600
     
     autoload :Authorization, ROOT + '/oauth2/provider/authorization'
     autoload :Exchange,      ROOT + '/oauth2/provider/exchange'

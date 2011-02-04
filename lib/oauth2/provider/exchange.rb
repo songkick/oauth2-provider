@@ -5,7 +5,7 @@ module OAuth2
       attr_reader :client, :error, :error_description
       
       REQUIRED_PARAMS    = %w[client_id client_secret grant_type]
-      VALID_GRANT_TYPES  = %w[authorization_code assertion refresh_token]
+      VALID_GRANT_TYPES  = %w[authorization_code refresh_token]
       
       RESPONSE_HEADERS = {
         'Cache-Control' => 'no-store',
@@ -76,13 +76,16 @@ module OAuth2
         return if @error
         validate_client
         
-        unless VALID_GRANT_TYPES.include?(@grant_type)
+        valid_grant_types = VALID_GRANT_TYPES + Provider.extension_types
+        
+        unless valid_grant_types.include?(@grant_type)
           @error = UNSUPPORTED_GRANT_TYPE
           @error_description = "The grant type #{@grant_type} is not recognized"
         end
         return if @error
         
-        __send__("validate_#{@grant_type}")
+        validation_type = VALID_GRANT_TYPES.include?(@grant_type) ? @grant_type : 'extension'
+        __send__("validate_#{ validation_type }")
         validate_scope
       end
       
@@ -136,29 +139,12 @@ module OAuth2
         validate_authorization
       end
       
-      def validate_assertion
-        %w[assertion_type assertion].each do |param|
-          next if @params.has_key?(param)
-          @error = INVALID_REQUEST
-          @error_description = "Missing required parameter #{param}"
-        end
-        
-        if @params[ASSERTION_TYPE]
-          uri = URI.parse(@params[ASSERTION_TYPE]) rescue nil
-          unless uri and uri.absolute?
-            @error = INVALID_REQUEST
-            @error_description = 'Parameter assertion_type must be an absolute URI'
-          end
-        end
-        
-        return if @error
-        
-        assertion = Assertion.new(@params)
-        @authorization = Provider.handle_assertion(@client, assertion)
+      def validate_extension
+        @authorization = Provider.handle_extension(@client, @grant_type, @params.dup)
         return validate_authorization if @authorization
         
         @error = UNAUTHORIZED_CLIENT
-        @error_description = 'Client cannot use the given assertion type'
+        @error_description = 'Client cannot use the given grant type'
       end
       
       def validate_refresh_token
@@ -177,14 +163,6 @@ module OAuth2
           @error = INVALID_GRANT
           @error_description = 'The access grant you supplied is invalid'
         end
-      end
-    end
-    
-    class Assertion
-      attr_reader :type, :value
-      def initialize(params)
-        @type  = params[ASSERTION_TYPE]
-        @value = params[ASSERTION]
       end
     end
     

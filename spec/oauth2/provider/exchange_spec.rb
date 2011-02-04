@@ -168,69 +168,50 @@ describe OAuth2::Provider::Exchange do
     end
   end
   
-  describe "using assertion grant type" do
+  describe "using extension grant type" do
     let(:params) { { 'client_id'      => @client.client_id,
                      'client_secret'  => @client.client_secret,
-                     'grant_type'     => 'assertion',
-                     'assertion_type' => 'https://graph.facebook.com/me',
-                     'assertion'      => 'Bob' }
+                     'grant_type'     => 'https://graph.facebook.com/me',
+                     'facebook_token' => 'Bob' }
                  }
     
     let(:authorization) { @authorization }
     
     before do
-      OAuth2::Provider.filter_assertions { |client| @client == client }
+      OAuth2::Provider.filter_extensions { |client| @client == client }
       
-      OAuth2::Provider.handle_assertions('https://graph.facebook.com/me') do |client, assertion|
-        user = TestApp::User[assertion]
+      OAuth2::Provider.extension('https://graph.facebook.com/me') do |client, params|
+        user = TestApp::User[params['facebook_token']]
         user.grant_access!(client, :scopes => ['foo', 'bar'])
       end
     end
     
     after do
-      OAuth2::Provider.clear_assertion_handlers!
+      OAuth2::Provider.clear_extensions!
     end
     
     it_should_behave_like "validates required parameters"
     it_should_behave_like "valid token request"
     
-    describe "missing assertion_type" do
-      before { params.delete('assertion_type') }
+    describe "with a non-URI grant_type" do
+      before { params['grant_type'] = 'invalid' }
       
       it "is invalid" do
-        exchange.error.should == 'invalid_request'
-        exchange.error_description.should == 'Missing required parameter assertion_type'
+        exchange.error.should == 'unsupported_grant_type'
+        exchange.error_description.should == 'The grant type invalid is not recognized'
       end
     end
     
-    describe "with a non-URI assertion_type" do
-      before { params['assertion_type'] = 'invalid' }
+    describe "with an unrecognized grant_type" do
+      before { params['grant_type'] = 'https://oauth.what.com/ohai' }
       
       it "is invalid" do
-        exchange.error.should == 'invalid_request'
-        exchange.error_description.should == 'Parameter assertion_type must be an absolute URI'
+        exchange.error.should == 'unsupported_grant_type'
+        exchange.error_description.should == 'The grant type https://oauth.what.com/ohai is not recognized'
       end
     end
     
-    describe "missing assertion" do
-      before { params.delete('assertion') }
-      
-      it "is invalid" do
-        exchange.error.should == 'invalid_request'
-        exchange.error_description.should == 'Missing required parameter assertion'
-      end
-    end
-    
-    describe "with an unrecognized assertion_type" do
-      before { params['assertion_type'] = 'https://oauth.what.com/ohai' }
-      
-      it "is invalid" do
-        exchange.error.should == 'unauthorized_client'
-        exchange.error_description.should == 'Client cannot use the given assertion type'
-      end
-    end
-    
-    describe "with a client unauthorized to use the assertion scheme" do
+    describe "with a client unauthorized to use the extension scheme" do
       before do
         client = Factory(:client)
         params['client_id'] = client.client_id
@@ -239,7 +220,7 @@ describe OAuth2::Provider::Exchange do
       
       it "is invalid" do
         exchange.error.should == 'unauthorized_client'
-        exchange.error_description.should == 'Client cannot use the given assertion type'
+        exchange.error_description.should == 'Client cannot use the given grant type'
       end
     end
   end
