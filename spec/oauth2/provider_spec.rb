@@ -203,10 +203,29 @@ describe OAuth2::Provider do
         allow_or_deny(params)
       end
       
-      it "redirects to the client with an error" do
-        response = allow_or_deny(params)
-        response.code.to_i.should == 302
-        response['location'].should == 'https://client.example.com/cb?error=access_denied&error_description=The+user+denied+you+access'
+      describe "for code requests" do
+        it "redirects to the client with an error in the query string" do
+          response = allow_or_deny(params)
+          response.code.to_i.should == 302
+          response['location'].should == 'https://client.example.com/cb?error=access_denied&error_description=The+user+denied+you+access'
+        end
+      end
+      
+      describe "for token requests" do
+        before { params['response_type'] = 'token' }
+        
+        it "redirects to the client with an error in the fragment" do
+          response = allow_or_deny(params)
+          response.code.to_i.should == 302
+          response['location'].should == 'https://client.example.com/cb#error=access_denied&error_description=The+user+denied+you+access'
+        end
+        
+        it "passes the state parameter through" do
+          params['state'] = 'illinois'
+          response = allow_or_deny(params)
+          response.code.to_i.should == 302
+          response['location'].should == 'https://client.example.com/cb#error=access_denied&error_description=The+user+denied+you+access&state=illinois'
+        end
       end
     end
     

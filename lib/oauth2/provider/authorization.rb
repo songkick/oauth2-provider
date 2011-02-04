@@ -76,7 +76,8 @@ module OAuth2
         
         if not valid?
           query = to_query_string(ERROR, ERROR_DESCRIPTION, STATE)
-          "#{ base_redirect_uri }?#{ query }"
+          separator = (@params[RESPONSE_TYPE] == 'token') ? '#' : '?'
+          "#{ base_redirect_uri }#{ separator }#{ query }"
         
         elsif @params[RESPONSE_TYPE] == 'token'
           fragment = to_query_string(ACCESS_TOKEN, EXPIRES_IN, SCOPE, STATE)
