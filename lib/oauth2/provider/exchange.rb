@@ -40,6 +40,7 @@ module OAuth2
           value = @authorization.__send__(key)
           response[key] = value if value
         end
+        response['token_type'] = Provider.tokenizer.token_type
         
         JSON.unparse(response)
       end

@@ -8,8 +8,9 @@ module OAuth2
   ROOT = File.expand_path(File.dirname(__FILE__) + '/..')
   TOKEN_SIZE = 128
   
-  autoload :Model,  ROOT + '/oauth2/model'
-  autoload :Router, ROOT + '/oauth2/router'
+  autoload :Model,     ROOT + '/oauth2/model'
+  autoload :Router,    ROOT + '/oauth2/router'
+  autoload :Tokenizer, ROOT + '/oauth2/tokenizer'
   
   def self.random_string
     rand(2 ** TOKEN_SIZE).to_s(36)
@@ -59,8 +60,10 @@ module OAuth2
     VERSION = '0.1.0'
     
     class << self
-      attr_accessor :enforce_ssl
+      attr_accessor :tokenizer, :enforce_ssl
     end
+    
+    self.tokenizer = Tokenizer::Bearer.new
     
     def self.clear_extensions!
       @extension_handlers = {}
