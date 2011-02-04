@@ -442,7 +442,7 @@ describe OAuth2::Provider do
         response = request('/user_profile', 'oauth_token' => 'is-the-password-books')
         JSON.parse(response.body)['data'].should == 'No soup for you'
         response.code.to_i.should == 401
-        response['WWW-Authenticate'].should == "OAuth realm='Demo App', error='invalid_token'"
+        response['WWW-Authenticate'].should == "OAuth2 error='invalid_token'"
       end
       
       describe "enforcing SSL" do
@@ -456,7 +456,7 @@ describe OAuth2::Provider do
           response = request('/user_profile', 'oauth_token' => 'magic-key')
           JSON.parse(response.body)['data'].should == 'No soup for you'
           response.code.to_i.should == 401
-          response['WWW-Authenticate'].should == "OAuth realm='Demo App', error='invalid_request'"
+          response['WWW-Authenticate'].should == "OAuth2 error='invalid_request'"
         end
         
         it "destroys the access token since it's been leaked" do
@@ -480,7 +480,7 @@ describe OAuth2::Provider do
         access_token = params.delete('oauth_token')
         http   = Net::HTTP.new('localhost', 8000)
         qs     = params.map { |k,v| "#{ CGI.escape k.to_s }=#{ CGI.escape v.to_s }" }.join('&')
-        header = {'Authorization' => "OAuth #{access_token}"}
+        header = {'Authorization' => "OAuth2 #{access_token}"}
         http.request_get(path + '?' + qs, header)
       end
       

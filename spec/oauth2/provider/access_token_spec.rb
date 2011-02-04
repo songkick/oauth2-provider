@@ -14,8 +14,6 @@ describe OAuth2::Provider::AccessToken do
       :owner        => @bob,
       :scope        => 'profile',
       :access_token => 'magic-key')
-    
-    OAuth2::Provider.realm = 'Demo App'
   end
   
   let :token do
@@ -69,7 +67,7 @@ describe OAuth2::Provider::AccessToken do
     it_should_behave_like "invalid token"
     
     it "returns an error response" do
-      token.response_headers['WWW-Authenticate'].should == "OAuth realm='Demo App', error='expired_token'"
+      token.response_headers['WWW-Authenticate'].should == "OAuth2 error='expired_token'"
       token.response_status.should == 401
     end
   end
@@ -81,7 +79,7 @@ describe OAuth2::Provider::AccessToken do
     it_should_behave_like "invalid token"
     
     it "returns an error response" do
-      token.response_headers['WWW-Authenticate'].should == "OAuth realm='Demo App', error='invalid_token'"
+      token.response_headers['WWW-Authenticate'].should == "OAuth2 error='invalid_token'"
       token.response_status.should == 401
     end
   end
@@ -93,7 +91,7 @@ describe OAuth2::Provider::AccessToken do
     it_should_behave_like "invalid token"
     
     it "returns an error response" do
-      token.response_headers['WWW-Authenticate'].should == "OAuth realm='Demo App', error='insufficient_scope'"
+      token.response_headers['WWW-Authenticate'].should == "OAuth2 error='insufficient_scope'"
       token.response_status.should == 403
     end
   end
@@ -105,7 +103,7 @@ describe OAuth2::Provider::AccessToken do
     it_should_behave_like "invalid token"
     
     it "returns an error response" do
-      token.response_headers['WWW-Authenticate'].should == "OAuth realm='Demo App', error='insufficient_scope'"
+      token.response_headers['WWW-Authenticate'].should == "OAuth2 error='insufficient_scope'"
       token.response_status.should == 403
     end
   end
@@ -117,7 +115,7 @@ describe OAuth2::Provider::AccessToken do
     it_should_behave_like "invalid token"
     
     it "returns an error response" do
-      token.response_headers['WWW-Authenticate'].should == "OAuth realm='Demo App'"
+      token.response_headers['WWW-Authenticate'].should == "OAuth2 error='invalid_request'"
       token.response_status.should == 401
     end
   end

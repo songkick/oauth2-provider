@@ -60,7 +60,7 @@ module OAuth2
     VERSION = '0.1.0'
     
     class << self
-      attr_accessor :realm, :enforce_ssl
+      attr_accessor :enforce_ssl
     end
     
     def self.clear_extensions!
