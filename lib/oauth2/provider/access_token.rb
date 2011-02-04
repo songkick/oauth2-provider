@@ -45,9 +45,7 @@ module OAuth2
     private
       
       def authorize!(access_token, error)
-        return unless hash = OAuth2.hashify(access_token)
-        return unless @authorization = Model::Authorization.find_by_access_token_hash(hash)
-        
+        return unless @authorization = Model.find_access_token(access_token)
         @authorization.update_attribute(:access_token, nil) if error
       end
       
