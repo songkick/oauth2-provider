@@ -29,7 +29,7 @@ module OAuth2
       
       def response_status
         case @error
-          when INVALID_REQUEST, INVALID_TOKEN, EXPIRED_TOKEN then 401
+          when INVALID_REQUEST, INVALID_TOKEN then 401
           when INSUFFICIENT_SCOPE                            then 403
                                                              else 200
         end
@@ -48,8 +48,7 @@ module OAuth2
       
       def validate!
         return @error = INVALID_REQUEST    unless @access_token
-        return @error = INVALID_TOKEN      unless @authorization
-        return @error = EXPIRED_TOKEN      if @authorization.expired?
+        return @error = INVALID_TOKEN      unless @authorization and not @authorization.expired?
         return @error = INSUFFICIENT_SCOPE unless @authorization.in_scope?(@scopes)
         
         if @resource_owner and @authorization.owner != @resource_owner

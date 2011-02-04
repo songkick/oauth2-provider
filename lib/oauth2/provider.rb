@@ -52,7 +52,6 @@ module OAuth2
   UNAUTHORIZED_CLIENT    = 'unauthorized_client'
   INVALID_SCOPE          = 'invalid_scope'
   INVALID_TOKEN          = 'invalid_token'
-  EXPIRED_TOKEN          = 'expired_token'
   INSUFFICIENT_SCOPE     = 'insufficient_scope'
   ACCESS_DENIED          = 'access_denied'
   

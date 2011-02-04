@@ -67,7 +67,7 @@ describe OAuth2::Provider::AccessToken do
     it_should_behave_like "invalid token"
     
     it "returns an error response" do
-      token.response_headers['WWW-Authenticate'].should == "OAuth2 error='expired_token'"
+      token.response_headers['WWW-Authenticate'].should == "OAuth2 error='invalid_token'"
       token.response_status.should == 401
     end
   end
