@@ -60,8 +60,6 @@ module OAuth2
   ACCESS_DENIED          = 'access_denied'
   
   class Provider
-    VERSION = '0.1.0'
-    
     class << self
       attr_accessor :realm, :enforce_ssl
     end

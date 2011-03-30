@@ -3,6 +3,7 @@ $:.unshift(dir + '/../lib')
 $:.unshift(dir)
 
 require 'rubygems'
+require 'bundler/setup'
 
 require 'active_record'
 require 'oauth2/provider'
