@@ -1,0 +1,5 @@
+source :rubygems
+
+gem 'oauth2-provider', :git => 'https://github.com/songkick/oauth2-provider.git'
+gem 'sinatra'
+gem 'sqlite3'
