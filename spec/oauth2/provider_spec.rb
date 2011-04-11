@@ -460,6 +460,13 @@ describe OAuth2::Provider do
         response['WWW-Authenticate'].should == "OAuth realm='Demo App', error='invalid_token'"
       end
       
+      it "blocks access when the no key is passed" do
+        response = request('/user_profile')
+        JSON.parse(response.body)['data'].should == 'No soup for you'
+        response.code.to_i.should == 401
+        response['WWW-Authenticate'].should == "OAuth realm='Demo App'"
+      end
+      
       describe "enforcing SSL" do
         before { OAuth2::Provider.enforce_ssl = true }
         
