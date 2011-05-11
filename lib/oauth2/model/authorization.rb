@@ -21,12 +21,7 @@ module OAuth2
       
       def self.for(resource_owner, client)
         return nil unless resource_owner and client
-        
-        find(:first, :conditions => {
-          :oauth2_resource_owner_type => resource_owner.class.name,
-          :oauth2_resource_owner_id   => resource_owner.id,
-          :client_id                  => client.id
-        })
+        resource_owner.oauth2_authorizations.find_by_client_id(client.id)
       end
       
       def self.create_code(client)
