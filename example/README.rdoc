@@ -1,0 +1,11 @@
+= OAuth2::Provider example app
+
+To get up and running:
+
+  # in parent directory
+  bundle install
+  
+  cd example/
+  ruby schema.rb
+  rackup config.ru
+
