@@ -147,6 +147,24 @@ describe OAuth2::Provider::Authorization do
       end
     end
     
+    describe "when there is an existing authorization with scopes" do
+      before do
+        @model = Factory(:authorization,
+          :owner  => resource_owner,
+          :client => @client,
+          :code   => nil,
+          :scope  => 'foo bar')
+        
+        params['scope'] = 'qux'
+      end
+      
+      it "merges the new scopes with the existing ones" do
+        authorization.grant_access!
+        @model.reload
+        @model.scopes.should == ['foo', 'bar', 'qux']
+      end
+    end
+    
     describe "when there is an existing expired authorization" do
       before do
         @model = Factory(:authorization,

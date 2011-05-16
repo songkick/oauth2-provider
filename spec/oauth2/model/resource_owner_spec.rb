@@ -32,6 +32,18 @@ describe OAuth2::Model::ResourceOwner do
       @authorization.reload
       @authorization.scopes.should == ['foo', 'bar']
     end
+    
+    describe "with scopes" do
+      before do
+        @authorization.update_attribute(:scope, 'foo bar')
+      end
+      
+      it "merges the new scopes with the existing ones" do
+        @owner.grant_access!(@client, :scopes => ['qux'])
+        @authorization.reload
+        @authorization.scopes.should == ['foo', 'bar', 'qux']
+      end
+    end
   end
   
   it "destroys its authorizations on destroy" do

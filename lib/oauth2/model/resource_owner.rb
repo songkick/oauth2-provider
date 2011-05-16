@@ -14,6 +14,7 @@ module OAuth2
                         Model::Authorization.create(:owner => self, :client => client)
         
         if scopes = options[:scopes]
+          scopes = authorization.scopes + scopes
           authorization.update_attribute(:scope, scopes.join(' '))
         end
         
