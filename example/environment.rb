@@ -1,6 +1,8 @@
 dir = File.expand_path(File.dirname(__FILE__))
-$:.unshift(dir + '/../lib')
 $:.unshift(dir)
+
+require 'bundler'
+Bundler.require
 
 require 'oauth2/provider'
 OAuth2::Provider.realm = 'Notes App'

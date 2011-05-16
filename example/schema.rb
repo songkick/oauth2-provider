@@ -1,7 +1,9 @@
 dir = File.expand_path(File.dirname(__FILE__))
-$:.unshift(dir + '/../lib')
 
 require 'rubygems'
+require 'bundler'
+
+Bundler.require
 require 'oauth2/provider'
 require 'fileutils'
 
@@ -14,7 +16,7 @@ ActiveRecord::Schema.define do |version|
     t.timestamps
     t.string :username
   end
-  
+
   create_table :notes, :force => true do |t|
     t.timestamps
     t.belongs_to :user
