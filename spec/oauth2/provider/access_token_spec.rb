@@ -74,7 +74,7 @@ describe OAuth2::Provider::AccessToken do
     end
   end
   
-  describe "with a non-existant token" do
+  describe "with a non-existent token" do
     let :token do
       OAuth2::Provider::AccessToken.new(@bob, ['profile'], 'is-the-password-books')
     end
