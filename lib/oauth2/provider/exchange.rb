@@ -4,8 +4,11 @@ module OAuth2
     class Exchange
       attr_reader :client, :error, :error_description
       
-      REQUIRED_PARAMS    = %w[client_id client_secret grant_type]
-      VALID_GRANT_TYPES  = %w[authorization_code assertion refresh_token]
+      REQUIRED_PARAMS    = [CLIENT_ID, CLIENT_SECRET, GRANT_TYPE]
+      VALID_GRANT_TYPES  = [AUTHORIZATION_CODE, PASSWORD, ASSERTION, REFRESH_TOKEN]
+      
+      REQUIRED_PASSWORD_PARAMS  = [USERNAME, PASSWORD]
+      REQUIRED_ASSERTION_PARAMS = [ASSERTION_TYPE, ASSERTION]
       
       RESPONSE_HEADERS = {
         'Cache-Control' => 'no-store',
@@ -136,8 +139,24 @@ module OAuth2
         validate_authorization
       end
       
+      def validate_password
+        REQUIRED_PASSWORD_PARAMS.each do |param|
+          next if @params.has_key?(param)
+          @error = INVALID_REQUEST
+          @error_description = "Missing required parameter #{param}"
+        end
+        
+        return if @error
+        
+        @authorization = Provider.handle_password(@client, @params[USERNAME], @params[PASSWORD])
+        return validate_authorization if @authorization
+        
+        @error = INVALID_GRANT
+        @error_description = 'The access grant you supplied is invalid'
+      end
+      
       def validate_assertion
-        %w[assertion_type assertion].each do |param|
+        REQUIRED_ASSERTION_PARAMS.each do |param|
           next if @params.has_key?(param)
           @error = INVALID_REQUEST
           @error_description = "Missing required parameter #{param}"

@@ -29,6 +29,7 @@ module OAuth2
   ACCESS_TOKEN           = 'access_token'
   ASSERTION              = 'assertion'
   ASSERTION_TYPE         = 'assertion_type'
+  AUTHORIZATION_CODE     = 'authorization_code'
   CLIENT_ID              = 'client_id'
   CLIENT_SECRET          = 'client_secret'
   CODE                   = 'code'
@@ -39,12 +40,14 @@ module OAuth2
   EXPIRES_IN             = 'expires_in'
   GRANT_TYPE             = 'grant_type'
   OAUTH_TOKEN            = 'oauth_token'
+  PASSWORD               = 'password'
   REDIRECT_URI           = 'redirect_uri'
   REFRESH_TOKEN          = 'refresh_token'
   RESPONSE_TYPE          = 'response_type'
   SCOPE                  = 'scope'
   STATE                  = 'state'
   TOKEN                  = 'token'
+  USERNAME               = 'username'
   
   INVALID_REQUEST        = 'invalid_request'
   UNSUPPORTED_RESPONSE   = 'unsupported_response_type'
@@ -65,11 +68,21 @@ module OAuth2
     end
     
     def self.clear_assertion_handlers!
+      @password_handler   = nil
       @assertion_handlers = {}
       @assertion_filters  = []
     end
     
     clear_assertion_handlers!
+    
+    def self.handle_passwords(&block)
+      @password_handler = block
+    end
+    
+    def self.handle_password(client, username, password)
+      return nil unless @password_handler
+      @password_handler.call(client, username, password)
+    end
     
     def self.filter_assertions(&filter)
       @assertion_filters.push(filter)

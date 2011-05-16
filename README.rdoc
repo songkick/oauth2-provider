@@ -165,6 +165,27 @@ After granting or denying access, we just redirect back to the client using a
 URI that <tt>OAuth2::Provider</tt> will provide for you.
 
 
+=== Using password credentials
+
+If you like, OAuth lets you use a user's login credentials to authenticate with
+a provider. In this case the client application must request these credentials
+directly from the user and then post them to the exchange endpoint. On the
+provider side you can handle this using the <tt>handle_passwords</tt> and
+<tt>grant_access!</tt> API methods, for example:
+
+  OAuth2::Provider.handle_passwords do |client, username, password|
+    user = User.find_by_username(username)
+    if user.authenticate?(password)
+      user.grant_access!(client)
+    else
+      nil
+    end
+  end
+
+The block must return <tt>user.grant_access!(client)</tt> if you want to allow
+access, otherwise it should return <tt>nil</tt>.
+
+
 === Using assertions
 
 Assertions provide a way to access your OAuth services using user credentials

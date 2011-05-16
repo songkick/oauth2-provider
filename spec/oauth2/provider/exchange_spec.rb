@@ -168,6 +168,58 @@ describe OAuth2::Provider::Exchange do
     end
   end
   
+  describe "using password grant type" do
+    let(:params) { { 'client_id'      => @client.client_id,
+                     'client_secret'  => @client.client_secret,
+                     'grant_type'     => 'password',
+                     'username'       => 'Bob',
+                     'password'       => 'soldier' }
+                 }
+    
+    let(:authorization) { @authorization }
+    
+    before do
+      OAuth2::Provider.handle_passwords do |client, username, password|
+        user = TestApp::User[username]
+        if password == 'soldier'
+          user.grant_access!(client, :scopes => ['foo', 'bar'])
+        else
+          nil
+        end
+      end
+    end
+    
+    it_should_behave_like "validates required parameters"
+    it_should_behave_like "valid token request"
+    
+    describe "missing username" do
+      before { params.delete('username') }
+      
+      it "is invalid" do
+        exchange.error.should == 'invalid_request'
+        exchange.error_description.should == 'Missing required parameter username'
+      end
+    end
+    
+    describe "missing password" do
+      before { params.delete('password') }
+      
+      it "is invalid" do
+        exchange.error.should == 'invalid_request'
+        exchange.error_description.should == 'Missing required parameter password'
+      end
+    end
+    
+    describe "with a bad password" do
+      before { params['password'] = 'bad' }
+      
+      it "is invalid" do
+        exchange.error.should == 'invalid_grant'
+        exchange.error_description.should == 'The access grant you supplied is invalid'
+      end
+    end
+  end
+  
   describe "using assertion grant type" do
     let(:params) { { 'client_id'      => @client.client_id,
                      'client_secret'  => @client.client_secret,
