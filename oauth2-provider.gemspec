@@ -6,7 +6,6 @@ spec = Gem::Specification.new do |s|
   s.email             = "james@songkick.com"
   s.homepage          = "http://www.songkick.com"
 
-  s.has_rdoc          = true
   s.extra_rdoc_files  = %w(README.rdoc)
   s.rdoc_options      = %w(--main README.rdoc)
 
