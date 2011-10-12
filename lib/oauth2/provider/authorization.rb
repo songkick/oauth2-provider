@@ -105,6 +105,7 @@ module OAuth2
       end
       
       def response_status
+        return 302 if redirect?
         return 200 if valid?
         @client ? 302 : 400
       end

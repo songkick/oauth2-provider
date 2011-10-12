@@ -11,7 +11,7 @@ module TestApp
     
     def handle_authorize
       @oauth2 = OAuth2::Provider.parse(User['Bob'], request)
-      redirect @oauth2.redirect_uri if @oauth2.redirect?
+      redirect(@oauth2.redirect_uri, @oauth2.response_status) if @oauth2.redirect?
       
       headers @oauth2.response_headers
       status  @oauth2.response_status
@@ -49,7 +49,7 @@ module TestApp
       else
         @oauth2.deny_access!
       end
-      redirect @oauth2.redirect_uri
+      redirect @oauth2.redirect_uri, @oauth2.response_status
     end
     
     [:get, :post].each do |method|

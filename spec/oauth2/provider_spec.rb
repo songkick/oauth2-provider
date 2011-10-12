@@ -194,8 +194,10 @@ describe OAuth2::Provider do
   
   describe "authorization confirmation from the user" do
     let(:mock_auth) do
-      mock = mock(OAuth2::Provider::Authorization)
-      mock.stub(:redirect_uri).and_return('http://example.com/')
+      mock = mock OAuth2::Provider::Authorization,
+                  :redirect_uri    => 'http://example.com/',
+                  :response_status => 302
+      
       OAuth2::Provider::Authorization.stub(:new).and_return(mock)
       mock
     end
