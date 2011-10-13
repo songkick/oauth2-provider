@@ -95,7 +95,9 @@ may be able to immediately redirect if the user has already authorized the clien
       @owner  = User.find_by_id(session[:user_id])
       @oauth2 = OAuth2::Provider.parse(@owner, request)
       
-      redirect @oauth2.redirect_uri if @oauth2.redirect?
+      if @oauth2.redirect?
+        redirect @oauth2.redirect_uri, @oauth2.response_status
+      end
           
       headers @oauth2.response_headers
       status  @oauth2.response_status
@@ -158,7 +160,7 @@ the user checks a box before posting a form to indicate their intent:
     else
       @auth.deny_access!
     end
-    redirect @auth.redirect_uri
+    redirect @auth.redirect_uri, @auth.response_status
   end
 
 After granting or denying access, we just redirect back to the client using a

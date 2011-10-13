@@ -66,8 +66,11 @@ end
   __send__ method, '/oauth/authorize' do
     @user = User.find_by_id(session[:user_id])
     @oauth2 = OAuth2::Provider.parse(@user, request)
-    redirect @oauth2.redirect_uri if @oauth2.redirect?
-        
+    
+    if @oauth2.redirect?
+      redirect @oauth2.redirect_uri, @oauth2.response_status
+    end
+    
     headers @oauth2.response_headers
     status  @oauth2.response_status
     
@@ -90,7 +93,7 @@ post '/oauth/allow' do
   else
     @auth.deny_access!
   end
-  redirect @auth.redirect_uri
+  redirect @auth.redirect_uri, @auth.response_status
 end
 
 #================================================================
