@@ -84,6 +84,36 @@ migration like so:
     end
   end
 
+=== Model Mixins
+
+There are two mixins you need to put in your code,
+<tt>OAuth2::Model::ClientOwner</tt> for whichever model will
+own the "apps", and <tt>OAuth2::Model::ResourceOwner</tt> for
+whichever model is the innocent, unassuming entity who will
+selectively share their data. Its possible that this is the same
+model, such as User:
+
+  class User < ActiveRecord::Base
+    include OAuth2::Model::ResourceOwner
+    include OAuth2::Model::ClientOwner
+    has_many :interesting_pieces_of_data
+  end
+
+Or they might go into two different models:
+
+  class User < ActiveRecord::Base
+    include OAuth2::Model::ResourceOwner
+    has_many :interesting_pieces_of_data
+  end
+
+  class Company < ActiveRecord::Base
+    include OAuth2::Model::ClientOwner
+    belongs_to :user
+  end
+
+To see the methods and associations that these two mixins add to your models,
+take a look at <b>lib/oauth2/model/client_owner.rb</b> and
+<b>lib/oauth2/model/resource_owner.rb</b>.
 
 === Registering client applications
 
@@ -172,17 +202,6 @@ the scopes the client has asked for.
 
 
 === Granting access to clients
-
-Your application will probably have some concept of a user, or a <i>resource
-owner</i> in OAuth lingo. Add this mixin to the model that represents your
-users:
-
-  class User < ActiveRecord::Base
-    include OAuth2::Model::ResourceOwner
-  end
-
-This just adds a couple of relations and methods to the model to let it interact
-with the <tt>OAuth2</tt> models.
 
 Once the user has authenticated you should show them a page to let them grant
 or deny access to the client application. This is straightforward; let's say
