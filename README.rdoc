@@ -21,7 +21,7 @@ store OAuth data:
 
   OAuth2::Model::Schema.up
 
-The current imeplementation is based on draft-10[http://tools.ietf.org/html/draft-ietf-oauth-v2-10].
+The current implementation is based on draft-10[http://tools.ietf.org/html/draft-ietf-oauth-v2-10].
 
 
 == Usage
@@ -50,7 +50,7 @@ third-party access credentials. See 'Using Assertions' below.
 
 === Registering client applications
 
-Clients are modelled by the <tt>OAuth2::Model::Client</tt> class, which is an
+Clients are modeled by the <tt>OAuth2::Model::Client</tt> class, which is an
 ActiveRecord model. You just need to implement a UI for creating them, for
 example in a Sinatra app:
 
