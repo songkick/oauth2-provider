@@ -39,7 +39,18 @@ need to provide four things:
 
 <tt>OAuth2::Provider</tt> requires very little configuration. The only thing it
 needs to know about your app is its name, which is used in the headers for some
-authentication errors. To load the library, just do this:
+authentication errors.
+
+If you are using bundler, put this in your Gemfile:
+
+  gem 'oauth2-provider', :require => 'oauth2/provider',
+    :git => 'git://github.com/songkick/oauth2-provider'
+
+And declare your app's name somewhere (for example in rails, in <tt>application.rb</tt> or an initializer)
+
+  OAuth2::Provider.realm = 'My OAuth app'
+
+If you are not using Bundler, just put these two lines somewhere appropriate:
 
   require 'oauth2/provider'
   OAuth2::Provider.realm = 'My OAuth app'
