@@ -15,11 +15,7 @@ environment, namely they:
 * respond to <tt>#url</tt> with the full URL string of the request
 * respond to <tt>#env</tt>, returning the HTTP environment <tt>Hash</tt>
 
-It stores the clients and authorizations using ActiveRecord; the schema is in
-<tt>lib/oauth2/model/schema.rb</tt>. Run it to update your database to
-store OAuth data:
-
-  OAuth2::Model::Schema.up
+It stores the clients and authorizations using ActiveRecord.
 
 The current implementation is based on draft-10[http://tools.ietf.org/html/draft-ietf-oauth-v2-10].
 
@@ -49,7 +45,7 @@ need to provide four things:
 * Resources protected by access tokens
 
 
-=== Configuration
+=== Installation and Configuration
 
 <tt>OAuth2::Provider</tt> requires very little configuration. The only thing it
 needs to know about your app is its name, which is used in the headers for some
@@ -71,6 +67,22 @@ If you are not using Bundler, just put these two lines somewhere appropriate:
 
 You may also need to configure assertion handlers if your application supports
 third-party access credentials. See 'Using Assertions' below.
+
+=== Schema
+
+Add the <tt>OAuth2::Provider</tt> tables to your app's schema. This is done using
+<tt>OAuth2::Model::Schema.up</tt>, which can be used inside an <tt>ActiveRecord</tt>
+migration like so:
+
+  class CreateOauth2ProviderModels < ActiveRecord::Migration
+    def up
+      OAuth2::Model::Schema.up
+    end
+
+    def down
+      OAuth2::Model::Schema.down
+    end
+  end
 
 
 === Registering client applications
