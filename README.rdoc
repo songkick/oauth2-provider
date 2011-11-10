@@ -47,26 +47,41 @@ need to provide four things:
 
 === Installation and Configuration
 
-<tt>OAuth2::Provider</tt> requires very little configuration. The only thing it
-needs to know about your app is its name, which is used in the headers for some
-authentication errors.
-
+==== Gem / Library
 If you are using bundler, put this in your Gemfile:
 
   gem 'oauth2-provider', :require => 'oauth2/provider',
     :git => 'git://github.com/songkick/oauth2-provider'
 
-And declare your app's name somewhere (for example in rails, in <tt>application.rb</tt> or an initializer)
-
-  OAuth2::Provider.realm = 'My OAuth app'
-
-If you are not using Bundler, just put these two lines somewhere appropriate:
+If you are not using Bundler, require the library somewhere:
 
   require 'oauth2/provider'
+
+====  App name 
+Declare your app's name somewhere (for example in rails, in <tt>application.rb</tt> or an initializer):
+
   OAuth2::Provider.realm = 'My OAuth app'
 
-You may also need to configure assertion handlers if your application supports
-third-party access credentials. See 'Using Assertions' below.
+==== Transport security
+Your application should ensure that any endpoint that receives or returns OAuth
+data is only accessible over a secure transport such as the <tt>https:</tt>
+protocol. <tt>OAuth2::Provider</tt> can enforces this to make it easier to keep
+your users' data secure.
+
+You can set <tt>OAuth2::Provider.enforce_ssl = true</tt> in the same place that
+you declared your app name above. This will result in the following behavior:
+
+* The <tt>OAuth2::Provider.parse</tt> method will produce error responses and
+  will not process the incoming request unless the request was made using the
+  <tt>https:</tt> protocol.
+* An access token constructed using <tt>OAuth2::Provider.access_token</tt> will
+  return <tt>false</tt> for <tt>#valid?</tt> unless the request was made using the
+  <tt>https:</tt> protocol.
+* Any access token received over an insecure connection is immediately destroyed
+  to prevent eavesdroppers getting access to the user's resources. A client
+  making an insecure request will have to send the user through the authorization
+  process again to get a new token.
+
 
 === Schema
 
@@ -327,26 +342,6 @@ about a user by supplying their access token. This can be done by passing
 <tt>token.owner</tt> returns the <tt>ResourceOwner</tt> that issued the token.
 A token represents the fact that a single owner gave a single client a set of
 permissions.
-
-
-=== Transport security
-
-Your application should ensure that any endpoint that receives or returns OAuth
-data is only accessible over a secure transport such as the <tt>https:</tt>
-protocol. <tt>OAuth2::Provider</tt> can enforces this to make it easier to keep
-your users' data secure. If you want to enable these behaviours, set
-<tt>OAuth2::Provider.enforce_ssl = true</tt>.
-
-* The <tt>OAuth2::Provider.parse</tt> method will produce error responses and
-  will not process the incoming request unless the request was made using the
-  <tt>https:</tt> protocol.
-* An access token constructed using <tt>OAuth2::Provider.access_token</tt> will
-  return <tt>false</tt> for <tt>#valid?</tt> unless the request was made using the
-  <tt>https:</tt> protocol.
-* Any access token received over an insecure connection is immediately destroyed
-  to prevent eavesdroppers getting access to the user's resources. A client
-  making an insecure request will have to send the user through the authorization
-  process again to get a new token.
 
 
 == License
