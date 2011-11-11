@@ -29,6 +29,14 @@ Thin::Logging.silent = true
 require 'factories'
 
 RSpec.configure do |config|
+  # to run only specific specs, add :focus to the spec
+  #   describe "foo", :focus do
+  # OR
+  #   it "should foo", :focus do
+  config.treat_symbols_as_metadata_keys_with_true_values = true # default in rspec 3
+  config.filter_run :focus => true
+  config.run_all_when_everything_filtered = true
+
   config.before do
     OAuth2::Provider.enforce_ssl = false
   end
