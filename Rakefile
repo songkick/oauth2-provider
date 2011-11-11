@@ -2,7 +2,7 @@ require "rubygems"
 
 task :default => :spec
 
-require "rake/rdoctask"
+require 'rdoc/task'
 desc "Generate documentation"
 Rake::RDocTask.new do |rd|
   rd.main = "README.rdoc"
