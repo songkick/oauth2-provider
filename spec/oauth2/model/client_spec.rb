@@ -51,5 +51,13 @@ describe OAuth2::Model::Client do
     @client.destroy
     OAuth2::Model::Authorization.count.should be_zero
   end
+
+  it "does not allow client_id to be changed" do
+    OAuth2::Model::Client.readonly_attributes.include?('client_id').should be_true
+    expect{
+      @client.client_id = 'foo'
+      @client.save!
+    }.to_not change{@client.reload.client_id}
+  end
 end
 
