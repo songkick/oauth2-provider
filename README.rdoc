@@ -45,24 +45,29 @@ need to provide four things:
 * Resources protected by access tokens
 
 
-=== Installation and Configuration
+=== Installing the gem
 
-==== Gem / Library
-If you are using bundler, put this in your Gemfile:
+If you are using Bundler, put this in your Gemfile:
 
   gem 'oauth2-provider', :require => 'oauth2/provider',
     :git => 'git://github.com/songkick/oauth2-provider'
 
-If you are not using Bundler, require the library somewhere:
+If you are not using Bundler, put the library in your load path and
+require it:
 
   require 'oauth2/provider'
 
-====  App name 
-Declare your app's name somewhere (for example in rails, in <tt>application.rb</tt> or an initializer):
+
+===  Declare your app's name
+
+Declare your app's name somewhere (for example in Rails, in
+<tt>application.rb</tt> or an initializer):
 
   OAuth2::Provider.realm = 'My OAuth app'
 
-==== Transport security
+
+=== HTTPS
+
 Your application should ensure that any endpoint that receives or returns OAuth
 data is only accessible over a secure transport such as the <tt>https:</tt>
 protocol. <tt>OAuth2::Provider</tt> can enforces this to make it easier to keep
@@ -99,6 +104,7 @@ migration like so:
     end
   end
 
+
 === Model Mixins
 
 There are two mixins you need to put in your code,
@@ -129,6 +135,7 @@ Or they might go into two different models:
 To see the methods and associations that these two mixins add to your models,
 take a look at <b>lib/oauth2/model/client_owner.rb</b> and
 <b>lib/oauth2/model/resource_owner.rb</b>.
+
 
 === Registering client applications
 
