@@ -2,6 +2,7 @@ require 'spec_helper'
 
 describe OAuth2::Model::Authorization do
   let(:client)   { Factory :client }
+  let(:client2)  { Factory :client }
   let(:impostor) { Factory :client }
   let(:owner)    { Factory :owner }
   let(:user)     { Factory :owner }
@@ -23,7 +24,32 @@ describe OAuth2::Model::Authorization do
     authorization.owner = nil
     authorization.should_not be_valid
   end
+
+  describe "find_or_new" do
+    describe "when it finds an existing object" do
+      it "returns it" do
+        @a = OAuth2::Model::Authorization.create(
+          :owner         => owner,
+          :client        => client,
+          :access_token  => 'existing_access_token')
+        a = OAuth2::Model::Authorization.find_or_new(owner, client)
+        a.should eq(@a)
+        a.should be_persisted
+      end
+    end
+    describe "when it does not find an existing object" do
+      it "creates a new object" do
+        a = OAuth2::Model::Authorization.find_or_new(owner, client2)
+        a.class.should eq(OAuth2::Model::Authorization)
+        a.should_not be_persisted
+        a.client.should eq(client2)
+        a.owner.should eq(owner)
+        a.save.should be_true
+      end    
+    end
   
+  end
+
   describe "when there are existing authorizations" do
     before do
       OAuth2::Model::Authorization.create(
