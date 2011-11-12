@@ -38,16 +38,26 @@ describe OAuth2::Model::Authorization do
       end
     end
     describe "when it does not find an existing object" do
-      it "creates a new object" do
+      def create_and_test_new_object
         a = OAuth2::Model::Authorization.find_or_new(owner, client2)
         a.class.should eq(OAuth2::Model::Authorization)
         a.should_not be_persisted
         a.client.should eq(client2)
         a.owner.should eq(owner)
         a.save.should be_true
+      end
+
+      it "creates a new object" do
+        create_and_test_new_object
       end    
-    end
-  
+      it "creates a new object even if attr_accessible is empty" do
+        old = OAuth2::Model::Authorization._accessible_attributes
+        OAuth2::Model::Authorization.send(:attr_accessible, nil)
+        create_and_test_new_object
+        OAuth2::Model::Authorization._accessible_attributes = old
+        OAuth2::Model::Authorization._active_authorizer = old
+      end
+    end  
   end
 
   describe "when there are existing authorizations" do

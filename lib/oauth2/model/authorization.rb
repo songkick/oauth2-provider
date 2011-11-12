@@ -25,7 +25,13 @@ module OAuth2
       end
 
       def self.find_or_new(owner, client)
-        self.for(owner, client) || new(:owner => owner, :client => client)
+        instance = self.for(owner, client)
+        unless instance
+          instance = new
+          instance.owner  = owner
+          instance.client = client
+        end
+        instance
       end
       
       def self.create_code(client)
