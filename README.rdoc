@@ -19,20 +19,20 @@ It stores the clients and authorizations using ActiveRecord.
 
 The current implementation is based on draft-10[http://tools.ietf.org/html/draft-ietf-oauth-v2-10].
 
+
 == Terminology
 
 * <b>client</b>: this is what Twitter and Facebook call an "app".
 * <b>client_owner</b>: this is the entity which owns the <b>clients</b>.
   Depending on your system, it could be a user, or it could be a different
   object like Company, Provider, or Group.
-* <b>resource_owner</b>: this will almost certainly be a user. It's the
-  entity which has the data that the third party is asking permission
-  to see.
+* <b>resource_owner</b>: this will almost certainly be a user. It's the entity
+  which has the data that the third party is asking permission to see.
 * <b>authorization</b>: when a <b>resource_owner</b> grants access to a
-  <b>client</b> (i.e., a user grants access to a company's app),
-  an authorization is created. This can typically be revoked by the user
-  at any time (which is the strength and flexibility of the OAuth
-  architecture).
+  <b>client</b> (i.e., a user grants access to a company's app), an
+  authorization is created. This can typically be revoked by the user at any
+  time (which is the strength and flexibility of the OAuth architecture).
+
 
 == Usage
 
@@ -60,8 +60,8 @@ require it:
 
 ===  Declare your app's name
 
-Declare your app's name somewhere (for example in Rails, in
-<tt>application.rb</tt> or an initializer):
+Declare your app's name somewhere (for example in Rails, in <tt>application.rb</tt>
+or an initializer):
 
   OAuth2::Provider.realm = 'My OAuth app'
 
@@ -90,9 +90,9 @@ you declared your app name above. This will result in the following behavior:
 
 === Schema
 
-Add the <tt>OAuth2::Provider</tt> tables to your app's schema. This is done using
-<tt>OAuth2::Model::Schema.up</tt>, which can be used inside an <tt>ActiveRecord</tt>
-migration like so:
+Add the <tt>OAuth2::Provider</tt> tables to your app's schema. This is done
+using <tt>OAuth2::Model::Schema.up</tt>, which can be used inside an
+<tt>ActiveRecord</tt> migration like so:
 
   class CreateOauth2ProviderModels < ActiveRecord::Migration
     def up
@@ -107,12 +107,10 @@ migration like so:
 
 === Model Mixins
 
-There are two mixins you need to put in your code,
-<tt>OAuth2::Model::ClientOwner</tt> for whichever model will
-own the "apps", and <tt>OAuth2::Model::ResourceOwner</tt> for
-whichever model is the innocent, unassuming entity who will
-selectively share their data. Its possible that this is the same
-model, such as User:
+There are two mixins you need to put in your code, <tt>OAuth2::Model::ClientOwner</tt>
+for whichever model will own the "apps", and <tt>OAuth2::Model::ResourceOwner</tt>
+for whichever model is the innocent, unassuming entity who will selectively
+share their data. It's possible that this is the same model, such as User:
 
   class User < ActiveRecord::Base
     include OAuth2::Model::ResourceOwner
@@ -170,14 +168,16 @@ so they can authenticate and grant access. Many requests to this endpoint will
 be protocol-level requests that do not involve the user, and <tt>OAuth2::Provider</tt>
 gives you a generic way to handle all that.
 
-You should use this to get the right response, status code and headers to send to
-the client. In the event that <tt>OAuth2::Provider</tt> does not provide a response,
-you should render a page that lets the user begin to authenticate and grant access.
+You should use this to get the right response, status code and headers to send
+to the client. In the event that <tt>OAuth2::Provider</tt> does not provide a
+response, you should render a page that lets the user begin to authenticate and
+grant access.
 
-This endpoint must be accessible via GET and POST. In this example we will expose
-the OAuth service through the path <tt>/oauth/authorize</tt>. We check if there is
-a logged-in resource owner and give this to <tt>OAuth::Provider</tt>, since we
-may be able to immediately redirect if the user has already authorized the client:
+This endpoint must be accessible via GET and POST. In this example we will
+expose the OAuth service through the path <tt>/oauth/authorize</tt>. We check if
+there is a logged-in resource owner and give this to <tt>OAuth::Provider</tt>,
+since we may be able to immediately redirect if the user has already authorized
+the client:
 
   [:get, :post].each do |method|
     __send__ method, '/oauth/authorize' do
@@ -205,8 +205,8 @@ them in the login form, do this:
   <% end %>
 
 You may also want to use scopes to provide granular access to your domain using
-<i>scopes</i>. The <tt>@oauth2</tt> object exposes the scopes the client has asked
-for so you can display them to the user:
+<i>scopes</i>. The <tt>@oauth2</tt> object exposes the scopes the client has
+asked for so you can display them to the user:
 
   <p>The application <%= @oauth2.client.name %> wants the following permissions:</p>
   
@@ -226,8 +226,8 @@ the scopes the client has asked for.
 === Granting access to clients
 
 Once the user has authenticated you should show them a page to let them grant
-or deny access to the client application. This is straightforward; let's say
-the user checks a box before posting a form to indicate their intent:
+or deny access to the client application. This is straightforward; let's say the
+user checks a box before posting a form to indicate their intent:
 
   post '/oauth/allow' do
     @user = User.find_by_id(session[:user_id])
@@ -276,10 +276,9 @@ your domain.
 
 For example, a client application may let a user authenticate using Facebook,
 so the application obtains a Facebook access token from the user. The client
-would then pass this token to your OAuth endpoint and exchange it for an
-access token from your site. You will typically create an account in your
-database to represent this, then have that new account grant access to the
-client.
+would then pass this token to your OAuth endpoint and exchange it for an access
+token from your site. You will typically create an account in your database to
+represent this, then have that new account grant access to the client.
 
 To use assertions, you must tell <tt>OAuth2::Provider</tt> how to handle
 assertions based on their type. An assertion type must be a valid URI. For
@@ -330,8 +329,9 @@ simple, for example a call to get a user's notes:
 <tt>OAuth2::Provider.access_token()</tt> takes a <tt>ResourceOwner</tt>, a list
 of scopes required to access the resource, and a request object. If the token
 was not granted for the required scopes, has expired or is simply invalid,
-headers and a status code are set to indicate this to the client. <tt>token.valid?</tt>
-is the call you should use to determine whether to server the request or not.
+headers and a status code are set to indicate this to the client.
+<tt>token.valid?</tt> is the call you should use to determine whether to serve
+the request or not.
 
 It is also common to provide a dynamic resource for getting some basic data
 about a user by supplying their access token. This can be done by passing
