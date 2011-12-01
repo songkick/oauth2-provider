@@ -15,14 +15,24 @@ environment, namely they:
 * respond to <tt>#url</tt> with the full URL string of the request
 * respond to <tt>#env</tt>, returning the HTTP environment <tt>Hash</tt>
 
-It stores the clients and authorizations using ActiveRecord; the schema is in
-<tt>lib/oauth2/model/schema.rb</tt>. Run it to update your database to
-store OAuth data:
+It stores the clients and authorizations using ActiveRecord.
 
-  OAuth2::Model::Schema.up
+The current implementation is based on draft-10[http://tools.ietf.org/html/draft-ietf-oauth-v2-10].
 
-The current imeplementation is based on draft-10[http://tools.ietf.org/html/draft-ietf-oauth-v2-10].
+== Terminology
 
+* <b>client</b>: this is what Twitter and Facebook call an "app".
+* <b>client_owner</b>: this is the entity which owns the <b>clients</b>.
+  Depending on your system, it could be a user, or it could be a different
+  object like Company, Provider, or Group.
+* <b>resource_owner</b>: this will almost certainly be a user. It's the
+  entity which has the data that the third party is asking permission
+  to see.
+* <b>authorization</b>: when a <b>resource_owner</b> grants access to a
+  <b>client</b> (i.e., a user grants access to a company's app),
+  an authorization is created. This can typically be revoked by the user
+  at any time (which is the strength and flexibility of the OAuth
+  architecture).
 
 == Usage
 
@@ -35,22 +45,101 @@ need to provide four things:
 * Resources protected by access tokens
 
 
-=== Configuration
+=== Installing the gem
 
-<tt>OAuth2::Provider</tt> requires very little configuration. The only thing it
-needs to know about your app is its name, which is used in the headers for some
-authentication errors. To load the library, just do this:
+If you are using Bundler, put this in your Gemfile:
+
+  gem 'oauth2-provider', :require => 'oauth2/provider',
+    :git => 'git://github.com/songkick/oauth2-provider'
+
+If you are not using Bundler, put the library in your load path and
+require it:
 
   require 'oauth2/provider'
+
+
+===  Declare your app's name
+
+Declare your app's name somewhere (for example in Rails, in
+<tt>application.rb</tt> or an initializer):
+
   OAuth2::Provider.realm = 'My OAuth app'
 
-You may also need to configure assertion handlers if your application supports
-third-party access credentials. See 'Using Assertions' below.
+
+=== HTTPS
+
+Your application should ensure that any endpoint that receives or returns OAuth
+data is only accessible over a secure transport such as the <tt>https:</tt>
+protocol. <tt>OAuth2::Provider</tt> can enforces this to make it easier to keep
+your users' data secure.
+
+You can set <tt>OAuth2::Provider.enforce_ssl = true</tt> in the same place that
+you declared your app name above. This will result in the following behavior:
+
+* The <tt>OAuth2::Provider.parse</tt> method will produce error responses and
+  will not process the incoming request unless the request was made using the
+  <tt>https:</tt> protocol.
+* An access token constructed using <tt>OAuth2::Provider.access_token</tt> will
+  return <tt>false</tt> for <tt>#valid?</tt> unless the request was made using the
+  <tt>https:</tt> protocol.
+* Any access token received over an insecure connection is immediately destroyed
+  to prevent eavesdroppers getting access to the user's resources. A client
+  making an insecure request will have to send the user through the authorization
+  process again to get a new token.
+
+
+=== Schema
+
+Add the <tt>OAuth2::Provider</tt> tables to your app's schema. This is done using
+<tt>OAuth2::Model::Schema.up</tt>, which can be used inside an <tt>ActiveRecord</tt>
+migration like so:
+
+  class CreateOauth2ProviderModels < ActiveRecord::Migration
+    def up
+      OAuth2::Model::Schema.up
+    end
+
+    def down
+      OAuth2::Model::Schema.down
+    end
+  end
+
+
+=== Model Mixins
+
+There are two mixins you need to put in your code,
+<tt>OAuth2::Model::ClientOwner</tt> for whichever model will
+own the "apps", and <tt>OAuth2::Model::ResourceOwner</tt> for
+whichever model is the innocent, unassuming entity who will
+selectively share their data. Its possible that this is the same
+model, such as User:
+
+  class User < ActiveRecord::Base
+    include OAuth2::Model::ResourceOwner
+    include OAuth2::Model::ClientOwner
+    has_many :interesting_pieces_of_data
+  end
+
+Or they might go into two different models:
+
+  class User < ActiveRecord::Base
+    include OAuth2::Model::ResourceOwner
+    has_many :interesting_pieces_of_data
+  end
+
+  class Company < ActiveRecord::Base
+    include OAuth2::Model::ClientOwner
+    belongs_to :user
+  end
+
+To see the methods and associations that these two mixins add to your models,
+take a look at <b>lib/oauth2/model/client_owner.rb</b> and
+<b>lib/oauth2/model/resource_owner.rb</b>.
 
 
 === Registering client applications
 
-Clients are modelled by the <tt>OAuth2::Model::Client</tt> class, which is an
+Clients are modeled by the <tt>OAuth2::Model::Client</tt> class, which is an
 ActiveRecord model. You just need to implement a UI for creating them, for
 example in a Sinatra app:
 
@@ -135,17 +224,6 @@ the scopes the client has asked for.
 
 
 === Granting access to clients
-
-Your application will probably have some concept of a user, or a <i>resource
-owner</i> in OAuth lingo. Add this mixin to the model that represents your
-users:
-
-  class User < ActiveRecord::Base
-    include OAuth2::Model::ResourceOwner
-  end
-
-This just adds a couple of relations and methods to the model to let it interact
-with the <tt>OAuth2</tt> models.
 
 Once the user has authenticated you should show them a page to let them grant
 or deny access to the client application. This is straightforward; let's say
@@ -271,26 +349,6 @@ about a user by supplying their access token. This can be done by passing
 <tt>token.owner</tt> returns the <tt>ResourceOwner</tt> that issued the token.
 A token represents the fact that a single owner gave a single client a set of
 permissions.
-
-
-=== Transport security
-
-Your application should ensure that any endpoint that receives or returns OAuth
-data is only accessible over a secure transport such as the <tt>https:</tt>
-protocol. <tt>OAuth2::Provider</tt> can enforces this to make it easier to keep
-your users' data secure. If you want to enable these behaviours, set
-<tt>OAuth2::Provider.enforce_ssl = true</tt>.
-
-* The <tt>OAuth2::Provider.parse</tt> method will produce error responses and
-  will not process the incoming request unless the request was made using the
-  <tt>https:</tt> protocol.
-* An access token constructed using <tt>OAuth2::Provider.access_token</tt> will
-  return <tt>false</tt> for <tt>#valid?</tt> unless the request was made using the
-  <tt>https:</tt> protocol.
-* Any access token received over an insecure connection is immediately destroyed
-  to prevent eavesdroppers getting access to the user's resources. A client
-  making an insecure request will have to send the user through the authorization
-  process again to get a new token.
 
 
 == License
