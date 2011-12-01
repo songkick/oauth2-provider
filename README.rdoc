@@ -22,16 +22,20 @@ The current implementation is based on draft-10[http://tools.ietf.org/html/draft
 
 == Terminology
 
-* <b>client</b>: this is what Twitter and Facebook call an "app".
-* <b>client_owner</b>: this is the entity which owns the <b>clients</b>.
-  Depending on your system, it could be a user, or it could be a different
-  object like Company, Provider, or Group.
-* <b>resource_owner</b>: this will almost certainly be a user. It's the entity
-  which has the data that the third party is asking permission to see.
-* <b>authorization</b>: when a <b>resource_owner</b> grants access to a
+* <b>Client</b>: A third-party software system that integrates with the provider.
+  Twitter and Facebook call this an "app".
+* <b>Client Owner</b>: The entity which owns a <b>client</b>, i.e. the
+  individual or company responsible for the client application.
+* <b>Resource Owner</b>: This will almost certainly be a User. It's the entity
+  which has the data that the <b>client</b> is asking permission to see.
+* <b>Authorization</b>: When a <b>resource owner</b> grants access to a
   <b>client</b> (i.e., a user grants access to a company's app), an
   authorization is created. This can typically be revoked by the user at any
   time (which is the strength and flexibility of the OAuth architecture).
+* <b>Access Token</b>: An opaque string representing an <b>authorization</b>.
+  A <b>client</b> is given an access token when a <b>resource owner</b> grants
+  it access to resources. The access token must be included in all requests for
+  protected resources.
 
 
 == Usage
