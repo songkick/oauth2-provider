@@ -63,6 +63,11 @@ describe OAuth2::Provider::Authorization do
       authorization.error.should == "unsupported_response_type"
       authorization.error_description.should == "Response type no_such_type is not supported"
     end
+    
+    it "causes a redirect" do
+      authorization.should be_redirect
+      authorization.redirect_uri.should == "https://client.example.com/cb?error=unsupported_response_type&error_description=Response+type+no_such_type+is+not+supported"
+    end
   end
   
   describe "missing client_id" do
@@ -71,6 +76,10 @@ describe OAuth2::Provider::Authorization do
     it "is invalid" do
       authorization.error.should == "invalid_request"
       authorization.error_description.should == "Missing required parameter client_id"
+    end
+    
+    it "does not cause a redirect" do
+      authorization.should_not be_redirect
     end
   end
   
@@ -81,6 +90,10 @@ describe OAuth2::Provider::Authorization do
       authorization.error.should == "invalid_client"
       authorization.error_description.should == "Unknown client ID unknown"
     end
+    
+    it "does not cause a redirect" do
+      authorization.should_not be_redirect
+    end
   end
   
   describe "missing redirect_uri" do
@@ -90,6 +103,11 @@ describe OAuth2::Provider::Authorization do
       authorization.error.should == "invalid_request"
       authorization.error_description.should == "Missing required parameter redirect_uri"
     end
+    
+    it "causes a redirect to the client's registered redirect_uri" do
+      authorization.should be_redirect
+      authorization.redirect_uri.should == "https://client.example.com/cb?error=invalid_request&error_description=Missing+required+parameter+redirect_uri"
+    end
   end
   
   describe "with a mismatched redirect_uri" do
@@ -98,6 +116,11 @@ describe OAuth2::Provider::Authorization do
     it "is invalid" do
       authorization.error.should == "redirect_uri_mismatch"
       authorization.error_description.should == "Parameter redirect_uri does not match registered URI"
+    end
+    
+    it "causes a redirect to the client's registered redirect_uri" do
+      authorization.should be_redirect
+      authorization.redirect_uri.should == "https://client.example.com/cb?error=redirect_uri_mismatch&error_description=Parameter+redirect_uri+does+not+match+registered+URI"
     end
     
     describe "when the client has not registered a redirect_uri" do

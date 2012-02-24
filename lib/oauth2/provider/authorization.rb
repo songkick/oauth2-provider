@@ -95,6 +95,7 @@ module OAuth2
       
       def response_body
         return nil if @client and valid?
+        return nil if redirect?
         JSON.unparse(
           ERROR             => INVALID_REQUEST,
           ERROR_DESCRIPTION => 'This is not a valid OAuth request')
