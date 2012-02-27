@@ -11,11 +11,13 @@ module OAuth2
       VALID_PARAMS    = REQUIRED_PARAMS + [SCOPE, STATE]
       VALID_RESPONSES = [CODE, TOKEN, CODE_AND_TOKEN]
       
-      def initialize(resource_owner, params)
+      def initialize(resource_owner, params, transport_error = nil)
         @owner  = resource_owner
         @params = params
         @scope  = params[SCOPE]
         @state  = params[STATE]
+        
+        @transport_error = transport_error
         
         validate!
         return unless @owner and not @error
@@ -97,8 +99,8 @@ module OAuth2
         return nil if @client and valid?
         return nil if redirect?
         JSON.unparse(
-          ERROR             => INVALID_REQUEST,
-          ERROR_DESCRIPTION => 'This is not a valid OAuth request')
+          ERROR             => @error,
+          ERROR_DESCRIPTION => @error_description)
       end
       
       def response_headers
@@ -118,6 +120,12 @@ module OAuth2
     private
       
       def validate!
+        if @transport_error
+          @error = @transport_error.error
+          @error_description = @transport_error.error_description
+          return
+        end
+        
         @client = @params[CLIENT_ID] && Model::Client.find_by_client_id(@params[CLIENT_ID])
         unless @client
           @error = INVALID_CLIENT

@@ -15,10 +15,13 @@ module OAuth2
         'Content-Type'  => 'application/json'
       }
       
-      def initialize(resource_owner, params)
+      def initialize(resource_owner, params, transport_error = nil)
         @params     = params
         @scope      = params[SCOPE]
         @grant_type = @params[GRANT_TYPE]
+        
+        @transport_error = transport_error
+        
         validate!
       end
       
@@ -74,6 +77,12 @@ module OAuth2
       end
       
       def validate!
+        if @transport_error
+          @error = @transport_error.error
+          @error_description = @transport_error.error_description
+          return
+        end
+        
         validate_required_params
         
         return if @error

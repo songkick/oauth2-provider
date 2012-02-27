@@ -6,21 +6,12 @@ module OAuth2
         @message = message
       end
       
-      def redirect?
-        false
+      def error
+        INVALID_REQUEST
       end
       
-      def response_body
-        message = 'Bad request' + (@message ? ": #{@message}" : '')
-        JSON.unparse(ERROR => INVALID_REQUEST, ERROR_DESCRIPTION => message)
-      end
-      
-      def response_headers
-        Exchange::RESPONSE_HEADERS
-      end
-      
-      def response_status
-        400
+      def error_description
+        'Bad request' + (@message ? ": #{@message}" : '')
       end
     end
     

@@ -20,7 +20,7 @@ describe OAuth2::Provider do
     shared_examples_for "asks for user permission" do
       it "creates an authorization" do
         auth = mock_request(OAuth2::Provider::Authorization, :client => @client, :params => {}, :scopes => [])
-        OAuth2::Provider::Authorization.should_receive(:new).with(@owner, params).and_return(auth)
+        OAuth2::Provider::Authorization.should_receive(:new).with(@owner, params, nil).and_return(auth)
         get(params)
       end
       
@@ -143,7 +143,7 @@ describe OAuth2::Provider do
         response = get(params)
         validate_json_response(response, 400,
           'error'             => 'invalid_request',
-          'error_description' => 'This is not a valid OAuth request'
+          'error_description' => 'Missing required parameter redirect_uri'
         )
       end
     end
@@ -155,7 +155,7 @@ describe OAuth2::Provider do
         response = get(params)
         validate_json_response(response, 400,
           'error'             => 'invalid_request',
-          'error_description' => 'This is not a valid OAuth request'
+          'error_description' => 'Missing required parameter client_id'
         )
       end
     end
@@ -330,11 +330,10 @@ describe OAuth2::Provider do
       describe "with valid parameters" do
         it "does not respond to GET" do
           OAuth2::Provider::Authorization.should_not_receive(:new)
-          OAuth2::Provider::Exchange.should_not_receive(:new)
           response = get(params)
           validate_json_response(response, 400,
             'error'             => 'invalid_request',
-            'error_description' => 'Bad request: should be a POST request'
+            'error_description' => 'Bad request: must be a POST request'
           )
         end
         
@@ -352,13 +351,13 @@ describe OAuth2::Provider do
         
         it "creates a Token when using Basic Auth" do
           token = mock_request(OAuth2::Provider::Exchange, :response_body => 'Hello')
-          OAuth2::Provider::Exchange.should_receive(:new).with(@owner, params).and_return(token)
+          OAuth2::Provider::Exchange.should_receive(:new).with(@owner, params, nil).and_return(token)
           post_basic_auth(auth_params, query_params)
         end
         
         it "creates a Token when passing params in the POST body" do
           token = mock_request(OAuth2::Provider::Exchange, :response_body => 'Hello')
-          OAuth2::Provider::Exchange.should_receive(:new).with(@owner, params).and_return(token)
+          OAuth2::Provider::Exchange.should_receive(:new).with(@owner, params, nil).and_return(token)
           post(params)
         end
         

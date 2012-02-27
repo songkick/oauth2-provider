@@ -10,34 +10,31 @@ module OAuth2
       {CLIENT_ID => username, CLIENT_SECRET => password}
     end
     
-    def self.transport_error(request)
+    def self.detect_transport_error(request)
       uri = URI.parse(request.url)
       
       if Provider.enforce_ssl and not uri.is_a?(URI::HTTPS)
-        return Provider::Error.new("must make requests using HTTPS")
+        Provider::Error.new("must make requests using HTTPS")
       end
     end
     
     def self.parse(resource_owner, request, params = nil)
-      if error = transport_error(request)
-        return error
-      end
+      error = detect_transport_error(request)
       
       params ||= request.params
       auth     = auth_params(request, params)
       
       if auth[CLIENT_ID] and auth[CLIENT_ID] != params[CLIENT_ID]
-        return Provider::Error.new("#{CLIENT_ID} from Basic Auth and request body do not match")
+        error ||= Provider::Error.new("#{CLIENT_ID} from Basic Auth and request body do not match")
       end
       
       params = params.merge(auth)
       
       if params[GRANT_TYPE]
-        request.post? ?
-            Provider::Exchange.new(resource_owner, params) :
-            Provider::Error.new("should be a POST request")
+        error ||= Provider::Error.new('must be a POST request') unless request.post?
+        Provider::Exchange.new(resource_owner, params, error)
       else
-        Provider::Authorization.new(resource_owner, params)
+        Provider::Authorization.new(resource_owner, params, error)
       end
     end
     
@@ -52,7 +49,7 @@ module OAuth2
       Provider::AccessToken.new(resource_owner,
                                 scopes,
                                 access_token,
-                                transport_error(request))
+                                detect_transport_error(request))
     end
     
   end
