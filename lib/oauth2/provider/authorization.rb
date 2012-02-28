@@ -103,7 +103,7 @@ module OAuth2
       end
       
       def response_headers
-        {'Cache-Control' => 'no-store'}
+        redirect? ? {} : {'Cache-Control' => 'no-store'}
       end
       
       def response_status
