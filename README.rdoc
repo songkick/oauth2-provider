@@ -177,7 +177,7 @@ to the client. In the event that <tt>OAuth2::Provider</tt> does not provide a
 response, you should render a page that lets the user begin to authenticate and
 grant access. This can happen in two cases:
 
-* The client makes a valud Authorization request. In this case you should
+* The client makes a valid Authorization request. In this case you should
   display a login flow to the user so they can authenticate and grant access to
   the client.
 * The client makes an invalid Authorization request and the provider cannot
