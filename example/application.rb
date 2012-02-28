@@ -77,9 +77,9 @@ end
     if body = @oauth2.response_body
       body
     elsif @oauth2.valid?
-      erb(:login)
+      erb :login
     else
-      'GET OUT!'
+      erb :error
     end
   end
 end
