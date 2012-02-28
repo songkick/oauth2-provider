@@ -141,9 +141,7 @@ helpers do
   # Check for OAuth access before rendering a resource
   def verify_access(scope)
     user  = User.find_by_username(params[:username])
-    p user
     token = OAuth2::Provider.access_token(user, [scope.to_s], request)
-    p token.valid?
     
     headers token.response_headers
     status  token.response_status
