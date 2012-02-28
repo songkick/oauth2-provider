@@ -2,6 +2,8 @@ dir = File.expand_path(File.dirname(__FILE__))
 $:.unshift(dir + '/../lib')
 $:.unshift(dir)
 
+$VERBOSE = nil
+
 require 'rubygems'
 require 'bundler/setup'
 

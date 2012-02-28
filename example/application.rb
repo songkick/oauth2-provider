@@ -74,7 +74,13 @@ end
     headers @oauth2.response_headers
     status  @oauth2.response_status
     
-    @oauth2.response_body || erb(:login)
+    if body = @oauth2.response_body
+      body
+    elsif @oauth2.valid?
+      erb(:login)
+    else
+      'GET OUT!'
+    end
   end
 end
 
@@ -135,7 +141,9 @@ helpers do
   # Check for OAuth access before rendering a resource
   def verify_access(scope)
     user  = User.find_by_username(params[:username])
+    p user
     token = OAuth2::Provider.access_token(user, [scope.to_s], request)
+    p token.valid?
     
     headers token.response_headers
     status  token.response_status

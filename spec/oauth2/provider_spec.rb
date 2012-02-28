@@ -19,7 +19,7 @@ describe OAuth2::Provider do
   describe "access grant request" do
     shared_examples_for "asks for user permission" do
       it "creates an authorization" do
-        auth = mock_request(OAuth2::Provider::Authorization, :client => @client, :params => {}, :scopes => [])
+        auth = mock_request(OAuth2::Provider::Authorization, :client => @client, :params => {}, :scopes => [], :valid? => true)
         OAuth2::Provider::Authorization.should_receive(:new).with(@owner, params, nil).and_return(auth)
         get(params)
       end
@@ -51,10 +51,7 @@ describe OAuth2::Provider do
       
       it "does not allow non-SSL requests" do
         response = get(params)
-        validate_json_response(response, 400,
-          'error'             => 'invalid_request',
-          'error_description' => 'Bad request: must make requests using HTTPS'
-        )
+        validate_response(response, 400, 'WAT')
       end
     end
     
@@ -141,10 +138,7 @@ describe OAuth2::Provider do
       
       it "renders an error page" do
         response = get(params)
-        validate_json_response(response, 400,
-          'error'             => 'invalid_request',
-          'error_description' => 'Missing required parameter redirect_uri'
-        )
+        validate_response(response, 400, 'WAT')
       end
     end
     
@@ -153,10 +147,7 @@ describe OAuth2::Provider do
       
       it "renders an error page" do
         response = get(params)
-        validate_json_response(response, 400,
-          'error'             => 'invalid_request',
-          'error_description' => 'Missing required parameter client_id'
-        )
+        validate_response(response, 400, 'WAT')
       end
     end
     

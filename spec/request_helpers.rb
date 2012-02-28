@@ -20,6 +20,12 @@ module RequestHelpers
     Net::HTTP.post_form(URI.parse('http://localhost:8000/authorize'), query_params)
   end
   
+  def validate_response(response, status, body)
+    response.code.to_i.should == status
+    response.body.should == body
+    response['Cache-Control'].should == 'no-store'
+  end
+  
   def validate_json_response(response, status, body)
     response.code.to_i.should == status
     JSON.parse(response.body).should == body
