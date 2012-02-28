@@ -175,7 +175,14 @@ gives you a generic way to handle all that.
 You should use this to get the right response, status code and headers to send
 to the client. In the event that <tt>OAuth2::Provider</tt> does not provide a
 response, you should render a page that lets the user begin to authenticate and
-grant access.
+grant access. This can happen in two cases:
+
+* The client makes a valud Authorization request. In this case you should
+  display a login flow to the user so they can authenticate and grant access to
+  the client.
+* The client makes an invalid Authorization request and the provider cannot
+  redirect back to the client. In this case you should display an error page
+  to the user, possibly including the value of <tt>@oauth2.error_description</tt>.
 
 This endpoint must be accessible via GET and POST. In this example we will
 expose the OAuth service through the path <tt>/oauth/authorize</tt>. We check if
@@ -195,7 +202,13 @@ the client:
       headers @oauth2.response_headers
       status  @oauth2.response_status
       
-      @oauth2.response_body || erb(:login)
+      if body = @oauth2.response_body
+        body
+      elsif @oauth2.valid?
+        erb :login
+      else
+        erb :error
+      end
     end
   end
 
