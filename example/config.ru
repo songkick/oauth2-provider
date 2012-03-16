@@ -1,3 +1,3 @@
-require File.dirname(__FILE__) + '/application'
+require File.expand_path('../application', __FILE__)
 run Sinatra::Application
 

@@ -1,12 +1,11 @@
-dir = File.expand_path(File.dirname(__FILE__))
+dir = File.expand_path('..', __FILE__)
 require dir + '/environment'
 
 require 'sinatra'
 require 'json'
 
 set :static, true
-set :public, dir + '/public'
-set :views,  dir + '/views'
+set :root, dir
 enable :sessions
 
 PERMISSIONS = {
