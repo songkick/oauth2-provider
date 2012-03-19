@@ -20,13 +20,21 @@ module OAuth2
         @transport_error = transport_error
         
         validate!
+        
         return unless @owner and not @error
         
         @model = Model::Authorization.for(@owner, @client)
         return unless @model and @model.in_scope?(scopes) and not @model.expired?
         
         @authorized = true
-        @code = @model.generate_code
+        
+        if @params[RESPONSE_TYPE] =~ /code/
+          @code = @model.generate_code
+        end
+        
+        if @params[RESPONSE_TYPE] =~ /token/
+          @access_token = @model.generate_access_token
+        end
       end
       
       def scopes

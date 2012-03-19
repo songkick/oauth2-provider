@@ -123,6 +123,26 @@ describe OAuth2::Provider do
         response['location'].should == 'https://client.example.com/cb?code=new_code'
       end
       
+      describe "for token requests" do
+        before { params['response_type'] = 'token' }
+          
+        it "immediately redirects with a new token" do
+          OAuth2.should_receive(:random_string).and_return('new_access_token')
+          response = get(params)
+          response.code.to_i.should == 302
+          response['location'].should == 'https://client.example.com/cb#access_token=new_access_token'
+        end
+        
+        describe "with an invalid client_id" do
+          before { params['client_id'] = 'unknown_id' }
+          
+          it "does not generate any new tokens" do
+            OAuth2.should_not_receive(:random_string)
+            get(params)
+          end
+        end
+      end
+      
       it "does not create a new Authorization" do
         get(params)
         OAuth2::Model::Authorization.count.should == 1

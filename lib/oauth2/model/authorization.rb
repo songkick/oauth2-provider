@@ -95,6 +95,11 @@ module OAuth2
         save && code
       end
       
+      def generate_access_token
+        self.access_token ||= self.class.create_access_token
+        save && access_token
+      end
+      
       def grants_access?(user, *scopes)
         not expired? and user == owner and in_scope?(scopes)
       end
