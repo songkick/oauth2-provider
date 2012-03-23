@@ -101,6 +101,7 @@ module OAuth2
       def validate_required_params
         REQUIRED_PARAMS.each do |param|
           next if @params.has_key?(param)
+          next if param == CLIENT_SECRET && @grant_type == ASSERTION
           @error = INVALID_REQUEST
           @error_description = "Missing required parameter #{param}"
         end
@@ -113,7 +114,7 @@ module OAuth2
           @error_description = "Unknown client ID #{@params[CLIENT_ID]}"
         end
         
-        if @client and not @client.valid_client_secret? @params[CLIENT_SECRET]
+        if @client and @params[CLIENT_SECRET] and not @client.valid_client_secret? @params[CLIENT_SECRET]
           @error = INVALID_CLIENT
           @error_description = 'Parameter client_secret does not match'
         end
