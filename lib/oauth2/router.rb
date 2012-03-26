@@ -39,17 +39,20 @@ module OAuth2
     end
     
     def self.access_token(resource_owner, scopes, request, params = nil)
-      params ||= request.params
-      header = request.env['HTTP_AUTHORIZATION']
-      
-      access_token = header && header =~ /^OAuth\s+/ ?
-                     header.gsub(/^OAuth\s+/, '') :
-                     params[OAUTH_TOKEN]
-      
+      access_token = access_token_from_request(request, params)
       Provider::AccessToken.new(resource_owner,
                                 scopes,
                                 access_token,
                                 detect_transport_error(request))
+    end
+
+    def self.access_token_from_request(request, params = nil)
+      params ||= request.params
+      header = request.env['HTTP_AUTHORIZATION']
+      
+      header && header =~ /^OAuth\s+/ ?
+          header.gsub(/^OAuth\s+/, '') :
+          params[OAUTH_TOKEN]
     end
     
   end

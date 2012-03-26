@@ -105,6 +105,10 @@ module OAuth2
     def self.access_token(*args)
       Router.access_token(*args)
     end
+
+    def self.access_token_from_request(*args)
+      Router.access_token_from_request(*args)
+    end
     
     EXPIRY_TIME            = 3600
     
