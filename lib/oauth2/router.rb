@@ -3,56 +3,66 @@ require 'base64'
 module OAuth2
   class Router
     
-    def self.auth_params(request, params = nil)
-      return {} unless basic = request.env['HTTP_AUTHORIZATION']
-      parts = basic.split(/\s+/)
-      username, password = Base64.decode64(parts.last).split(':')
-      {CLIENT_ID => username, CLIENT_SECRET => password}
-    end
+    # Public methods in the namespace take either Rack env objects, or Request
+    # objects from Rails/Sinatra and an optional params hash which it then
+    # coerces to Rack requests. This is for backward compatibility; originally
+    # it only took request objects.
     
-    def self.detect_transport_error(request)
-      uri = URI.parse(request.url)
-      
-      if Provider.enforce_ssl and not uri.is_a?(URI::HTTPS)
-        Provider::Error.new("must make requests using HTTPS")
+    class << self
+      def parse(resource_owner, env)
+        error   = detect_transport_error(env)
+        request = Rack::Request.new(env.respond_to?(:env) ? env.env : env)
+        params  = request.params
+        auth    = auth_params(env)
+        
+        if auth[CLIENT_ID] and auth[CLIENT_ID] != params[CLIENT_ID]
+          error ||= Provider::Error.new("#{CLIENT_ID} from Basic Auth and request body do not match")
+        end
+        
+        params = params.merge(auth)
+        
+        if params[GRANT_TYPE]
+          error ||= Provider::Error.new('must be a POST request') unless request.post?
+          Provider::Exchange.new(resource_owner, params, error)
+        else
+          Provider::Authorization.new(resource_owner, params, error)
+        end
       end
-    end
-    
-    def self.parse(resource_owner, request, params = nil)
-      error = detect_transport_error(request)
       
-      params ||= request.params
-      auth     = auth_params(request, params)
-      
-      if auth[CLIENT_ID] and auth[CLIENT_ID] != params[CLIENT_ID]
-        error ||= Provider::Error.new("#{CLIENT_ID} from Basic Auth and request body do not match")
+      def access_token(resource_owner, scopes, env)
+        access_token = access_token_from_request(env)
+        Provider::AccessToken.new(resource_owner,
+                                  scopes,
+                                  access_token,
+                                  detect_transport_error(env))
       end
-      
-      params = params.merge(auth)
-      
-      if params[GRANT_TYPE]
-        error ||= Provider::Error.new('must be a POST request') unless request.post?
-        Provider::Exchange.new(resource_owner, params, error)
-      else
-        Provider::Authorization.new(resource_owner, params, error)
-      end
-    end
-    
-    def self.access_token(resource_owner, scopes, request, params = nil)
-      access_token = access_token_from_request(request, params)
-      Provider::AccessToken.new(resource_owner,
-                                scopes,
-                                access_token,
-                                detect_transport_error(request))
-    end
 
-    def self.access_token_from_request(request, params = nil)
-      params ||= request.params
-      header = request.env['HTTP_AUTHORIZATION']
+      def access_token_from_request(env)
+        request = Rack::Request.new(env.respond_to?(:env) ? env.env : env)
+        params  = request.params
+        header  = request.env['HTTP_AUTHORIZATION']
+        
+        header && header =~ /^OAuth\s+/ ?
+            header.gsub(/^OAuth\s+/, '') :
+            params[OAUTH_TOKEN]
+      end
       
-      header && header =~ /^OAuth\s+/ ?
-          header.gsub(/^OAuth\s+/, '') :
-          params[OAUTH_TOKEN]
+    private
+      
+      def auth_params(env)
+        return {} unless basic = env['HTTP_AUTHORIZATION']
+        parts = basic.split(/\s+/)
+        username, password = Base64.decode64(parts.last).split(':')
+        {CLIENT_ID => username, CLIENT_SECRET => password}
+      end
+      
+      def detect_transport_error(env)
+        request = Rack::Request.new(env.respond_to?(:env) ? env.env : env)
+        
+        if Provider.enforce_ssl and not request.ssl?
+          Provider::Error.new("must make requests using HTTPS")
+        end
+      end
     end
     
   end

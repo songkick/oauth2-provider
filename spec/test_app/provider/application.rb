@@ -10,7 +10,7 @@ module TestApp
     set :views, File.dirname(__FILE__) + '/views'
     
     def handle_authorize
-      @oauth2 = OAuth2::Provider.parse(User['Bob'], request)
+      @oauth2 = OAuth2::Provider.parse(User['Bob'], env)
       redirect(@oauth2.redirect_uri, @oauth2.response_status) if @oauth2.redirect?
       
       headers @oauth2.response_headers
@@ -20,7 +20,7 @@ module TestApp
     end
     
     def protect_resource_for(user = nil, scopes = [])
-      access_token = OAuth2::Provider.access_token(user, scopes, request)
+      access_token = OAuth2::Provider.access_token(user, scopes, env)
       headers access_token.response_headers
       status  access_token.response_status
       yield access_token

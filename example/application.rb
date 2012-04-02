@@ -64,7 +64,7 @@ end
 [:get, :post].each do |method|
   __send__ method, '/oauth/authorize' do
     @user = User.find_by_id(session[:user_id])
-    @oauth2 = OAuth2::Provider.parse(@user, request)
+    @oauth2 = OAuth2::Provider.parse(@user, env)
     
     if @oauth2.redirect?
       redirect @oauth2.redirect_uri, @oauth2.response_status
@@ -79,7 +79,7 @@ end
 
 post '/login' do
   @user = User.find_by_username(params[:username])
-  @oauth2 = OAuth2::Provider.parse(@user, request)
+  @oauth2 = OAuth2::Provider.parse(@user, env)
   session[:user_id] = @user.id
   erb(@user ? :authorize : :login)
 end
@@ -99,7 +99,7 @@ end
 # Domain API
 
 get '/me' do
-  authorization = OAuth2::Provider.access_token(nil, [], request)
+  authorization = OAuth2::Provider.access_token(nil, [], env)
   headers authorization.response_headers
   status  authorization.response_status
   
@@ -134,7 +134,7 @@ helpers do
   # Check for OAuth access before rendering a resource
   def verify_access(scope)
     user  = User.find_by_username(params[:username])
-    token = OAuth2::Provider.access_token(user, [scope.to_s], request)
+    token = OAuth2::Provider.access_token(user, [scope.to_s], env)
     
     headers token.response_headers
     status  token.response_status
