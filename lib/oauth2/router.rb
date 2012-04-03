@@ -51,7 +51,7 @@ module OAuth2
       
       def request_from(env_or_request)
         env = env_or_request.respond_to?(:env) ? env_or_request.env : env_or_request
-        env = Rack::MockRequest.env_for(env['REQUEST_URI'], :input => env['RAW_POST_DATA']).merge(env)
+        env = Rack::MockRequest.env_for(env['REQUEST_URI'] || '', :input => env['RAW_POST_DATA']).merge(env)
         Rack::Request.new(env)
       end
       
