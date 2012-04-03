@@ -51,15 +51,7 @@ module OAuth2
       
       def request_from(env_or_request)
         env = env_or_request.respond_to?(:env) ? env_or_request.env : env_or_request
-        
-        parts = env['REQUEST_URI'].split('?')
-        env = env.merge('PATH_INFO' => parts.first) unless env.has_key?('PATH_INFO')
-        env = env.merge('QUERY_STRING' => parts[1..-1].join('?')) unless env.has_key?('QUERY_STRING')
-        
-        unless env.has_key?('rack.input')
-          env = env.merge('rack.input' => StringIO.new(env['RAW_POST_DATA'] || ''))
-        end
-        
+        env = Rack::MockRequest.env_for(env['REQUEST_URI'], :input => env['RAW_POST_DATA']).merge(env)
         Rack::Request.new(env)
       end
       
