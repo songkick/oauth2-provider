@@ -11,7 +11,7 @@ module OAuth2
     class << self
       def parse(resource_owner, env)
         error   = detect_transport_error(env)
-        request = Rack::Request.new(env.respond_to?(:env) ? env.env : env)
+        request = request_from(env)
         params  = request.params
         auth    = auth_params(env)
         
@@ -38,7 +38,7 @@ module OAuth2
       end
 
       def access_token_from_request(env)
-        request = Rack::Request.new(env.respond_to?(:env) ? env.env : env)
+        request = request_from(env)
         params  = request.params
         header  = request.env['HTTP_AUTHORIZATION']
         
@@ -49,6 +49,12 @@ module OAuth2
       
     private
       
+      def request_from(env_or_request)
+        env = env_or_request.respond_to?(:env) ? env_or_request.env : env_or_request
+        env = env.merge('rack.input' => StringIO.new('')) unless env.has_key?('rack.input')
+        Rack::Request.new(env)
+      end
+      
       def auth_params(env)
         return {} unless basic = env['HTTP_AUTHORIZATION']
         parts = basic.split(/\s+/)
@@ -57,7 +63,7 @@ module OAuth2
       end
       
       def detect_transport_error(env)
-        request = Rack::Request.new(env.respond_to?(:env) ? env.env : env)
+        request = request_from(env)
         
         if Provider.enforce_ssl and not request.ssl?
           Provider::Error.new("must make requests using HTTPS")
