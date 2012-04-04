@@ -201,12 +201,12 @@ describe OAuth2::Provider do
       end
       
       describe "with a state parameter" do
-        before { params['state'] = 'foo' }
+        before { params['state'] = "Facebook\nmesses this\nup" }
       
         it "redirects to the client, including the state param" do
           response = get(params)
           response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb?error=invalid_request&error_description=Missing+required+parameter+response_type&state=foo'
+          response['location'].should == "https://client.example.com/cb?error=invalid_request&error_description=Missing+required+parameter+response_type&state=Facebook%0Amesses+this%0Aup"
         end
       end
     end
