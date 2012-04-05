@@ -518,7 +518,7 @@ describe OAuth2::Provider do
       end
     end
     
-    describe "for header-based requests" do
+    describe "for header-based requests using the OAuth prefix" do
       def request(path, params = {})
         access_token = params.delete('oauth_token')
         http   = Net::HTTP.new('localhost', 8000)
@@ -530,6 +530,18 @@ describe OAuth2::Provider do
       it_should_behave_like "protected resource"
     end
     
+    describe "for header-based requests using the Bearer prefix" do
+      def request(path, params = {})
+        access_token = params.delete('oauth_token')
+        http   = Net::HTTP.new('localhost', 8000)
+        qs     = params.map { |k,v| "#{ CGI.escape k.to_s }=#{ CGI.escape v.to_s }" }.join('&')
+        header = {'Authorization' => "Bearer #{access_token}"}
+        http.request_get(path + '?' + qs, header)
+      end
+      
+      it_should_behave_like "protected resource"
+    end
+
     describe "for GET requests" do
       def request(path, params = {})
         qs  = params.map { |k,v| "#{ CGI.escape k.to_s }=#{ CGI.escape v.to_s }" }.join('&')
