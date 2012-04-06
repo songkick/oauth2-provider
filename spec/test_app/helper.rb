@@ -1,7 +1,7 @@
 module TestApp
   
   class User < ActiveRecord::Base
-    set_table_name :users
+    self.table_name = :users
     
     include OAuth2::Model::ResourceOwner
     include OAuth2::Model::ClientOwner
