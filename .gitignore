@@ -1,7 +1,5 @@
-.redcar
 *.sqlite3
 *.db
 Gemfile.lock
 pkg
 rdoc
-.idea
