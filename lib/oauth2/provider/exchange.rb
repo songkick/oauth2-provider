@@ -43,9 +43,12 @@ module OAuth2
         update_authorization
         
         response = {}
-        %w[access_token refresh_token scope].each do |key|
+        [ACCESS_TOKEN, REFRESH_TOKEN, SCOPE].each do |key|
           value = @authorization.__send__(key)
           response[key] = value if value
+        end
+        if expiry = @authorization.expires_in
+          response[EXPIRES_IN] = expiry
         end
         
         JSON.unparse(response)

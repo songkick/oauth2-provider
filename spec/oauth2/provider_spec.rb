@@ -279,21 +279,21 @@ describe OAuth2::Provider do
         it "redirects to the client with an access token" do
           response = allow_or_deny(params)
           response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb#access_token=foo'
+          response['location'].should == 'https://client.example.com/cb#access_token=foo&expires_in=10800'
         end
         
         it "passes the state parameter through" do
           params['state'] = 'illinois'
           response = allow_or_deny(params)
           response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb#access_token=foo&state=illinois'
+          response['location'].should == 'https://client.example.com/cb#access_token=foo&expires_in=10800&state=illinois'
         end
         
         it "passes the scope parameter through" do
           params['scope'] = 'foo bar'
           response = allow_or_deny(params)
           response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb#access_token=foo&scope=foo+bar'
+          response['location'].should == 'https://client.example.com/cb#access_token=foo&expires_in=10800&scope=foo+bar'
         end
       end
       
@@ -308,21 +308,21 @@ describe OAuth2::Provider do
         it "redirects to the client with an access token" do
           response = allow_or_deny(params)
           response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb?code=foo#access_token=foo'
+          response['location'].should == 'https://client.example.com/cb?code=foo#access_token=foo&expires_in=10800'
         end
         
         it "passes the state parameter through" do
           params['state'] = 'illinois'
           response = allow_or_deny(params)
           response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb?code=foo&state=illinois#access_token=foo'
+          response['location'].should == 'https://client.example.com/cb?code=foo&state=illinois#access_token=foo&expires_in=10800'
         end
         
         it "passes the scope parameter through" do
           params['scope'] = 'foo bar'
           response = allow_or_deny(params)
           response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb?code=foo#access_token=foo&scope=foo+bar'
+          response['location'].should == 'https://client.example.com/cb?code=foo#access_token=foo&expires_in=10800&scope=foo+bar'
         end
       end
     end
@@ -331,7 +331,7 @@ describe OAuth2::Provider do
   describe "access token request" do
     before do
       @client = Factory(:client)
-      @authorization = Factory(:authorization, :client => @client, :owner => @owner)
+      @authorization = Factory(:authorization, :client => @client, :owner => @owner, :expires_at => 3.hours.from_now)
     end
     
     let(:auth_params)  { { 'client_id'     => @client.client_id,
@@ -384,7 +384,7 @@ describe OAuth2::Provider do
         it "returns a successful response" do
           OAuth2.stub(:random_string).and_return('random_access_token')
           response = post_basic_auth(auth_params, query_params)
-          validate_json_response(response, 200, 'access_token'  => 'random_access_token')
+          validate_json_response(response, 200, 'access_token'  => 'random_access_token', 'expires_in' => 10800)
         end
         
         describe "with a scope parameter" do
@@ -397,7 +397,8 @@ describe OAuth2::Provider do
             response = post_basic_auth(auth_params, query_params)
             validate_json_response(response, 200,
               'access_token'  => 'random_access_token',
-              'scope'         => 'foo bar'
+              'scope'         => 'foo bar',
+              'expires_in'    => 10800
             )
           end
         end
@@ -436,7 +437,8 @@ describe OAuth2::Provider do
         it "returns a new access token" do
           response = post(params)
           validate_json_response(response, 200,
-            'access_token' => 'random_access_token'
+            'access_token' => 'random_access_token',
+            'expires_in'   => 10800
           )
         end
         

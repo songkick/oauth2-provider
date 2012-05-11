@@ -45,7 +45,7 @@ module TestApp
       @user = User['bob']
       @oauth2 = OAuth2::Provider::Authorization.new(@user, params)
       if params['allow'] == '1'
-        @oauth2.grant_access!
+        @oauth2.grant_access! :duration => 3.hours
       else
         @oauth2.deny_access!
       end
