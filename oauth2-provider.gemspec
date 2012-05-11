@@ -19,7 +19,7 @@ spec = Gem::Specification.new do |s|
 
   s.add_development_dependency("activerecord", "~> 3.0.0") # The SQLite adapter in 3.1 is broken
   s.add_development_dependency("rspec")
-  s.add_development_dependency("sqlite3-ruby")
+  s.add_development_dependency("sqlite3")
   s.add_development_dependency("sinatra", ">= 1.3.0")
   s.add_development_dependency("thin")
   s.add_development_dependency("factory_girl", "~> 2.0")
