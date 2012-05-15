@@ -67,7 +67,7 @@ module OAuth2
         end
         
         if attributes[:scope]
-          scopes = instance.scopes + attributes[:scope].split(/\s+/)
+          scopes = attributes[:scope].split(/\s+/)
           instance.scope = scopes.join(' ')
         end
         
