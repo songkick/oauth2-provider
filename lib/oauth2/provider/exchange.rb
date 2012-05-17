@@ -30,7 +30,8 @@ module OAuth2
       end
       
       def scopes
-        @scope ? @scope.split(/\s+/).delete_if { |s| s.empty? } : []
+        scopes = @scope ? @scope.split(/\s+/).delete_if { |s| s.empty? } : []
+        Set.new(scopes)
       end
       
       def redirect?
