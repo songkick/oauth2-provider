@@ -169,7 +169,7 @@ module OAuth2
         
         if @client and @client.redirect_uri and @client.redirect_uri != @params[REDIRECT_URI]
           @error = REDIRECT_MISMATCH
-          @error_description = "Parameter redirect_uri does not match registered URI"
+          @error_description = "Parameter #{REDIRECT_URI} does not match registered URI"
         end
       end
       
