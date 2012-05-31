@@ -23,6 +23,16 @@ module OAuth2
         return nil unless resource_owner and client
         resource_owner.oauth2_authorizations.find_by_client_id(client.id)
       end
+
+      def self.find_or_new(owner, client)
+        instance = self.for(owner, client)
+        unless instance
+          instance = new
+          instance.owner  = owner
+          instance.client = client
+        end
+        instance
+      end
       
       def self.create_code(client)
         OAuth2.generate_id do |code|
@@ -45,8 +55,7 @@ module OAuth2
       end
       
       def self.for_response_type(response_type, attributes = {})
-        instance = self.for(attributes[:owner], attributes[:client]) ||
-                   new(:owner => attributes[:owner], :client => attributes[:client])
+        instance = self.find_or_new(attributes[:owner], attributes[:client])
         
         case response_type
           when CODE
