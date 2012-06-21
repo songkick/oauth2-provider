@@ -3,5 +3,6 @@ gemspec
 
 group :test do
   gem 'rake'
+  gem 'rdoc'
 end
 
