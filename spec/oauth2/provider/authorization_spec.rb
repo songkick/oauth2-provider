@@ -25,11 +25,11 @@ describe OAuth2::Provider::Authorization do
     before { params['scope'] = 'foo bar qux' }
     
     it "exposes the scope as a list of strings" do
-      authorization.scopes.should == Set.new %w[foo bar qux]
+      authorization.scopes.should == Set.new(%w[foo bar qux])
     end
     
     it "exposes the scopes the client has not yet granted" do
-      authorization.unauthorized_scopes.should == Set.new %w[foo bar qux]
+      authorization.unauthorized_scopes.should == Set.new(%w[foo bar qux])
     end
     
     describe "when the owner has already authorized the client" do
@@ -38,7 +38,7 @@ describe OAuth2::Provider::Authorization do
       end
       
       it "exposes the scope as a list of strings" do
-        authorization.scopes.should == Set.new %w[foo bar qux]
+        authorization.scopes.should == Set.new(%w[foo bar qux])
       end
       
       it "exposes the scopes the client has not yet granted" do
@@ -184,7 +184,7 @@ describe OAuth2::Provider::Authorization do
       it "merges the new scopes with the existing ones" do
         authorization.grant_access!
         @model.reload
-        @model.scopes.should == Set.new ['foo', 'bar', 'qux']
+        @model.scopes.should == Set.new(%w[foo bar qux])
       end
     end
     
@@ -221,7 +221,7 @@ describe OAuth2::Provider::Authorization do
         params['scope'] = 'qux'
         authorization.grant_access!
         @model.reload
-        @model.scopes.should == Set.new ['foo', 'bar', 'qux']
+        @model.scopes.should == Set.new(%w[foo bar qux])
       end
     end
     
@@ -251,7 +251,7 @@ describe OAuth2::Provider::Authorization do
         authorization.owner.should == resource_owner
         authorization.client.should == @client
         authorization.code.should == "s1"
-        authorization.scopes.should == Set.new %w[foo bar]
+        authorization.scopes.should == Set.new(%w[foo bar])
       end
     end
     

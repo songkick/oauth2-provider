@@ -30,7 +30,7 @@ describe OAuth2::Model::ResourceOwner do
     it "updates the authorization with scopes" do
       @owner.grant_access!(@client, :scopes => ['foo', 'bar'])
       @authorization.reload
-      @authorization.scopes.should == Set.new ['foo', 'bar']
+      @authorization.scopes.should == Set.new(['foo', 'bar'])
     end
     
     describe "with scopes" do
@@ -41,14 +41,14 @@ describe OAuth2::Model::ResourceOwner do
       it "merges the new scopes with the existing ones" do
         @owner.grant_access!(@client, :scopes => ['qux'])
         @authorization.reload
-        @authorization.scopes.should == Set.new ['foo', 'bar', 'qux']
+        @authorization.scopes.should == Set.new(['foo', 'bar', 'qux'])
       end
 
       it "does not add duplicate scopes to the list" do
         @owner.grant_access!(@client, :scopes => ['qux'])
         @owner.grant_access!(@client, :scopes => ['qux'])
         @authorization.reload
-        @authorization.scopes.should == Set.new ['foo', 'bar', 'qux']
+        @authorization.scopes.should == Set.new(['foo', 'bar', 'qux'])
       end
     end
   end
