@@ -89,11 +89,11 @@ describe OAuth2::Model::Authorization do
       before { OAuth2.stub(:random_string).and_return('existing_code', 'new_code') }
 
       it "returns the first code the client has not used" do
-        OAuth2::Model::Authorization.create_code(client).should == 'new_code'
+        OAuth2::Model::Authorization.create_code(client).should be == 'new_code'
       end
 
       it "returns the first code another client has not used" do
-        OAuth2::Model::Authorization.create_code(impostor).should == 'existing_code'
+        OAuth2::Model::Authorization.create_code(impostor).should be == 'existing_code'
       end
     end
 
@@ -101,7 +101,7 @@ describe OAuth2::Model::Authorization do
       before { OAuth2.stub(:random_string).and_return('existing_access_token', 'new_access_token') }
 
       it "returns the first unused token it can find" do
-        OAuth2::Model::Authorization.create_access_token.should == 'new_access_token'
+        OAuth2::Model::Authorization.create_access_token.should be == 'new_access_token'
       end
     end
 
@@ -109,11 +109,11 @@ describe OAuth2::Model::Authorization do
       before { OAuth2.stub(:random_string).and_return('existing_refresh_token', 'new_refresh_token') }
 
       it "returns the first refresh_token the client has not used" do
-        OAuth2::Model::Authorization.create_refresh_token(client).should == 'new_refresh_token'
+        OAuth2::Model::Authorization.create_refresh_token(client).should be == 'new_refresh_token'
       end
 
       it "returns the first refresh_token another client has not used" do
-        OAuth2::Model::Authorization.create_refresh_token(impostor).should == 'existing_refresh_token'
+        OAuth2::Model::Authorization.create_refresh_token(impostor).should be == 'existing_refresh_token'
       end
     end
   end
@@ -127,7 +127,7 @@ describe OAuth2::Model::Authorization do
     it "uses its helpers to find unique tokens" do
       OAuth2::Model::Authorization.should_receive(:create_access_token).and_return('access_token')
       authorization.exchange!
-      authorization.access_token.should == 'access_token'
+      authorization.access_token.should be == 'access_token'
     end
 
     it "updates the tokens correctly" do
