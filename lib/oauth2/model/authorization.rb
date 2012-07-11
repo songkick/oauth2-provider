@@ -19,9 +19,7 @@ module OAuth2
       extend Hashing
       hashes_attributes :access_token, :refresh_token
 
-      attr_accessible :created_at, :updated_at, :oauth2_resource_owner_type,
-                      :owner, :client, :scope, :code, :access_token,
-                      :refresh_token, :expires_at
+      attr_accessible nil
 
       def self.for(resource_owner, client)
         return nil unless resource_owner and client
@@ -50,7 +48,10 @@ module OAuth2
 
       def self.for_response_type(response_type, attributes = {})
         instance = self.for(attributes[:owner], attributes[:client]) ||
-                   new(:owner => attributes[:owner], :client => attributes[:client])
+                  new do |auth|
+                    auth.owner = attributes[:owner]
+                    auth.client = attributes[:client]
+                  end
 
         case response_type
           when CODE
