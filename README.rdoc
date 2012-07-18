@@ -1,6 +1,7 @@
 = OAuth2::Provider
 
 {<img src="https://secure.travis-ci.org/songkick/oauth2-provider.png?branch=master" alt="Build Status" />}[http://travis-ci.org/songkick/oauth2-provider]
+{<img src="https://codeclimate.com/badge.png" />}[https://codeclimate.com/github/songkick/oauth2-provider]
 
 This gem provides a toolkit for adding OAuth2 provider capabilities to a Ruby
 web app. It handles most of the protocol for you: it is designed to provide
