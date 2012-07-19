@@ -7,7 +7,7 @@ describe OAuth2::Model::Authorization do
   let(:user)     { Factory :owner }
   
   let(:authorization) do
-    OAuth2::Model::Authorization.new(:owner => owner, :client => client)
+    create_authorization(:owner => owner, :client => client)
   end
   
   it "is vaid" do
@@ -26,17 +26,17 @@ describe OAuth2::Model::Authorization do
   
   describe "when there are existing authorizations" do
     before do
-      OAuth2::Model::Authorization.create(
+      create_authorization(
         :owner         => user,
         :client        => impostor,
         :access_token  => 'existing_access_token')
         
-      OAuth2::Model::Authorization.create(
+      create_authorization(
         :owner         => owner,
         :client        => client,
         :code          => 'existing_code')
         
-      OAuth2::Model::Authorization.create(
+      create_authorization(
         :owner         => owner,
         :client        => client,
         :refresh_token => 'existing_refresh_token')

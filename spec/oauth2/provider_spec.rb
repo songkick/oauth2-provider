@@ -60,7 +60,7 @@ describe OAuth2::Provider do
     
     describe "when there is already a pending authorization from the user" do
       before do
-        @authorization = OAuth2::Model::Authorization.create(
+        @authorization = create_authorization(
           :owner  => @owner,
           :client => @client,
           :code   => 'pending_code',
@@ -109,7 +109,7 @@ describe OAuth2::Provider do
     
     describe "when there is already a completed authorization from the user" do
       before do
-        @authorization = OAuth2::Model::Authorization.create(
+        @authorization = create_authorization(
           :owner  => @owner,
           :client => @client,
           :code   => nil,

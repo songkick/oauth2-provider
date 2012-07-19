@@ -16,6 +16,8 @@ module OAuth2
       validates_uniqueness_of :refresh_token_hash, :scope => :client_id, :allow_nil => true
       validates_uniqueness_of :access_token_hash,                        :allow_nil => true
       
+      attr_accessible nil
+      
       extend Hashing
       hashes_attributes :access_token, :refresh_token
       
@@ -46,7 +48,10 @@ module OAuth2
       
       def self.for_response_type(response_type, attributes = {})
         instance = self.for(attributes[:owner], attributes[:client]) ||
-                   new(:owner => attributes[:owner], :client => attributes[:client])
+                   new do |authorization|
+                     authorization.owner  = attributes[:owner]
+                     authorization.client = attributes[:client]
+                   end
         
         case response_type
           when CODE

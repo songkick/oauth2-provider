@@ -34,7 +34,7 @@ describe OAuth2::Provider::Authorization do
     
     describe "when the owner has already authorized the client" do
       before do
-        OAuth2::Model::Authorization.create(:owner => resource_owner, :client => @client, :scope => 'foo bar')
+        create_authorization(:owner => resource_owner, :client => @client, :scope => 'foo bar')
       end
       
       it "exposes the scope as a list of strings" do

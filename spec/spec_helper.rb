@@ -50,3 +50,11 @@ RSpec.configure do |config|
   end
 end
 
+def create_authorization(params)
+  OAuth2::Model::Authorization.create do |authorization|
+    params.each do |key, value|
+      authorization.__send__ "#{key}=", value
+    end
+  end
+end
+
