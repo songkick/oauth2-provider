@@ -29,11 +29,6 @@ module OAuth2
         @authorization && @authorization.owner
       end
       
-      def scopes
-        scopes = @scope ? @scope.split(/\s+/).delete_if { |s| s.empty? } : []
-        Set.new(scopes)
-      end
-      
       def redirect?
         false
       end
@@ -62,6 +57,11 @@ module OAuth2
         valid? ? 200 : 400
       end
       
+      def scopes
+        scopes = @scope ? @scope.split(/\s+/).delete_if { |s| s.empty? } : []
+        Set.new(scopes)
+      end
+
       def update_authorization
         return if not valid? or @already_updated
         @authorization.exchange!
@@ -117,7 +117,7 @@ module OAuth2
           @error_description = "Unknown client ID #{@params[CLIENT_ID]}"
         end
         
-        if @client and not @client.valid_client_secret? @params[CLIENT_SECRET]
+        if @client and not @client.valid_client_secret?(@params[CLIENT_SECRET])
           @error = INVALID_CLIENT
           @error_description = 'Parameter client_secret does not match'
         end
