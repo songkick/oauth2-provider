@@ -11,8 +11,11 @@ module OAuth2
       
       def grant_access!(client, options = {})
         authorization = oauth2_authorizations.find_by_client_id(client.id) ||
-                        Model::Authorization.create(:owner => self, :client => client)
-        
+                        Authorization.create do |authorization|
+                          authorization.owner  = self
+                          authorization.client = client
+                        end
+
         if scopes = options[:scopes]
           scopes = authorization.scopes + scopes
           authorization.update_attribute(:scope, scopes.entries.join(' '))

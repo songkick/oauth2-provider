@@ -8,7 +8,13 @@ describe OAuth2::Model::ResourceOwner do
   
   describe "#grant_access!" do
     it "creates an authorization between the owner and the client" do
-      OAuth2::Model::Authorization.should_receive(:create).with(:owner => @owner, :client => @client)
+      # This absolute clusterfuck brought to you by ActiveRecord::Base.attr_accessible
+      authorization = mock(OAuth2::Model::Authorization)
+      
+      OAuth2::Model::Authorization.should_receive(:create).and_yield(authorization)
+      authorization.should_receive('owner=').with(@owner)
+      authorization.should_receive('client=').with(@client)
+      
       @owner.grant_access!(@client)
     end
     
