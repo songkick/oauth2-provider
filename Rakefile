@@ -1,4 +1,5 @@
 require "rubygems"
+require "appraisal"
 
 task :default => :spec
 
