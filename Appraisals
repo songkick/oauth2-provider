@@ -1,7 +1,9 @@
-appraise 'rails_2_2' do
-  gem 'activerecord', '~> 2.2.3'
-  gem 'factory_girl', '~> 2.3.0'
-  gem 'rake', '~> 0.8.7'
+if RUBY_VERSION < '1.9'
+  appraise 'rails_2_2' do
+    gem 'activerecord', '~> 2.2.3'
+    gem 'factory_girl', '~> 2.3.0'
+    gem 'rake', '~> 0.8.7'
+  end
 end
 
 appraise 'rails_2_3' do
