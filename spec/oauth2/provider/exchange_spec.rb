@@ -132,7 +132,7 @@ describe OAuth2::Provider::Exchange do
       end
       
       describe "when the client has not registered a redirect_uri" do
-        before { @client.update_attribute(:redirect_uri, nil) }
+        before { @client.update_column(:redirect_uri, nil) }
         
         it "is valid" do
           exchange.error.should be_nil
@@ -159,7 +159,7 @@ describe OAuth2::Provider::Exchange do
     end
     
     describe "with an expired code" do
-      before { @authorization.update_attribute(:expires_at, 1.day.ago) }
+      before { @authorization.update_column(:expires_at, 1.day.ago) }
       
       it "is invalid" do
         exchange.error.should == "invalid_grant"

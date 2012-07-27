@@ -35,6 +35,10 @@ module OAuth2
         BCrypt::Password.new(client_secret_hash) == secret
       end
       
+      def update_column(name, value)
+        defined?(super) ? super : update_attribute(name, value)
+      end
+      
     private
       
       def check_format_of_redirect_uri
