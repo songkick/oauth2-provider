@@ -330,8 +330,9 @@ describe OAuth2::Provider do
   
   describe "access token request" do
     before do
+      Time.stub(:now => Time.now)
       @client = Factory(:client)
-      @authorization = Factory(:authorization, :client => @client, :owner => @owner, :expires_at => 3.hours.from_now)
+      @authorization = Factory(:authorization, :client => @client, :owner => @owner, :expires_at => 3.hours.from_now(Time.now))
     end
     
     let(:auth_params)  { { 'client_id'     => @client.client_id,
