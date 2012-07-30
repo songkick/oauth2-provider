@@ -213,8 +213,8 @@ describe OAuth2::Provider::Authorization do
       it "sets the expiry time if a duration is given" do
         authorization.grant_access!(:duration => 1.hour)
         @model.reload
-        @model.expires_in.should == 3600
-        authorization.expires_in.should == 3600
+        @model.expires_in.should <= 3600
+        authorization.expires_in.should <= 3600
       end
       
       it "augments the scope" do
