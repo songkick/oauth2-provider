@@ -9,7 +9,7 @@ module OAuth2
           t.integer    :oauth2_client_owner_id
           t.string     :name
           t.string     :client_id
-          t.string     :client_secret_hash
+          t.binary     :client_secret_hash
           t.string     :redirect_uri
         end
         add_index :oauth2_clients, :client_id

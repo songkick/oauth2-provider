@@ -18,7 +18,7 @@ module OAuth2
 
         if scopes = options[:scopes]
           scopes = authorization.scopes + scopes
-          authorization.update_attribute(:scope, scopes.entries.join(' '))
+          authorization.update_scope(scopes.entries.join(' '))
         end
         
         authorization

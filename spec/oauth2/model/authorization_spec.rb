@@ -47,7 +47,7 @@ describe OAuth2::Model::Authorization do
     end
     
     it "is valid if both access_tokens are nil" do
-      OAuth2::Model::Authorization.first.update_attribute(:access_token, nil)
+      OAuth2::Model::Authorization.first.reset_access_token!
       authorization.access_token = nil
       authorization.should be_valid
     end

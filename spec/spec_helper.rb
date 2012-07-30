@@ -10,6 +10,10 @@ require 'oauth2/provider'
 
 ActiveRecord::Base.establish_connection(:adapter  => 'sqlite3', :database => 'test.sqlite3')
 
+require 'logger'
+ActiveRecord::Base.logger = Logger.new(STDERR)
+ActiveRecord::Base.logger.level = Logger::INFO
+
 OAuth2::Model::Schema.up
 
 ActiveRecord::Schema.define do |version|
