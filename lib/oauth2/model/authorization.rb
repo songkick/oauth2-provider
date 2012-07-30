@@ -105,6 +105,11 @@ module OAuth2
         save && access_token
       end
       
+      def reset_access_token!
+        self.access_token = nil
+        save!
+      end
+      
       def grants_access?(user, *scopes)
         not expired? and user == owner and in_scope?(scopes)
       end
@@ -116,6 +121,15 @@ module OAuth2
       def scopes
         scopes = scope ? scope.split(/\s+/) : []
         Set.new(scopes)
+      end
+      
+      def update_scope(new_scope)
+        self.scope = new_scope
+        save
+      end
+      
+      def update_column(name, value)
+        defined?(super) ? super : update_attribute(name, value)
       end
     end
     

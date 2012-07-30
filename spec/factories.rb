@@ -20,7 +20,7 @@ Factory.define :client, :class => OAuth2::Model::Client do |c|
 end
 
 Factory.define :authorization, :class => OAuth2::Model::Authorization do |ac|
-  ac.client     Factory(:client)
+  ac.client     { Factory(:client) }
   ac.code       { OAuth2.random_string }
   ac.expires_at nil
 end

@@ -89,7 +89,7 @@ describe OAuth2::Provider do
       end
       
       describe "and the authorization does not have a code" do
-        before { @authorization.update_attribute(:code, nil) }
+        before { @authorization.update_column(:code, nil) }
         
         it "generates a new code and redirects" do
           OAuth2::Model::Authorization.should_not_receive(:create)
@@ -102,7 +102,7 @@ describe OAuth2::Provider do
       end
       
       describe "and the authorization is expired" do
-        before { @authorization.update_attribute(:expires_at, 2.hours.ago) }
+        before { @authorization.update_column(:expires_at, 2.hours.ago) }
         it_should_behave_like "asks for user permission"
       end
     end
@@ -330,8 +330,9 @@ describe OAuth2::Provider do
   
   describe "access token request" do
     before do
+      Time.stub(:now => Time.now)
       @client = Factory(:client)
-      @authorization = Factory(:authorization, :client => @client, :owner => @owner, :expires_at => 3.hours.from_now)
+      @authorization = Factory(:authorization, :client => @client, :owner => @owner, :expires_at => 3.hours.from_now(Time.now))
     end
     
     let(:auth_params)  { { 'client_id'     => @client.client_id,
@@ -389,7 +390,7 @@ describe OAuth2::Provider do
         
         describe "with a scope parameter" do
           before do
-            @authorization.update_attribute(:scope, 'foo bar')
+            @authorization.update_scope('foo bar')
           end
           
           it "passes the scope back in the success response" do

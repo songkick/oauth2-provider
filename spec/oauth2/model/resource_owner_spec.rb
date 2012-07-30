@@ -41,7 +41,7 @@ describe OAuth2::Model::ResourceOwner do
     
     describe "with scopes" do
       before do
-        @authorization.update_attribute(:scope, 'foo bar')
+        @authorization.update_scope('foo bar')
       end
       
       it "merges the new scopes with the existing ones" do
