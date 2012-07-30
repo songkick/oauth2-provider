@@ -6,15 +6,15 @@ rvm:
   - 1.9.3
 
 gemfile:
-  - gemfiles/rails_2_2.gemfile
-  - gemfiles/rails_2_3.gemfile
-  - gemfiles/rails_3_0.gemfile
-  - gemfiles/rails_3_1.gemfile
-  - gemfiles/rails_3_2.gemfile
+  - gemfiles/activerecord_2_2.gemfile
+  - gemfiles/activerecord_2_3.gemfile
+  - gemfiles/activerecord_3_0.gemfile
+  - gemfiles/activerecord_3_1.gemfile
+  - gemfiles/activerecord_3_2.gemfile
 
 matrix:
   exclude:
     - rvm: 1.9.2
-      gemfile: gemfiles/rails_2_2.gemfile
+      gemfile: gemfiles/activerecord_2_2.gemfile
     - rvm: 1.9.3
-      gemfile: gemfiles/rails_2_2.gemfile
+      gemfile: gemfiles/activerecord_2_2.gemfile
