@@ -7,14 +7,12 @@ describe OAuth2::Model::ResourceOwner do
   end
   
   describe "#grant_access!" do
+    it "raises an error when passed an invalid client argument" do
+      lambda{ @owner.grant_access!('client') }.should raise_error(ArgumentError)
+    end
+    
     it "creates an authorization between the owner and the client" do
-      # This absolute clusterfuck brought to you by ActiveRecord::Base.attr_accessible
-      authorization = mock(OAuth2::Model::Authorization)
-      
-      OAuth2::Model::Authorization.should_receive(:create).and_yield(authorization)
-      authorization.should_receive('owner=').with(@owner)
-      authorization.should_receive('client=').with(@client)
-      
+      OAuth2::Model::Authorization.should_receive(:create).with(:client => @client)      
       @owner.grant_access!(@client)
     end
     
