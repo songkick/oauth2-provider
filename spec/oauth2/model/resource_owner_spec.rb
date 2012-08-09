@@ -21,6 +21,15 @@ describe OAuth2::Model::ResourceOwner do
     it "returns the authorization" do
       @owner.grant_access!(@client).should be_kind_of(OAuth2::Model::Authorization)
     end
+    
+    # This method must return the same owner object, since the assertion
+    # handler may modify it -- either by changing its attributes or by extending
+    # it with new methods. These changes must be returned to the app calling the
+    # Provider interface.
+    it "sets the receiver as the authorization's owner" do
+      authorization = @owner.grant_access!(@client)
+      authorization.owner.should be_equal(@owner)
+    end
   end
   
   describe "when there is an existing authorization" do
