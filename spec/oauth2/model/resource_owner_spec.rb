@@ -12,7 +12,8 @@ describe OAuth2::Model::ResourceOwner do
     end
     
     it "creates an authorization between the owner and the client" do
-      OAuth2::Model::Authorization.should_receive(:create).with(:client => @client)      
+      authorization = OAuth2::Model::Authorization.new
+      OAuth2::Model::Authorization.should_receive(:new).and_return(authorization)
       @owner.grant_access!(@client)
     end
     
@@ -36,7 +37,7 @@ describe OAuth2::Model::ResourceOwner do
     end
     
     it "does not create a new one" do
-      OAuth2::Model::Authorization.should_not_receive(:create)
+      OAuth2::Model::Authorization.should_not_receive(:new)
       @owner.grant_access!(@client)
     end
     
