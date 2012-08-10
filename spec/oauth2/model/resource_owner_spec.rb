@@ -13,7 +13,7 @@ describe OAuth2::Model::ResourceOwner do
     
     it "creates an authorization between the owner and the client" do
       authorization = OAuth2::Model::Authorization.new
-      OAuth2::Model::Authorization.should_receive(:new).and_return(authorization)
+      OAuth2::Model::Authorization.should_receive(:new).at_most(:twice).and_return(authorization)
       @owner.grant_access!(@client)
     end
     
