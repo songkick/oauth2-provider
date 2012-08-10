@@ -1,3 +1,5 @@
+require 'bcrypt'
+
 module OAuth2
   module Model
     

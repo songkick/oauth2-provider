@@ -1,4 +1,5 @@
 require 'base64'
+require 'rack'
 
 module OAuth2
   class Router
