@@ -12,12 +12,22 @@ describe OAuth2::Model::ResourceOwner do
     end
     
     it "creates an authorization between the owner and the client" do
-      OAuth2::Model::Authorization.should_receive(:create).with(:client => @client)      
+      authorization = OAuth2::Model::Authorization.new
+      OAuth2::Model::Authorization.should_receive(:new).at_most(:twice).and_return(authorization)
       @owner.grant_access!(@client)
     end
     
     it "returns the authorization" do
       @owner.grant_access!(@client).should be_kind_of(OAuth2::Model::Authorization)
+    end
+    
+    # This method must return the same owner object, since the assertion
+    # handler may modify it -- either by changing its attributes or by extending
+    # it with new methods. These changes must be returned to the app calling the
+    # Provider interface.
+    it "sets the receiver as the authorization's owner" do
+      authorization = @owner.grant_access!(@client)
+      authorization.owner.should be_equal(@owner)
     end
   end
   
@@ -27,7 +37,7 @@ describe OAuth2::Model::ResourceOwner do
     end
     
     it "does not create a new one" do
-      OAuth2::Model::Authorization.should_not_receive(:create)
+      OAuth2::Model::Authorization.should_not_receive(:new)
       @owner.grant_access!(@client)
     end
     

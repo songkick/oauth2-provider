@@ -1,3 +1,5 @@
+require 'cgi'
+
 module OAuth2
   class Provider
     

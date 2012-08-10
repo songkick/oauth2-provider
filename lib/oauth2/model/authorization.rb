@@ -16,7 +16,7 @@ module OAuth2
       validates_uniqueness_of :refresh_token_hash, :scope => :client_id, :allow_nil => true
       validates_uniqueness_of :access_token_hash,                        :allow_nil => true
       
-      attr_accessible :client
+      attr_accessible nil
       
       extend Hashing
       hashes_attributes :access_token, :refresh_token
@@ -77,14 +77,6 @@ module OAuth2
         end
         
         instance.save && instance
-      end
-      
-      def self.find_or_create_for_client(client)
-        unless client.is_a?(Client)
-          raise ArgumentError, "The argument should be a #{Client}, instead it was a #{client.class}"
-        end
-        
-        find_by_client_id(client.id) || create(:client => client)
       end
       
       def exchange!
