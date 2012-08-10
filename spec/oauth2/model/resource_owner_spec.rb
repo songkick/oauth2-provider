@@ -15,6 +15,8 @@ describe OAuth2::Model::ResourceOwner do
       authorization = OAuth2::Model::Authorization.new
       OAuth2::Model::Authorization.should_receive(:new).and_return(authorization)
       @owner.grant_access!(@client)
+      authorization.client.should == @client
+      authorization.should_not be_new_record
     end
     
     it "returns the authorization" do

@@ -13,7 +13,7 @@ module OAuth2
         authorization
       end
 
-      private
+    private
 
       def owner
         respond_to?(:proxy_association) ? proxy_association.owner : proxy_owner
