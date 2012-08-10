@@ -1,12 +1,32 @@
 module OAuth2
   module Model
     
+    module AuthorizationAssociation
+      def find_or_create_for_client(client)
+        unless client.is_a?(Client)
+          raise ArgumentError, "The argument should be a #{Client}, instead it was a #{client.class}"
+        end
+
+        authorization = find_or_create_by_client_id(client.id)
+        authorization.client = client
+        authorization.owner = owner
+        authorization
+      end
+
+      private
+
+      def owner
+        respond_to?(:proxy_association) ? proxy_association.owner : proxy_owner
+      end
+    end
+
     module ResourceOwner
       def self.included(klass)
         klass.has_many :oauth2_authorizations,
                        :class_name => 'OAuth2::Model::Authorization',
                        :as => :oauth2_resource_owner,
-                       :dependent => :destroy
+                       :dependent => :destroy,
+                       :extend => AuthorizationAssociation
       end
       
       def grant_access!(client, options = {})
