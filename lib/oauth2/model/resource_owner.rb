@@ -7,10 +7,10 @@ module OAuth2
           raise ArgumentError, "The argument should be a #{Client}, instead it was a #{client.class}"
         end
 
-        authorization = find_or_create_by_client_id(client.id)
-        authorization.client = client
-        authorization.owner = owner
-        authorization
+        find_or_create_by_client_id(client.id) do |auth|
+          auth.client = client
+          auth.owner  = owner
+        end
       end
 
     private

@@ -7,6 +7,8 @@ require 'bundler/setup'
 
 require 'active_record'
 require 'oauth2/provider'
+require 'pry'
+require 'pry-nav'
 
 ActiveRecord::Base.establish_connection(:adapter  => 'sqlite3', :database => 'test.sqlite3')
 
