@@ -43,6 +43,8 @@ RSpec.configure do |config|
 
   config.before do
     OAuth2::Provider.enforce_ssl = false
+    time = Time.now
+    Time.stub(:now).and_return time
   end
   
   config.after do
