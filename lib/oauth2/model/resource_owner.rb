@@ -6,10 +6,12 @@ module OAuth2
         unless client.is_a?(Client)
           raise ArgumentError, "The argument should be a #{Client}, instead it was a #{client.class}"
         end
-
-        authorization = find_or_create_by_client_id(client.id)
+        
+        # find_or_create_by_client_id does not work across AR versions
+        authorization = find_by_client_id(client.id) || new
         authorization.client = client
         authorization.owner = owner
+        authorization.save
         authorization
       end
 
