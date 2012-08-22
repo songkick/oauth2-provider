@@ -2,7 +2,6 @@
 
 source "http://rubygems.org"
 
-gem "rdoc", :platforms=>:ruby_18
 gem "activerecord", "~> 3.2.6"
 
 gemspec :path=>"../"
