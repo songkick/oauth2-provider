@@ -15,8 +15,13 @@ describe OAuth2::Model::ResourceOwner do
       authorization = OAuth2::Model::Authorization.new
       OAuth2::Model::Authorization.should_receive(:new).and_return(authorization)
       @owner.grant_access!(@client)
-      authorization.client.should == @client
-      authorization.should_not be_new_record
+    end
+    
+    # This is hacky, but mocking ActiveRecord turns out to get messy
+    it "creates an Authorization" do
+      OAuth2::Model::Authorization.count.should == 0
+      @owner.grant_access!(@client)
+      OAuth2::Model::Authorization.count.should == 1
     end
     
     it "returns the authorization" do
