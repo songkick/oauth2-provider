@@ -43,8 +43,8 @@ module OAuth2
         params  = request.params
         header  = request.env['HTTP_AUTHORIZATION']
         
-        header && header =~ /^OAuth\s+/ ?
-            header.gsub(/^OAuth\s+/, '') :
+        header && header =~ /^(OAuth|Bearer)\s+/ ?
+            header.gsub(/^(OAuth|Bearer)\s+/, '') :
             params[OAUTH_TOKEN]
       end
       
