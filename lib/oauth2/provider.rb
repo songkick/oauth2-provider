@@ -7,6 +7,7 @@ module OAuth2
   
   autoload :Model,  ROOT + '/oauth2/model'
   autoload :Router, ROOT + '/oauth2/router'
+  autoload :Schema, ROOT + '/oauth2/schema'
   
   def self.random_string
     rand(2 ** TOKEN_SIZE).to_s(36)
