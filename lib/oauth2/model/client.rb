@@ -30,7 +30,9 @@ module OAuth2
       
       def client_secret=(secret)
         @client_secret = secret
-        self.client_secret_hash = BCrypt::Password.create(secret)
+        hash = BCrypt::Password.create(secret)
+        hash.force_encoding('UTF-8') if hash.respond_to?(:force_encoding)
+        self.client_secret_hash = hash
       end
       
       def valid_client_secret?(secret)
