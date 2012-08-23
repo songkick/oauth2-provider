@@ -8,7 +8,7 @@ module OAuth2
         end
         
         # find_or_create_by_client_id does not work across AR versions
-        authorization = find_by_client_id(client.id) || new
+        authorization = find_by_client_id(client.id) || build
         authorization.client = client
         authorization.owner = owner
         authorization.save
