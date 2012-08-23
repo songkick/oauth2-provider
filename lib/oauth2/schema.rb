@@ -4,7 +4,6 @@ module OAuth2
     def self.up
       ActiveRecord::Base.logger ||= Logger.new(StringIO.new)
       load_migrations
-      p [:log, ::OriginalSchema]
       ActiveRecord::Migrator.up(migrations_path)
     end
     
