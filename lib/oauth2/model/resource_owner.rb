@@ -36,9 +36,14 @@ module OAuth2
 
         if scopes = options[:scopes]
           scopes = authorization.scopes + scopes
-          authorization.update_attribute(:scope, scopes.entries.join(' '))
+          authorization.scope = scopes.entries.join(' ')
         end
         
+        if duration = options[:duration]
+          authorization.expires_at = Time.now + duration.to_i
+        end
+        
+        authorization.save! if authorization.changed?
         authorization
       end
     end

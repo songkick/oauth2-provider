@@ -36,6 +36,11 @@ describe OAuth2::Model::ResourceOwner do
       authorization = @owner.grant_access!(@client)
       authorization.owner.should be_equal(@owner)
     end
+    
+    it "sets the duration of the authorization" do
+      authorization = @owner.grant_access!(@client, :duration => 5.hours)
+      authorization.expires_at.to_i.should == (Time.now + 5.hours.to_i).to_i
+    end
   end
   
   describe "when there is an existing authorization" do

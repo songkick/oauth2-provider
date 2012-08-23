@@ -1,5 +1,6 @@
 require 'digest/sha1'
 require 'json'
+require 'logger'
 
 module OAuth2
   ROOT = File.expand_path(File.dirname(__FILE__) + '/..')

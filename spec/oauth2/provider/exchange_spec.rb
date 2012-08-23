@@ -182,7 +182,7 @@ describe OAuth2::Provider::Exchange do
       OAuth2::Provider.handle_passwords do |client, username, password|
         user = TestApp::User[username]
         if password == 'soldier'
-          user.grant_access!(client, :scopes => ['foo', 'bar'])
+          user.grant_access!(client, :scopes => Set.new(['foo', 'bar']))
         else
           nil
         end
