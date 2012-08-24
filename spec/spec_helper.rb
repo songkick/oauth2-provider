@@ -20,15 +20,12 @@ ActiveRecord::Schema.define do |version|
   end
 end
 
-require File.expand_path('../test_app/helper', __FILE__)
-require File.expand_path('../test_app/provider/application', __FILE__)
-
+require 'test_app/provider/application'
 require 'request_helpers'
+require 'factories'
 
 require 'thin'
 Thin::Logging.silent = true
-
-require 'factories'
 
 RSpec.configure do |config|
   # to run only specific specs, add :focus to the spec

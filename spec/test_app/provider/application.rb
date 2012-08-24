@@ -1,4 +1,5 @@
 require 'sinatra'
+require File.expand_path('../../helper', __FILE__)
 
 module TestApp
   class Provider < Sinatra::Base
