@@ -161,7 +161,7 @@ module OAuth2
         
         return if @error
         
-        @authorization = Provider.handle_password(@client, @params[USERNAME], @params[PASSWORD])
+        @authorization = Provider.handle_password(@client, @params[USERNAME], @params[PASSWORD], scopes)
         return validate_authorization if @authorization
         
         @error = INVALID_GRANT
@@ -186,7 +186,7 @@ module OAuth2
         return if @error
         
         assertion = Assertion.new(@params)
-        @authorization = Provider.handle_assertion(@client, assertion)
+        @authorization = Provider.handle_assertion(@client, assertion, scopes)
         return validate_authorization if @authorization
         
         @error = UNAUTHORIZED_CLIENT

@@ -256,17 +256,19 @@ directly from the user and then post them to the exchange endpoint. On the
 provider side you can handle this using the <tt>handle_passwords</tt> and
 <tt>grant_access!</tt> API methods, for example:
 
-  OAuth2::Provider.handle_passwords do |client, username, password|
+  OAuth2::Provider.handle_passwords do |client, username, password, scopes|
     user = User.find_by_username(username)
     if user.authenticate?(password)
-      user.grant_access!(client)
+      user.grant_access!(client, :scopes => scopes, :duration => 1.day)
     else
       nil
     end
   end
 
-The block must return <tt>user.grant_access!(client)</tt> if you want to allow
-access, otherwise it should return <tt>nil</tt>.
+The block receives the <tt>Client</tt> making the request, the username,
+password and a <tt>Set</tt> of the requested scopes. It must return
+<tt>user.grant_access!(client)</tt> if you want to allow access, otherwise it
+should return <tt>nil</tt>.
 
 
 === Using assertions
@@ -286,17 +288,18 @@ represent this, then have that new account grant access to the client.
 To use assertions, you must tell <tt>OAuth2::Provider</tt> how to handle
 assertions based on their type. An assertion type must be a valid URI. For
 the Facebook example we'd do the following. The block yields the <tt>Client</tt>
-object making the exchange request, and the value of the assertion, which in
-this example will be a Facebook access token.
+object making the exchange request, the value of the assertion, which in
+this example will be a Facebook access token, and a <tt>Set</tt> of requested
+scopes.
 
-  OAuth2::Provider.handle_assertions 'https://graph.facebook.com/me' do |client, assertion|
+  OAuth2::Provider.handle_assertions 'https://graph.facebook.com/me' do |client, assertion, scopes|
     facebook = URI.parse('https://graph.facebook.com/me?access_token=' + assertion)
     response = Net::HTTP.get_response(facebook)
     
     user_data = JSON.parse(response.body)
     account   = User.from_facebook_data(user_data)
     
-    account.grant_access!(client)
+    account.grant_access!(client, :scopes => scopes)
   end
 
 This code should run when your app boots, not during a request handler - think

@@ -78,9 +78,9 @@ module OAuth2
       @password_handler = block
     end
     
-    def self.handle_password(client, username, password)
+    def self.handle_password(client, username, password, scopes)
       return nil unless @password_handler
-      @password_handler.call(client, username, password)
+      @password_handler.call(client, username, password, scopes)
     end
     
     def self.filter_assertions(&filter)
@@ -91,10 +91,10 @@ module OAuth2
       @assertion_handlers[assertion_type] = handler
     end
     
-    def self.handle_assertion(client, assertion)
+    def self.handle_assertion(client, assertion, scopes)
       return nil unless @assertion_filters.all? { |f| f.call(client) }
       handler = @assertion_handlers[assertion.type]
-      handler ? handler.call(client, assertion.value) : nil
+      handler ? handler.call(client, assertion.value, scopes) : nil
     end
     
     def self.parse(*args)

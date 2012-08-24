@@ -3,12 +3,13 @@ require 'spec_helper'
 describe OAuth2::Provider::Exchange do
   before do
     @client = Factory(:client)
-    @owner  = TestApp::User['Bob']
-    @authorization = Factory(:authorization, :client => @client, :owner => @owner, :scope => 'foo bar')
+    @alice  = TestApp::User['Alice']
+    @bob    = TestApp::User['Bob']
+    @authorization = Factory(:authorization, :client => @client, :owner => @bob, :scope => 'foo bar')
     OAuth2.stub(:random_string).and_return('random_string')
   end
   
-  let(:exchange) { OAuth2::Provider::Exchange.new(@owner, params) }
+  let(:exchange) { OAuth2::Provider::Exchange.new(@bob, params) }
   
   shared_examples_for "validates required parameters" do
     describe "missing grant_type" do
@@ -172,50 +173,72 @@ describe OAuth2::Provider::Exchange do
     let(:params) { { 'client_id'      => @client.client_id,
                      'client_secret'  => @client.client_secret,
                      'grant_type'     => 'password',
-                     'username'       => 'Bob',
                      'password'       => 'soldier' }
                  }
     
-    let(:authorization) { @authorization }
-    
     before do
-      OAuth2::Provider.handle_passwords do |client, username, password|
+      OAuth2::Provider.handle_passwords do |client, username, password, scopes|
         user = TestApp::User[username]
         if password == 'soldier'
-          user.grant_access!(client, :scopes => Set.new(['foo', 'bar']))
+          user.grant_access!(client, :scopes => scopes.reject { |s| s == 'qux' })
         else
           nil
         end
       end
     end
     
-    it_should_behave_like "validates required parameters"
-    it_should_behave_like "valid token request"
-    
-    describe "missing username" do
-      before { params.delete('username') }
+    describe "for a user with existing authorization" do
+      let(:authorization) { @authorization }
+      before { params['username'] = 'Bob' }
       
-      it "is invalid" do
-        exchange.error.should == 'invalid_request'
-        exchange.error_description.should == 'Missing required parameter username'
+      it_should_behave_like "validates required parameters"
+      it_should_behave_like "valid token request"
+      
+      describe "missing username" do
+        before { params.delete('username') }
+        
+        it "is invalid" do
+          exchange.error.should == 'invalid_request'
+          exchange.error_description.should == 'Missing required parameter username'
+        end
+      end
+      
+      describe "missing password" do
+        before { params.delete('password') }
+        
+        it "is invalid" do
+          exchange.error.should == 'invalid_request'
+          exchange.error_description.should == 'Missing required parameter password'
+        end
+      end
+      
+      describe "with a bad password" do
+        before { params['password'] = 'bad' }
+        
+        it "is invalid" do
+          exchange.error.should == 'invalid_grant'
+          exchange.error_description.should == 'The access grant you supplied is invalid'
+        end
       end
     end
     
-    describe "missing password" do
-      before { params.delete('password') }
+    describe "for a user with no existing authorization" do
+      let(:authorization) { OAuth2::Model::Authorization.find_by_oauth2_resource_owner_id(@alice.id) }
+      before { params['username'] = 'Alice' }
       
-      it "is invalid" do
-        exchange.error.should == 'invalid_request'
-        exchange.error_description.should == 'Missing required parameter password'
-      end
-    end
-    
-    describe "with a bad password" do
-      before { params['password'] = 'bad' }
+      it_should_behave_like "validates required parameters"
+      it_should_behave_like "valid token request"
       
-      it "is invalid" do
-        exchange.error.should == 'invalid_grant'
-        exchange.error_description.should == 'The access grant you supplied is invalid'
+      describe "with ungranted but permissible scopes" do
+        before { params['scope'] = 'lol' }
+        it_should_behave_like "validates required parameters"
+        it_should_behave_like "valid token request"
+        
+        it "sets the scope from the request" do
+          exchange.update_authorization
+          authorization.reload
+          authorization.scopes.should == Set.new(['lol'])
+        end
       end
     end
   end
@@ -299,7 +322,7 @@ describe OAuth2::Provider::Exchange do
   describe "using refresh_token grant type" do
     before do
       @refresher = Factory(:authorization, :client => @client,
-                                           :owner  => @owner,
+                                           :owner  => @bob,
                                            :scope  => 'foo bar',
                                            :code   => nil,
                                            :refresh_token => 'roflscale')
