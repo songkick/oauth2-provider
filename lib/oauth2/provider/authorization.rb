@@ -107,15 +107,14 @@ module OAuth2
       end
       
       def response_body
-        return nil if @client and valid?
-        return nil if redirect?
-        JSON.unparse(
-          ERROR             => @error,
-          ERROR_DESCRIPTION => @error_description)
+        warn "OAuth2::Provider::Authorization no longer returns a response body "+
+             "when the request is invalid. You should call valid? to determine "+
+             "whether to render your login page or an error page."
+        nil
       end
       
       def response_headers
-        valid? ? {} : Exchange::RESPONSE_HEADERS
+        redirect? ? {} : {'Cache-Control' => 'no-store'}
       end
       
       def response_status

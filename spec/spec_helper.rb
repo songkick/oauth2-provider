@@ -26,6 +26,7 @@ require 'factories'
 
 require 'thin'
 Thin::Logging.silent = true
+$VERBOSE = nil
 
 RSpec.configure do |config|
   # to run only specific specs, add :focus to the spec

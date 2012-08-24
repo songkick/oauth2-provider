@@ -73,7 +73,13 @@ end
     headers @oauth2.response_headers
     status  @oauth2.response_status
     
-    @oauth2.response_body || erb(:login)
+    if body = @oauth2.response_body
+      body
+    elsif @oauth2.valid?
+      erb :login
+    else
+      erb :error
+    end
   end
 end
 

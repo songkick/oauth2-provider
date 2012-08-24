@@ -17,7 +17,13 @@ module TestApp
       headers @oauth2.response_headers
       status  @oauth2.response_status
       
-      @oauth2.response_body || erb(:authorize)
+      if body = @oauth2.response_body
+        body
+      elsif @oauth2.valid?
+        erb(:authorize)
+      else
+        'WAT'
+      end
     end
     
     def protect_resource_for(user = nil, scopes = [])
