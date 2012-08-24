@@ -1,12 +1,8 @@
-dir = File.expand_path(File.dirname(__FILE__))
-$:.unshift(dir + '/../lib')
-$:.unshift(dir)
-
 require 'rubygems'
 require 'bundler/setup'
 
 require 'active_record'
-require 'oauth2/provider'
+require File.expand_path('../../lib/oauth2/provider', __FILE__)
 
 dbfile = File.expand_path('../test.sqlite3', __FILE__)
 File.unlink(dbfile) if File.file?(dbfile)
@@ -24,8 +20,8 @@ ActiveRecord::Schema.define do |version|
   end
 end
 
-require 'test_app/helper'
-require 'test_app/provider/application'
+require File.expand_path('../test_app/helper', __FILE__)
+require File.expand_path('../test_app/provider/application', __FILE__)
 
 require 'request_helpers'
 
