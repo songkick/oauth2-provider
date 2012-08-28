@@ -5,7 +5,7 @@ require 'logger'
 module Songkick
   module OAuth2
     ROOT = File.expand_path(File.dirname(__FILE__) + '/..')
-    TOKEN_SIZE = 128
+    TOKEN_SIZE = 160
     
     autoload :Model,  ROOT + '/oauth2/model'
     autoload :Router, ROOT + '/oauth2/router'
