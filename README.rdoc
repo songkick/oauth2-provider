@@ -61,24 +61,12 @@ need to provide four things:
 * Resources protected by access tokens
 
 
-=== Installing the gem
-
-If you are using Bundler, put this in your Gemfile:
-
-  gem 'oauth2-provider', :require => 'oauth2/provider',
-    :git => 'git://github.com/songkick/oauth2-provider'
-
-If you are not using Bundler, put the library in your load path and
-require it:
-
-  require 'oauth2/provider'
-
-
 ===  Declare your app's name
 
 Declare your app's name somewhere (for example in Rails, in <tt>application.rb</tt>
 or an initializer):
 
+  require 'songkick/oauth2/provider'
   Songkick::OAuth2::Provider.realm = 'My OAuth app'
 
 
