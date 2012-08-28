@@ -16,7 +16,20 @@ framework-specific request objects, though you can pass those in and their
 
 It stores the clients and authorizations using ActiveRecord.
 
-The current implementation is based on draft-10[http://tools.ietf.org/html/draft-ietf-oauth-v2-10].
+
+=== A note on versioning
+
+This library is based on draft-10[http://tools.ietf.org/html/draft-ietf-oauth-v2-10],
+which was current when we began writing it. Having observed the development of
+the OAuth 2.0 spec over time, we have decided not to upgrade to later drafts
+until the spec is finalized. There is not enough meaningful change going on to
+merit migrating to every draft version - it would simply create a lot of
+turbulence and make it hard to reason about exactly what semantics the library
+supports.
+
+During draft state, the gem version will indicate which draft it implements
+using the minor version, for example <tt>0.10.2</tt> means the second bug-fix
+release for draft 10.
 
 
 == Terminology
