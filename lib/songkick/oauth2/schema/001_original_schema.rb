@@ -1,4 +1,4 @@
-class OAuth2::Schema::OriginalSchema < ActiveRecord::Migration
+class Songkick::OAuth2::Schema::OriginalSchema < ActiveRecord::Migration
   def self.up
     create_table :oauth2_clients do |t|
       t.timestamps

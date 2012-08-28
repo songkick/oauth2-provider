@@ -35,12 +35,12 @@ end
 # Register applications
 
 get '/oauth/apps/new' do
-  @client = OAuth2::Model::Client.new
+  @client = Songkick::OAuth2::Model::Client.new
   erb :new_client
 end
 
 post '/oauth/apps' do
-  @client = OAuth2::Model::Client.new(params)
+  @client = Songkick::OAuth2::Model::Client.new(params)
   if @client.save
     session[:client_secret] = @client.client_secret
     redirect("/oauth/apps/#{@client.id}")
@@ -50,7 +50,7 @@ post '/oauth/apps' do
 end
 
 get '/oauth/apps/:id' do
-  @client = OAuth2::Model::Client.find_by_id(params[:id])
+  @client = Songkick::OAuth2::Model::Client.find_by_id(params[:id])
   @client_secret = session[:client_secret]
   erb :show_client
 end
@@ -64,7 +64,7 @@ end
 [:get, :post].each do |method|
   __send__ method, '/oauth/authorize' do
     @user = User.find_by_id(session[:user_id])
-    @oauth2 = OAuth2::Provider.parse(@user, env)
+    @oauth2 = Songkick::OAuth2::Provider.parse(@user, env)
     
     if @oauth2.redirect?
       redirect @oauth2.redirect_uri, @oauth2.response_status
@@ -85,14 +85,14 @@ end
 
 post '/login' do
   @user = User.find_by_username(params[:username])
-  @oauth2 = OAuth2::Provider.parse(@user, env)
+  @oauth2 = Songkick::OAuth2::Provider.parse(@user, env)
   session[:user_id] = @user.id
   erb(@user ? :authorize : :login)
 end
 
 post '/oauth/allow' do
   @user = User.find_by_id(session[:user_id])
-  @auth = OAuth2::Provider::Authorization.new(@user, params)
+  @auth = Songkick::OAuth2::Provider::Authorization.new(@user, params)
   if params['allow'] == '1'
     @auth.grant_access!
   else
@@ -105,7 +105,7 @@ end
 # Domain API
 
 get '/me' do
-  authorization = OAuth2::Provider.access_token(nil, [], env)
+  authorization = Songkick::OAuth2::Provider.access_token(nil, [], env)
   headers authorization.response_headers
   status  authorization.response_status
   
@@ -140,7 +140,7 @@ helpers do
   # Check for OAuth access before rendering a resource
   def verify_access(scope)
     user  = User.find_by_username(params[:username])
-    token = OAuth2::Provider.access_token(user, [scope.to_s], env)
+    token = Songkick::OAuth2::Provider.access_token(user, [scope.to_s], env)
     
     headers token.response_headers
     status  token.response_status

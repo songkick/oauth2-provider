@@ -1,8 +1,8 @@
-dir = File.expand_path(File.dirname(__FILE__))
+dir = File.expand_path('..', __FILE__)
 $:.unshift(dir + '/../lib')
 
 require 'rubygems'
-require 'oauth2/provider'
+require 'songkick/oauth2/provider'
 require 'fileutils'
 
 require dir + '/models/connection'
@@ -23,5 +23,5 @@ ActiveRecord::Schema.define do |version|
   end
 end
 
-OAuth2::Model::Schema.up
+Songkick::OAuth2::Model::Schema.up
 

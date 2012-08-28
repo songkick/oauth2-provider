@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe OAuth2::Model::ResourceOwner do
+describe Songkick::OAuth2::Model::ResourceOwner do
   before do
     @owner  = Factory(:owner)
     @client = Factory(:client)
@@ -12,20 +12,20 @@ describe OAuth2::Model::ResourceOwner do
     end
     
     it "creates an authorization between the owner and the client" do
-      authorization = OAuth2::Model::Authorization.new
-      OAuth2::Model::Authorization.should_receive(:new).and_return(authorization)
+      authorization = Songkick::OAuth2::Model::Authorization.new
+      Songkick::OAuth2::Model::Authorization.should_receive(:new).and_return(authorization)
       @owner.grant_access!(@client)
     end
     
     # This is hacky, but mocking ActiveRecord turns out to get messy
     it "creates an Authorization" do
-      OAuth2::Model::Authorization.count.should == 0
+      Songkick::OAuth2::Model::Authorization.count.should == 0
       @owner.grant_access!(@client)
-      OAuth2::Model::Authorization.count.should == 1
+      Songkick::OAuth2::Model::Authorization.count.should == 1
     end
     
     it "returns the authorization" do
-      @owner.grant_access!(@client).should be_kind_of(OAuth2::Model::Authorization)
+      @owner.grant_access!(@client).should be_kind_of(Songkick::OAuth2::Model::Authorization)
     end
     
     # This method must return the same owner object, since the assertion
@@ -49,7 +49,7 @@ describe OAuth2::Model::ResourceOwner do
     end
     
     it "does not create a new one" do
-      OAuth2::Model::Authorization.should_not_receive(:new)
+      Songkick::OAuth2::Model::Authorization.should_not_receive(:new)
       @owner.grant_access!(@client)
     end
     
@@ -82,7 +82,7 @@ describe OAuth2::Model::ResourceOwner do
   it "destroys its authorizations on destroy" do
     Factory(:authorization, :owner => @owner, :client => @client)
     @owner.destroy
-    OAuth2::Model::Authorization.count.should be_zero
+    Songkick::OAuth2::Model::Authorization.count.should be_zero
   end
 end
 

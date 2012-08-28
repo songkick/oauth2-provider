@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe OAuth2::Provider do
+describe Songkick::OAuth2::Provider do
   before(:all) { TestApp::Provider.start(8000) }
   after(:all)  { TestApp::Provider.stop }
   
@@ -19,8 +19,8 @@ describe OAuth2::Provider do
   describe "access grant request" do
     shared_examples_for "asks for user permission" do
       it "creates an authorization" do
-        auth = mock_request(OAuth2::Provider::Authorization, :client => @client, :params => {}, :scopes => [], :valid? => true)
-        OAuth2::Provider::Authorization.should_receive(:new).with(@owner, params, nil).and_return(auth)
+        auth = mock_request(Songkick::OAuth2::Provider::Authorization, :client => @client, :params => {}, :scopes => [], :valid? => true)
+        Songkick::OAuth2::Provider::Authorization.should_receive(:new).with(@owner, params, nil).and_return(auth)
         get(params)
       end
       
@@ -47,7 +47,7 @@ describe OAuth2::Provider do
     end
     
     describe "enforcing SSL" do
-      before { OAuth2::Provider.enforce_ssl = true }
+      before { Songkick::OAuth2::Provider.enforce_ssl = true }
       
       it "does not allow non-SSL requests" do
         response = get(params)
@@ -89,9 +89,9 @@ describe OAuth2::Provider do
         before { @authorization.update_attribute(:code, nil) }
         
         it "generates a new code and redirects" do
-          OAuth2::Model::Authorization.should_not_receive(:create)
-          OAuth2::Model::Authorization.should_not_receive(:new)
-          OAuth2.should_receive(:random_string).and_return('new_code')
+          Songkick::OAuth2::Model::Authorization.should_not_receive(:create)
+          Songkick::OAuth2::Model::Authorization.should_not_receive(:new)
+          Songkick::OAuth2.should_receive(:random_string).and_return('new_code')
           response = get(params)
           response.code.to_i.should == 302
           response['location'].should == 'https://client.example.com/cb?code=new_code'
@@ -110,11 +110,11 @@ describe OAuth2::Provider do
           :owner  => @owner,
           :client => @client,
           :code   => nil,
-          :access_token => OAuth2.hashify('complete_token'))
+          :access_token => Songkick::OAuth2.hashify('complete_token'))
       end
       
       it "immediately redirects with a new code" do
-        OAuth2.should_receive(:random_string).and_return('new_code')
+        Songkick::OAuth2.should_receive(:random_string).and_return('new_code')
         response = get(params)
         response.code.to_i.should == 302
         response['location'].should == 'https://client.example.com/cb?code=new_code'
@@ -124,7 +124,7 @@ describe OAuth2::Provider do
         before { params['response_type'] = 'token' }
           
         it "immediately redirects with a new token" do
-          OAuth2.should_receive(:random_string).and_return('new_access_token')
+          Songkick::OAuth2.should_receive(:random_string).and_return('new_access_token')
           response = get(params)
           response.code.to_i.should == 302
           response['location'].should == 'https://client.example.com/cb#access_token=new_access_token'
@@ -134,7 +134,7 @@ describe OAuth2::Provider do
           before { params['client_id'] = 'unknown_id' }
           
           it "does not generate any new tokens" do
-            OAuth2.should_not_receive(:random_string)
+            Songkick::OAuth2.should_not_receive(:random_string)
             get(params)
           end
         end
@@ -142,12 +142,12 @@ describe OAuth2::Provider do
       
       it "does not create a new Authorization" do
         get(params)
-        OAuth2::Model::Authorization.count.should == 1
+        Songkick::OAuth2::Model::Authorization.count.should == 1
       end
       
       it "keeps the code and access token on the Authorization" do
         get(params)
-        authorization = OAuth2::Model::Authorization.first
+        authorization = Songkick::OAuth2::Model::Authorization.first
         authorization.code.should_not be_nil
         authorization.access_token_hash.should_not be_nil
       end
@@ -205,11 +205,11 @@ describe OAuth2::Provider do
   
   describe "authorization confirmation from the user" do
     let(:mock_auth) do
-      mock = mock OAuth2::Provider::Authorization,
+      mock = mock Songkick::OAuth2::Provider::Authorization,
                   :redirect_uri    => 'http://example.com/',
                   :response_status => 302
       
-      OAuth2::Provider::Authorization.stub(:new).and_return(mock)
+      Songkick::OAuth2::Provider::Authorization.stub(:new).and_return(mock)
       mock
     end
     
@@ -229,7 +229,7 @@ describe OAuth2::Provider do
     end
     
     describe "with valid parameters and user permission" do
-      before { OAuth2.stub(:random_string).and_return('foo') }
+      before { Songkick::OAuth2.stub(:random_string).and_return('foo') }
       before { params['allow'] = '1' }
       
       describe "for code requests" do
@@ -340,7 +340,7 @@ describe OAuth2::Provider do
       
       describe "with valid parameters" do
         it "does not respond to GET" do
-          OAuth2::Provider::Authorization.should_not_receive(:new)
+          Songkick::OAuth2::Provider::Authorization.should_not_receive(:new)
           response = get(params)
           validate_json_response(response, 400,
             'error'             => 'invalid_request',
@@ -349,7 +349,7 @@ describe OAuth2::Provider do
         end
         
         describe "enforcing SSL" do
-          before { OAuth2::Provider.enforce_ssl = true }
+          before { Songkick::OAuth2::Provider.enforce_ssl = true }
           
           it "does not allow non-SSL requests" do
             response = get(params)
@@ -361,19 +361,19 @@ describe OAuth2::Provider do
         end
         
         it "creates a Token when using Basic Auth" do
-          token = mock_request(OAuth2::Provider::Exchange, :response_body => 'Hello')
-          OAuth2::Provider::Exchange.should_receive(:new).with(@owner, params, nil).and_return(token)
+          token = mock_request(Songkick::OAuth2::Provider::Exchange, :response_body => 'Hello')
+          Songkick::OAuth2::Provider::Exchange.should_receive(:new).with(@owner, params, nil).and_return(token)
           post_basic_auth(auth_params, query_params)
         end
         
         it "creates a Token when passing params in the POST body" do
-          token = mock_request(OAuth2::Provider::Exchange, :response_body => 'Hello')
-          OAuth2::Provider::Exchange.should_receive(:new).with(@owner, params, nil).and_return(token)
+          token = mock_request(Songkick::OAuth2::Provider::Exchange, :response_body => 'Hello')
+          Songkick::OAuth2::Provider::Exchange.should_receive(:new).with(@owner, params, nil).and_return(token)
           post(params)
         end
         
         it "returns a successful response" do
-          OAuth2.stub(:random_string).and_return('random_access_token')
+          Songkick::OAuth2.stub(:random_string).and_return('random_access_token')
           response = post_basic_auth(auth_params, query_params)
           validate_json_response(response, 200, 'access_token'  => 'random_access_token', 'expires_in' => 10800)
         end
@@ -384,7 +384,7 @@ describe OAuth2::Provider do
           end
           
           it "passes the scope back in the success response" do
-            OAuth2.stub(:random_string).and_return('random_access_token')
+            Songkick::OAuth2.stub(:random_string).and_return('random_access_token')
             response = post_basic_auth(auth_params, query_params)
             validate_json_response(response, 200,
               'access_token'  => 'random_access_token',
@@ -422,7 +422,7 @@ describe OAuth2::Provider do
       describe "when there is an Authorization with code and token" do
         before do
           @authorization.update_attributes(:code => 'pending_code', :access_token => 'working_token')
-          OAuth2.stub(:random_string).and_return('random_access_token')
+          Songkick::OAuth2.stub(:random_string).and_return('random_access_token')
         end
         
         it "returns a new access token" do
@@ -437,7 +437,7 @@ describe OAuth2::Provider do
           post(params)
           @authorization.reload
           @authorization.code.should be_nil
-          @authorization.access_token_hash.should == OAuth2.hashify('random_access_token')
+          @authorization.access_token_hash.should == Songkick::OAuth2.hashify('random_access_token')
         end
       end
     end
@@ -453,11 +453,11 @@ describe OAuth2::Provider do
       
     shared_examples_for "protected resource" do
       it "creates an AccessToken response" do
-        mock_token = mock(OAuth2::Provider::AccessToken)
+        mock_token = mock(Songkick::OAuth2::Provider::AccessToken)
         mock_token.should_receive(:response_headers).and_return({})
         mock_token.should_receive(:response_status).and_return(200)
         mock_token.should_receive(:valid?).and_return(true)
-        OAuth2::Provider::AccessToken.should_receive(:new).with(TestApp::User['Bob'], ['profile'], 'magic-key', nil).and_return(mock_token)
+        Songkick::OAuth2::Provider::AccessToken.should_receive(:new).with(TestApp::User['Bob'], ['profile'], 'magic-key', nil).and_return(mock_token)
         request('/user_profile', 'oauth_token' => 'magic-key')
       end
       
@@ -482,10 +482,10 @@ describe OAuth2::Provider do
       end
       
       describe "enforcing SSL" do
-        before { OAuth2::Provider.enforce_ssl = true }
+        before { Songkick::OAuth2::Provider.enforce_ssl = true }
         
         let(:authorization) do
-          OAuth2::Model::Authorization.find_by_access_token_hash(OAuth2.hashify('magic-key'))
+          Songkick::OAuth2::Model::Authorization.find_by_access_token_hash(Songkick::OAuth2.hashify('magic-key'))
         end
         
         it "blocks access when not using HTTPS" do
@@ -496,17 +496,17 @@ describe OAuth2::Provider do
         end
         
         it "destroys the access token since it's been leaked" do
-          authorization.access_token_hash.should == OAuth2.hashify('magic-key')
+          authorization.access_token_hash.should == Songkick::OAuth2.hashify('magic-key')
           request('/user_profile', 'oauth_token' => 'magic-key')
           authorization.reload
           authorization.access_token_hash.should be_nil
         end
         
         it "keeps the access token if the wrong key is passed" do
-          authorization.access_token_hash.should == OAuth2.hashify('magic-key')
+          authorization.access_token_hash.should == Songkick::OAuth2.hashify('magic-key')
           request('/user_profile', 'oauth_token' => 'is-the-password-books')
           authorization.reload
-          authorization.access_token_hash.should == OAuth2.hashify('magic-key')
+          authorization.access_token_hash.should == Songkick::OAuth2.hashify('magic-key')
         end
       end
     end

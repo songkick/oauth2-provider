@@ -1,9 +1,9 @@
 require 'spec_helper'
 
-describe OAuth2::Provider::Authorization do
+describe Songkick::OAuth2::Provider::Authorization do
   let(:resource_owner) { TestApp::User['Bob'] }
   
-  let(:authorization) { OAuth2::Provider::Authorization.new(resource_owner, params) }
+  let(:authorization) { Songkick::OAuth2::Provider::Authorization.new(resource_owner, params) }
   
   let(:params) { { 'response_type' => 'code',
                    'client_id'     => @client.client_id,
@@ -12,7 +12,7 @@ describe OAuth2::Provider::Authorization do
   
   before do
     @client = Factory(:client)
-    OAuth2.stub(:random_string).and_return('s1', 's2', 's3')
+    Songkick::OAuth2.stub(:random_string).and_return('s1', 's2', 's3')
   end
   
   describe "with valid parameters" do
@@ -247,7 +247,7 @@ describe OAuth2::Provider::Authorization do
       it "creates an Authorization in the database" do
         authorization.grant_access!
         
-        authorization = OAuth2::Model::Authorization.first
+        authorization = Songkick::OAuth2::Model::Authorization.first
         authorization.owner.should == resource_owner
         authorization.client.should == @client
         authorization.code.should == "s1"
@@ -269,12 +269,12 @@ describe OAuth2::Provider::Authorization do
       it "creates an Authorization in the database" do
         authorization.grant_access!
         
-        authorization = OAuth2::Model::Authorization.first
+        authorization = Songkick::OAuth2::Model::Authorization.first
         authorization.owner.should == resource_owner
         authorization.client.should == @client
         authorization.code.should be_nil
-        authorization.access_token_hash.should == OAuth2.hashify("s1")
-        authorization.refresh_token_hash.should == OAuth2.hashify("s2")
+        authorization.access_token_hash.should == Songkick::OAuth2.hashify("s1")
+        authorization.refresh_token_hash.should == Songkick::OAuth2.hashify("s2")
       end
     end
     
@@ -292,12 +292,12 @@ describe OAuth2::Provider::Authorization do
       it "creates an Authorization in the database" do
         authorization.grant_access!
         
-        authorization = OAuth2::Model::Authorization.first
+        authorization = Songkick::OAuth2::Model::Authorization.first
         authorization.owner.should == resource_owner
         authorization.client.should == @client
         authorization.code.should == "s1"
-        authorization.access_token_hash.should == OAuth2.hashify("s2")
-        authorization.refresh_token_hash.should == OAuth2.hashify("s3")
+        authorization.access_token_hash.should == Songkick::OAuth2.hashify("s2")
+        authorization.refresh_token_hash.should == Songkick::OAuth2.hashify("s3")
       end
     end
   end
@@ -310,8 +310,8 @@ describe OAuth2::Provider::Authorization do
     end
     
     it "does not create an Authorization" do
-      OAuth2::Model::Authorization.should_not_receive(:create)
-      OAuth2::Model::Authorization.should_not_receive(:new)
+      Songkick::OAuth2::Model::Authorization.should_not_receive(:create)
+      Songkick::OAuth2::Model::Authorization.should_not_receive(:new)
       authorization.deny_access!
     end
   end
