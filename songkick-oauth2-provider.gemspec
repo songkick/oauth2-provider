@@ -9,7 +9,7 @@ spec = Gem::Specification.new do |s|
   s.extra_rdoc_files  = %w(README.rdoc)
   s.rdoc_options      = %w(--main README.rdoc)
 
-  s.files             = %w(README.rdoc) + Dir.glob("{spec,lib,example}/**/*")
+  s.files             = %w(README.rdoc) + Dir.glob("{example,lib,spec}/**/*.{css,erb,rb,rdoc,ru}")
   s.require_paths     = ["lib"]
 
   s.add_dependency("activerecord")
