@@ -6,6 +6,11 @@ require 'json'
 require 'logger'
 require 'rack'
 
+begin
+  require 'securerandom'
+rescue LoadError
+end
+
 module Songkick
   module OAuth2
     ROOT = File.expand_path(File.dirname(__FILE__) + '/..')
@@ -16,7 +21,11 @@ module Songkick
     autoload :Schema, ROOT + '/oauth2/schema'
     
     def self.random_string
-      rand(2 ** TOKEN_SIZE).to_s(36)
+      if defined? SecureRandom
+        SecureRandom.hex(TOKEN_SIZE / 8).to_i(16).to_s(36)
+      else
+        rand(2 ** TOKEN_SIZE).to_s(36)
+      end
     end
     
     def self.generate_id(&predicate)
