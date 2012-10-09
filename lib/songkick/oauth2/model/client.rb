@@ -1,5 +1,3 @@
-require 'bcrypt'
-
 module Songkick
   module OAuth2
     module Model

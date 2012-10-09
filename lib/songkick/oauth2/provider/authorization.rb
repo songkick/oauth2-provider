@@ -1,5 +1,3 @@
-require 'cgi'
-
 module Songkick
   module OAuth2
     class Provider

@@ -1,6 +1,10 @@
+require 'base64'
+require 'bcrypt'
+require 'cgi'
 require 'digest/sha1'
 require 'json'
 require 'logger'
+require 'rack'
 
 module Songkick
   module OAuth2

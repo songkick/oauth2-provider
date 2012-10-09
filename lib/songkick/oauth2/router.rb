@@ -1,6 +1,3 @@
-require 'base64'
-require 'rack'
-
 module Songkick
   module OAuth2
     class Router
