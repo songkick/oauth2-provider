@@ -4,6 +4,8 @@ require 'cgi'
 require 'digest/sha1'
 require 'json'
 require 'logger'
+require 'openssl'
+require 'pbkdf2'
 require 'rack'
 
 begin
@@ -16,16 +18,20 @@ module Songkick
     ROOT = File.expand_path(File.dirname(__FILE__) + '/..')
     TOKEN_SIZE = 160
     
+    autoload :Cipher, ROOT + '/oauth2/cipher'
     autoload :Model,  ROOT + '/oauth2/model'
     autoload :Router, ROOT + '/oauth2/router'
     autoload :Schema, ROOT + '/oauth2/schema'
     
-    def self.random_string
-      if defined? SecureRandom
-        SecureRandom.hex(TOKEN_SIZE / 8).to_i(16).to_s(36)
-      else
-        rand(2 ** TOKEN_SIZE).to_s(36)
-      end
+    def self.random_string(size = TOKEN_SIZE, base = 36)
+      string = if defined? SecureRandom
+                 SecureRandom.hex(size / 8).to_i(16).to_s(base)
+               else
+                 rand(2 ** size).to_s(base)
+               end
+      
+      maxlen = (2 ** size - 1).to_s(base).size
+      string.rjust(maxlen, '0')
     end
     
     def self.generate_id(&predicate)
@@ -77,7 +83,7 @@ module Songkick
     
     class Provider
       class << self
-        attr_accessor :realm, :enforce_ssl
+        attr_accessor :realm, :secret, :enforce_ssl
       end
       
       def self.clear_assertion_handlers!

@@ -14,6 +14,7 @@ spec = Gem::Specification.new do |s|
 
   s.add_dependency("activerecord")
   s.add_dependency("bcrypt-ruby")
+  s.add_dependency("pbkdf2")
   s.add_dependency("json")
   s.add_dependency("rack")
 
