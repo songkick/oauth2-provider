@@ -27,20 +27,20 @@ module Songkick
           resource_owner.oauth2_authorizations.find_by_client_id(client.id)
         end
         
-        def self.create_code(client)
+        def self.generate_code(client)
           Songkick::OAuth2.generate_id do |code|
             client.authorizations.count(:conditions => {:code => code}).zero?
           end
         end
         
-        def self.create_access_token
+        def self.generate_access_token
           Songkick::OAuth2.generate_id do |token|
             hash = Songkick::OAuth2.hashify(token)
             count(:conditions => {:access_token_hash => hash}).zero?
           end
         end
         
-        def self.create_refresh_token(client)
+        def self.generate_refresh_token(client)
           Songkick::OAuth2.generate_id do |refresh_token|
             hash = Songkick::OAuth2.hashify(refresh_token)
             client.authorizations.count(:conditions => {:refresh_token_hash => hash}).zero?
@@ -56,14 +56,14 @@ module Songkick
           
           case response_type
             when CODE
-              instance.code ||= create_code(attributes[:client])
+              instance.code ||= generate_code(attributes[:client])
             when TOKEN
-              instance.access_token  ||= create_access_token
-              instance.refresh_token ||= create_refresh_token(attributes[:client])
+              instance.access_token  ||= generate_access_token
+              instance.refresh_token ||= generate_refresh_token(attributes[:client])
             when CODE_AND_TOKEN
-              instance.code = create_code(attributes[:client])
-              instance.access_token  ||= create_access_token
-              instance.refresh_token ||= create_refresh_token(attributes[:client])
+              instance.code = generate_code(attributes[:client])
+              instance.access_token  ||= generate_access_token
+              instance.refresh_token ||= generate_refresh_token(attributes[:client])
           end
           
           if attributes[:duration]
@@ -82,7 +82,7 @@ module Songkick
         
         def exchange!
           self.code          = nil
-          self.access_token  = self.class.create_access_token
+          self.access_token  = self.class.generate_access_token
           self.refresh_token = nil
           save!
         end
@@ -97,12 +97,12 @@ module Songkick
         end
         
         def generate_code
-          self.code ||= self.class.create_code(client)
+          self.code ||= self.class.generate_code(client)
           save && code
         end
         
         def generate_access_token
-          self.access_token ||= self.class.create_access_token
+          self.access_token ||= self.class.generate_access_token
           save && access_token
         end
         
