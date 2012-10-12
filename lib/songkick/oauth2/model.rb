@@ -12,7 +12,8 @@ module Songkick
       Schema = Songkick::OAuth2::Schema
       
       def self.find_access_token(access_token)
-        Authorization.find_by_access_token_hash(Songkick::OAuth2.hashify(access_token))
+        return nil unless identifier = Provider.decrypt(access_token)
+        Authorization.find_by_identifier(identifier)
       end
     end
   end

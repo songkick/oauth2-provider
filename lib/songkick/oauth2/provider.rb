@@ -117,6 +117,14 @@ module Songkick
         handler ? handler.call(client, assertion.value, scopes) : nil
       end
       
+      def self.encrypt(string)
+        Cipher.new(secret).encrypt(string)
+      end
+      
+      def self.decrypt(string)
+        Cipher.new(secret).decrypt(string)
+      end
+      
       def self.parse(*args)
         Router.parse(*args)
       end

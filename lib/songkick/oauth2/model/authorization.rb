@@ -22,6 +22,12 @@ module Songkick
         extend Hashing
         hashes_attributes :access_token, :refresh_token
         
+        def self.find_by_identifier(identifier)
+          client_id, owner_type, owner_id = identifier.split('/')
+          return nil unless client = Client.find_by_client_id(client_id)
+          client.authorizations.find_by_oauth2_resource_owner_type_and_oauth2_resource_owner_id(owner_type, owner_id)
+        end
+        
         def self.for(resource_owner, client)
           return nil unless resource_owner and client
           resource_owner.oauth2_authorizations.find_by_client_id(client.id)
@@ -55,15 +61,8 @@ module Songkick
                      end
           
           case response_type
-            when CODE
+            when CODE, CODE_AND_TOKEN
               instance.code ||= generate_code(attributes[:client])
-            when TOKEN
-              instance.access_token  ||= generate_access_token
-              instance.refresh_token ||= generate_refresh_token(attributes[:client])
-            when CODE_AND_TOKEN
-              instance.code = generate_code(attributes[:client])
-              instance.access_token  ||= generate_access_token
-              instance.refresh_token ||= generate_refresh_token(attributes[:client])
           end
           
           if attributes[:duration]
@@ -81,9 +80,7 @@ module Songkick
         end
         
         def exchange!
-          self.code          = nil
-          self.access_token  = self.class.generate_access_token
-          self.refresh_token = nil
+          self.code = nil
           save!
         end
         
@@ -102,9 +99,9 @@ module Songkick
         end
         
         def generate_access_token
-          self.access_token ||= self.class.generate_access_token
-          save && access_token
+          Provider.encrypt(identifier)
         end
+        alias :access_token :generate_access_token
         
         def grants_access?(user, *scopes)
           not expired? and user == owner and in_scope?(scopes)
@@ -117,6 +114,12 @@ module Songkick
         def scopes
           scopes = scope ? scope.split(/\s+/) : []
           Set.new(scopes)
+        end
+        
+      private
+        
+        def identifier
+          [client.client_id, oauth2_resource_owner_type, oauth2_resource_owner_id] * '/'
         end
       end
       

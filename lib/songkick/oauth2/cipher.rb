@@ -45,6 +45,7 @@ module Songkick
       UUID        = 'c7667ed4-9bf7-4495-bfa1-866291e9ce2a'
       
       def initialize(secret)
+        raise ArgumentError, 'You must set a value for Songkick::OAuth2::Provider.secret' if secret.nil?
         @secret = secret
       end
       
