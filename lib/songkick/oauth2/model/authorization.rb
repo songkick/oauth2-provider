@@ -22,11 +22,6 @@ module Songkick
         extend Hashing
         hashes_attributes :access_token, :refresh_token
         
-        def self.for(resource_owner, client)
-          return nil unless resource_owner and client
-          resource_owner.oauth2_authorizations.find_by_client_id(client.id)
-        end
-        
         def self.create_code(client)
           Songkick::OAuth2.generate_id do |code|
             client.authorizations.count(:conditions => {:code => code}).zero?
@@ -47,23 +42,34 @@ module Songkick
           end
         end
         
+        def self.for(resource_owner, client)
+          return nil unless resource_owner and client
+          resource_owner.oauth2_authorizations.find_by_client_id(client.id)
+        end
+        
         def self.for_response_type(response_type, attributes = {})
-          instance = self.for(attributes[:owner], attributes[:client]) ||
+          owner, client = attributes.values_at(:owner, :client)
+          
+          unless client.is_a?(Client)
+            raise ArgumentError, "The argument should be a #{Client}, instead it was a #{client.class}"
+          end
+          
+          instance = self.for(owner, client) ||
                      new do |authorization|
-                       authorization.owner  = attributes[:owner]
-                       authorization.client = attributes[:client]
+                       authorization.owner  = owner
+                       authorization.client = client
                      end
           
           case response_type
             when CODE
-              instance.code ||= create_code(attributes[:client])
+              instance.code ||= create_code(client)
             when TOKEN
               instance.access_token  ||= create_access_token
-              instance.refresh_token ||= create_refresh_token(attributes[:client])
+              instance.refresh_token ||= create_refresh_token(client)
             when CODE_AND_TOKEN
-              instance.code = create_code(attributes[:client])
+              instance.code = create_code(client)
               instance.access_token  ||= create_access_token
-              instance.refresh_token ||= create_refresh_token(attributes[:client])
+              instance.refresh_token ||= create_refresh_token(client)
           end
           
           if attributes[:duration]
@@ -72,10 +78,9 @@ module Songkick
             instance.expires_at = nil
           end
           
-          if attributes[:scope]
-            scopes = instance.scopes + attributes[:scope].split(/\s+/)
-            instance.scope = scopes.entries.join(' ')
-          end
+          scopes = instance.scopes + (attributes[:scopes] || [])
+          scopes += attributes[:scope].split(/\s+/) if attributes[:scope]
+          instance.scope = scopes.entries.join(' ')
           
           instance.save && instance
         end
