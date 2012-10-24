@@ -2,6 +2,7 @@ dir = File.expand_path('..', __FILE__)
 $:.unshift(dir + '/../lib')
 $:.unshift(dir)
 
+require 'bundler/setup'
 require 'songkick/oauth2/provider'
 Songkick::OAuth2::Provider.realm = 'Notes App'
 
