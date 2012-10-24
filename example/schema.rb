@@ -2,6 +2,7 @@ dir = File.expand_path('..', __FILE__)
 $:.unshift(dir + '/../lib')
 
 require 'rubygems'
+require 'bundler/setup'
 require 'songkick/oauth2/provider'
 require 'fileutils'
 
