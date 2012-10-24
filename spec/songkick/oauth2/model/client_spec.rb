@@ -4,7 +4,7 @@ describe Songkick::OAuth2::Model::Client do
   before do
     @client = Songkick::OAuth2::Model::Client.create(:name => 'App', :redirect_uri => 'http://example.com/cb')
     @owner  = Factory(:owner)
-    Factory(:authorization, :client => @client, :owner => @owner)
+    Songkick::OAuth2::Model::Authorization.for(@owner, @client)
   end
   
   it "is valid" do

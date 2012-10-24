@@ -19,6 +19,10 @@ module Songkick
         
         attr_accessible nil
         
+        class << self
+          private :create, :new
+        end
+        
         extend Hashing
         hashes_attributes :access_token, :refresh_token
         
@@ -42,25 +46,20 @@ module Songkick
           end
         end
         
-        def self.for(resource_owner, client)
-          return nil unless resource_owner and client
-          resource_owner.oauth2_authorizations.find_by_client_id(client.id)
-        end
-        
-        def self.for_response_type(response_type, attributes = {})
-          owner, client = attributes.values_at(:owner, :client)
+        def self.for(owner, client, attributes = {})
+          return nil unless owner and client
           
           unless client.is_a?(Client)
             raise ArgumentError, "The argument should be a #{Client}, instead it was a #{client.class}"
           end
           
-          instance = self.for(owner, client) ||
+          instance = owner.oauth2_authorization_for(client) ||
                      new do |authorization|
                        authorization.owner  = owner
                        authorization.client = client
                      end
           
-          case response_type
+          case attributes[:response_type]
             when CODE
               instance.code ||= create_code(client)
             when TOKEN

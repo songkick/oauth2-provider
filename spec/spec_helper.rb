@@ -53,7 +53,7 @@ RSpec.configure do |config|
 end
 
 def create_authorization(params)
-  Songkick::OAuth2::Model::Authorization.create do |authorization|
+  Songkick::OAuth2::Model::Authorization.__send__(:create) do |authorization|
     params.each do |key, value|
       authorization.__send__ "#{key}=", value
     end

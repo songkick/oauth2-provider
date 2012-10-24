@@ -11,8 +11,11 @@ module Songkick
         end
         
         def grant_access!(client, options = {})
-          options = {:owner => self, :client => client}.merge(options)
-          Authorization.for_response_type(nil, options)
+          Authorization.for(self, client, options)
+        end
+        
+        def oauth2_authorization_for(client)
+          oauth2_authorizations.find_by_client_id(client.id)
         end
       end
       

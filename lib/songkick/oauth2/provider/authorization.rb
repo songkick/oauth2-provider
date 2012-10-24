@@ -24,7 +24,7 @@ module Songkick
           
           return unless @owner and not @error
           
-          @model = Model::Authorization.for(@owner, @client)
+          @model = @owner.oauth2_authorization_for(@client)
           return unless @model and @model.in_scope?(scopes) and not @model.expired?
           
           @authorized = true
@@ -48,11 +48,10 @@ module Songkick
         end
         
         def grant_access!(options = {})
-          @model = Model::Authorization.for_response_type(@params[RESPONSE_TYPE],
-            :owner    => @owner,
-            :client   => @client,
-            :scope    => @scope,
-            :duration => options[:duration])
+          @model = Model::Authorization.for(@owner, @client,
+            :response_type => @params[RESPONSE_TYPE],
+            :scope         => @scope,
+            :duration      => options[:duration])
           
           @code          = @model.code
           @access_token  = @model.access_token
@@ -60,7 +59,7 @@ module Songkick
           @expires_in    = @model.expires_in
           
           unless @params[RESPONSE_TYPE] == CODE
-            @expires_in  = @model.expires_in
+            @expires_in = @model.expires_in
           end
           
           @authorized = true

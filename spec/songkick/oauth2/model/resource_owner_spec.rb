@@ -12,7 +12,7 @@ describe Songkick::OAuth2::Model::ResourceOwner do
     end
     
     it "creates an authorization between the owner and the client" do
-      authorization = Songkick::OAuth2::Model::Authorization.new
+      authorization = Songkick::OAuth2::Model::Authorization.__send__(:new)
       Songkick::OAuth2::Model::Authorization.should_receive(:new).and_return(authorization)
       @owner.grant_access!(@client)
     end
@@ -80,7 +80,7 @@ describe Songkick::OAuth2::Model::ResourceOwner do
   end
   
   it "destroys its authorizations on destroy" do
-    Factory(:authorization, :owner => @owner, :client => @client)
+    Songkick::OAuth2::Model::Authorization.for(@owner, @client)
     @owner.destroy
     Songkick::OAuth2::Model::Authorization.count.should be_zero
   end
