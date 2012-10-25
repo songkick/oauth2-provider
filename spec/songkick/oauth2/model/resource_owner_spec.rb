@@ -45,7 +45,7 @@ describe Songkick::OAuth2::Model::ResourceOwner do
   
   describe "when there is an existing authorization" do
     before do
-      @authorization = Factory(:authorization, :owner => @owner, :client => @client)
+      @authorization = create_authorization(:owner => @owner, :client => @client)
     end
     
     it "does not create a new one" do

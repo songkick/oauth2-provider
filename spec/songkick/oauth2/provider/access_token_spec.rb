@@ -5,13 +5,15 @@ describe Songkick::OAuth2::Provider::AccessToken do
     @alice = TestApp::User['Alice']
     @bob   = TestApp::User['Bob']
     
-    Factory(:authorization,
+    create_authorization(
       :owner        => @alice,
+      :client       => Factory(:client),
       :scope        => 'profile',
       :access_token => 'sesame')
     
-    @authorization = Factory(:authorization,
+    @authorization = create_authorization(
       :owner        => @bob,
+      :client       => Factory(:client),
       :scope        => 'profile',
       :access_token => 'magic-key')
     

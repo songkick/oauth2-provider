@@ -82,6 +82,13 @@ module Songkick
           instance.scope = scopes.entries.join(' ')
           
           instance.save && instance
+          
+        rescue Object => error
+          if Model.duplicate_record_error?(error)
+            retry
+          else
+            raise error
+          end
         end
         
         def exchange!

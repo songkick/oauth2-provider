@@ -19,9 +19,3 @@ Factory.define :client, :class => Songkick::OAuth2::Model::Client do |c|
   c.redirect_uri  'https://client.example.com/cb'
 end
 
-Factory.define :authorization, :class => Songkick::OAuth2::Model::Authorization do |ac|
-  ac.client     Factory(:client)
-  ac.code       { Songkick::OAuth2.random_string }
-  ac.expires_at nil
-end
-

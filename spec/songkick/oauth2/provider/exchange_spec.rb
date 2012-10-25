@@ -5,7 +5,7 @@ describe Songkick::OAuth2::Provider::Exchange do
     @client = Factory(:client)
     @alice  = TestApp::User['Alice']
     @bob    = TestApp::User['Bob']
-    @authorization = Factory(:authorization, :client => @client, :owner => @bob, :scope => 'foo bar')
+    @authorization = create_authorization(:client => @client, :owner => @bob, :code => 'a_fake_code', :scope => 'foo bar')
     Songkick::OAuth2.stub(:random_string).and_return('random_string')
   end
   
@@ -321,11 +321,11 @@ describe Songkick::OAuth2::Provider::Exchange do
   
   describe "using refresh_token grant type" do
     before do
-      @refresher = Factory(:authorization, :client => @client,
-                                           :owner  => @bob,
-                                           :scope  => 'foo bar',
-                                           :code   => nil,
-                                           :refresh_token => 'roflscale')
+      @refresher = create_authorization(:client => @client,
+                                        :owner  => @alice,
+                                        :scope  => 'foo bar',
+                                        :code   => nil,
+                                        :refresh_token => 'roflscale')
     end
     
     let(:params) { { 'client_id'     => @client.client_id,

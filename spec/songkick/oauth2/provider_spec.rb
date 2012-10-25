@@ -322,7 +322,11 @@ describe Songkick::OAuth2::Provider do
   describe "access token request" do
     before do
       @client = Factory(:client)
-      @authorization = Factory(:authorization, :client => @client, :owner => @owner, :expires_at => 3.hours.from_now)
+      @authorization = create_authorization(
+          :owner      => @owner,
+          :client     => @client,
+          :code       => 'a_fake_code',
+          :expires_at => 3.hours.from_now)
     end
     
     let(:auth_params)  { { 'client_id'     => @client.client_id,
@@ -375,7 +379,7 @@ describe Songkick::OAuth2::Provider do
         it "returns a successful response" do
           Songkick::OAuth2.stub(:random_string).and_return('random_access_token')
           response = post_basic_auth(auth_params, query_params)
-          validate_json_response(response, 200, 'access_token'  => 'random_access_token', 'expires_in' => 10800)
+          validate_json_response(response, 200, 'access_token' => 'random_access_token', 'expires_in' => 10800)
         end
         
         describe "with a scope parameter" do
@@ -445,8 +449,9 @@ describe Songkick::OAuth2::Provider do
   
   describe "protected resource request" do
     before do
-      @authorization = Factory(:authorization,
+      @authorization = create_authorization(
         :owner        => @owner,
+        :client       => @client,
         :access_token => 'magic-key',
         :scope        => 'profile')
     end

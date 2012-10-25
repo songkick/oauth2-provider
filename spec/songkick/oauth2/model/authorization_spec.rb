@@ -5,9 +5,10 @@ describe Songkick::OAuth2::Model::Authorization do
   let(:impostor) { Factory :client }
   let(:owner)    { Factory :owner }
   let(:user)     { Factory :owner }
+  let(:tester)   { Factory(:owner) }
   
   let(:authorization) do
-    create_authorization(:owner => owner, :client => client)
+    create_authorization(:owner => tester, :client => client)
   end
   
   it "is vaid" do
@@ -32,7 +33,7 @@ describe Songkick::OAuth2::Model::Authorization do
         :access_token  => 'existing_access_token')
         
       create_authorization(
-        :owner         => owner,
+        :owner         => user,
         :client        => client,
         :code          => 'existing_code')
         
@@ -150,7 +151,7 @@ describe Songkick::OAuth2::Model::Authorization do
   
   describe "#grants_access?" do
     it "returns true given the right user" do
-      authorization.grants_access?(owner).should be_true
+      authorization.grants_access?(tester).should be_true
     end
     
     it "returns false given the wrong user" do
@@ -161,7 +162,7 @@ describe Songkick::OAuth2::Model::Authorization do
       before { authorization.expires_at = 2.days.ago }
       
       it "returns false in all cases" do
-        authorization.grants_access?(owner).should be_false
+        authorization.grants_access?(tester).should be_false
         authorization.grants_access?(user).should be_false
       end
     end
@@ -184,23 +185,23 @@ describe Songkick::OAuth2::Model::Authorization do
     
     describe "#grants_access?" do
       it "returns true given the right user and all authorization scopes" do
-        authorization.grants_access?(owner, 'foo', 'bar').should be_true
+        authorization.grants_access?(tester, 'foo', 'bar').should be_true
       end
       
       it "returns true given the right user and some authorization scopes" do
-        authorization.grants_access?(owner, 'bar').should be_true
+        authorization.grants_access?(tester, 'bar').should be_true
       end
       
       it "returns false given the right user and some unauthorization scopes" do
-        authorization.grants_access?(owner, 'foo', 'bar', 'qux').should be_false
+        authorization.grants_access?(tester, 'foo', 'bar', 'qux').should be_false
       end
       
       it "returns false given an unauthorized scope" do
-        authorization.grants_access?(owner, 'qux').should be_false
+        authorization.grants_access?(tester, 'qux').should be_false
       end
       
       it "returns true given the right user" do
-        authorization.grants_access?(owner).should be_true
+        authorization.grants_access?(tester).should be_true
       end
       
       it "returns false given the wrong user" do

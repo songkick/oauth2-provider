@@ -156,7 +156,7 @@ describe Songkick::OAuth2::Provider::Authorization do
   describe "#grant_access!" do
     describe "when there is an existing authorization with no code" do
       before do
-        @model = Factory(:authorization,
+        @model = create_authorization(
           :owner  => resource_owner,
           :client => @client,
           :code   => nil)
@@ -172,7 +172,7 @@ describe Songkick::OAuth2::Provider::Authorization do
     
     describe "when there is an existing authorization with scopes" do
       before do
-        @model = Factory(:authorization,
+        @model = create_authorization(
           :owner  => resource_owner,
           :client => @client,
           :code   => nil,
@@ -190,7 +190,7 @@ describe Songkick::OAuth2::Provider::Authorization do
     
     describe "when there is an existing expired authorization" do
       before do
-        @model = Factory(:authorization,
+        @model = create_authorization(
           :owner      => resource_owner,
           :client     => @client,
           :expires_at => 2.months.ago,
