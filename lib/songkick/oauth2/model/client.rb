@@ -11,7 +11,7 @@ module Songkick
             
         has_many :authorizations, :class_name => 'Songkick::OAuth2::Model::Authorization', :dependent => :destroy
         
-        validates_uniqueness_of :client_id
+        validates_uniqueness_of :client_id, :name
         validates_presence_of   :name, :redirect_uri
         validate :check_format_of_redirect_uri
         
