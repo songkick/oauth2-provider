@@ -9,7 +9,7 @@ class SongkickOauth2SchemaOriginalSchema < ActiveRecord::Migration
       t.string     :client_secret_hash
       t.string     :redirect_uri
     end
-    add_index :oauth2_clients, :client_id
+    add_index :oauth2_clients, [:client_id]
     
     create_table :oauth2_authorizations do |t|
       t.timestamps
