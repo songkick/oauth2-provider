@@ -7,8 +7,8 @@ require 'songkick/oauth2/provider'
 case ENV['DB']
   when 'mysql'
     ActiveRecord::Base.establish_connection(
-        :adapter => 'mysql',
-        :host    => '127.0.0.1',
+        :adapter  => 'mysql',
+        :host     => '127.0.0.1',
         :user     => 'root',
         :database => 'oauth2_test')
   else
