@@ -14,16 +14,24 @@ gemfile:
 
 env:
   - DB=mysql
+  - DB=postgres
 
 matrix:
   exclude:
-    - rvm: 1.9.2
+     - rvm: 1.9.2
       gemfile: gemfiles/activerecord_2_2.gemfile
       env: DB=mysql
     - rvm: 1.9.3
       gemfile: gemfiles/activerecord_2_2.gemfile
       env: DB=mysql
+    - rvm: 1.9.2
+      gemfile: gemfiles/activerecord_2_2.gemfile
+      env: DB=postgres
+    - rvm: 1.9.3
+      gemfile: gemfiles/activerecord_2_2.gemfile
+      env: DB=postgres
 
 before_script:
-  - mysql -e 'CREATE DATABASE IF NOT EXISTS oauth2_test;'
+  - sh -c "if [ '$DB' = 'mysql' ]; then mysql -e 'create database if not exists oauth2_test;'; fi"
+  - sh -c "if [ '$DB' = 'postgres' ]; then psql -c 'create database oauth2_tests;' -U postgres; fi"
 
