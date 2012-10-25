@@ -12,15 +12,17 @@ gemfile:
   - gemfiles/activerecord_3_1.gemfile
   - gemfiles/activerecord_3_2.gemfile
 
+env:
+  - DB=mysql
+
 matrix:
   exclude:
     - rvm: 1.9.2
       gemfile: gemfiles/activerecord_2_2.gemfile
+      env: DB=mysql
     - rvm: 1.9.3
       gemfile: gemfiles/activerecord_2_2.gemfile
-
-env:
-  - DB=mysql
+      env: DB=mysql
 
 before_script:
   - mysql -e 'CREATE DATABASE IF NOT EXISTS oauth2_test;'
