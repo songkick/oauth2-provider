@@ -1,14 +1,9 @@
-dir = File.expand_path('..', __FILE__)
-$:.unshift(dir + '/../lib')
-
 require 'rubygems'
 require 'bundler/setup'
+
 require 'songkick/oauth2/provider'
-require 'fileutils'
-
-require dir + '/models/connection'
-
-FileUtils.mkdir_p(dir + '/db')
+require 'active_record'
+require File.expand_path('../models/connection', __FILE__)
 
 ActiveRecord::Schema.define do |version|
   create_table :users, :force => true do |t|
