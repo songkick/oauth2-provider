@@ -33,5 +33,5 @@ matrix:
 
 before_script:
   - sh -c "if [ '$DB' = 'mysql' ]; then mysql -e 'create database if not exists oauth2_test;'; fi"
-  - sh -c "if [ '$DB' = 'postgres' ]; then psql -c 'create database oauth2_tests;' -U postgres; fi"
+  - sh -c "if [ '$DB' = 'postgres' ]; then psql -c 'create database oauth2_test;' -U postgres; fi"
 
