@@ -4,9 +4,21 @@ require 'bundler/setup'
 require 'active_record'
 require 'songkick/oauth2/provider'
 
-dbfile = File.expand_path('../test.sqlite3', __FILE__)
-File.unlink(dbfile) if File.file?(dbfile)
-ActiveRecord::Base.establish_connection(:adapter  => 'sqlite3', :database => dbfile)
+case ENV['DB']
+  when 'mysql'
+    ActiveRecord::Base.establish_connection(
+        :adapter => 'mysql',
+        :host    => '127.0.0.1',
+        :user     => 'root',
+        :database => 'oauth2_test')
+  else
+    dbfile = File.expand_path('../test.sqlite3', __FILE__)
+    File.unlink(dbfile) if File.file?(dbfile)
+    
+    ActiveRecord::Base.establish_connection(
+        :adapter  => 'sqlite3',
+        :database => dbfile)
+end
 
 require 'logger'
 ActiveRecord::Base.logger = Logger.new(STDERR)

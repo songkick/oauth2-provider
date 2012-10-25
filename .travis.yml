@@ -18,3 +18,10 @@ matrix:
       gemfile: gemfiles/activerecord_2_2.gemfile
     - rvm: 1.9.3
       gemfile: gemfiles/activerecord_2_2.gemfile
+
+env:
+  - DB=mysql
+
+before_script:
+  - mysql -e 'CREATE DATABASE IF NOT EXISTS oauth2_test;'
+
