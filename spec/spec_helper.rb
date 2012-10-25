@@ -2,7 +2,7 @@ require 'rubygems'
 require 'bundler/setup'
 
 require 'active_record'
-require File.expand_path('../../lib/songkick/oauth2/provider', __FILE__)
+require 'songkick/oauth2/provider'
 
 dbfile = File.expand_path('../test.sqlite3', __FILE__)
 File.unlink(dbfile) if File.file?(dbfile)
