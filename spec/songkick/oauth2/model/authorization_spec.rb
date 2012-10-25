@@ -111,6 +111,27 @@ describe Songkick::OAuth2::Model::Authorization do
         Songkick::OAuth2::Model::Authorization.create_refresh_token(impostor).should == 'existing_refresh_token'
       end
     end
+    
+    describe "duplicate records" do
+      it "raises an error if a duplicate authorization is created" do
+        lambda {
+          authorization = Songkick::OAuth2::Model::Authorization.__send__(:new)
+          authorization.owner = user
+          authorization.client = client
+          authorization.save
+        }.should raise_error
+      end
+      
+      it "finds an existing record after a race" do
+        user.stub(:oauth2_authorization_for) do
+          user.unstub(:oauth2_authorization_for)
+          raise TypeError, 'Mysql::Error: Duplicate entry'
+        end
+        authorization = Songkick::OAuth2::Model::Authorization.for(user, client)
+        authorization.owner.should == user
+        authorization.client.should == client
+      end
+    end
   end
   
   describe "#exchange!" do
