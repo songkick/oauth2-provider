@@ -119,7 +119,7 @@ describe Songkick::OAuth2::Model::Authorization do
           authorization.owner = user
           authorization.client = client
           authorization.save
-        }.should raise_error
+        }.call
       end
       
       it "finds an existing record after a race" do
