@@ -20,7 +20,10 @@ module RequestHelpers
   end
   
   def post(body_params, query_params = {})
-    Net::HTTP.post_form(URI.parse('http://localhost:8000/authorize?' + querystring(query_params)), body_params)
+    uri = URI.parse('http://localhost:8000/authorize?' + querystring(query_params))
+    Net::HTTP.start(uri.host, uri.port) do |http|
+      http.post(uri.path + '?' + uri.query.to_s, querystring(body_params))
+    end
   end
   
   def validate_response(response, status, body)
