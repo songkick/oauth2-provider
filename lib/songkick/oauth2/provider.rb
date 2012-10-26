@@ -76,6 +76,13 @@ module Songkick
     ACCESS_DENIED          = 'access_denied'
     
     class Provider
+      EXPIRY_TIME = 3600
+
+      autoload :Authorization, ROOT + '/oauth2/provider/authorization'
+      autoload :Exchange,      ROOT + '/oauth2/provider/exchange'
+      autoload :AccessToken,   ROOT + '/oauth2/provider/access_token'
+      autoload :Error,         ROOT + '/oauth2/provider/error'
+
       class << self
         attr_accessor :realm, :enforce_ssl
       end
@@ -122,14 +129,8 @@ module Songkick
       def self.access_token_from_request(*args)
         Router.access_token_from_request(*args)
       end
-      
-      EXPIRY_TIME            = 3600
-      
-      autoload :Authorization, ROOT + '/oauth2/provider/authorization'
-      autoload :Exchange,      ROOT + '/oauth2/provider/exchange'
-      autoload :AccessToken,   ROOT + '/oauth2/provider/access_token'
-      autoload :Error,         ROOT + '/oauth2/provider/error'
     end
+
   end
 end
 
