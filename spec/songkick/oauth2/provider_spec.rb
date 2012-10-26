@@ -345,10 +345,21 @@ describe Songkick::OAuth2::Provider do
       describe "with valid parameters" do
         it "does not respond to GET" do
           Songkick::OAuth2::Provider::Authorization.should_not_receive(:new)
+          params.delete('client_secret')
           response = get(params)
           validate_json_response(response, 400,
             'error'             => 'invalid_request',
             'error_description' => 'Bad request: must be a POST request'
+          )
+        end
+        
+        it "does not allow client credentials to be passed in the query string" do
+          Songkick::OAuth2::Provider::Authorization.should_not_receive(:new)
+          query_string = {'client_id' => params.delete('client_id'), 'client_secret' => params.delete('client_secret')}
+          response = post(params, query_string)
+          validate_json_response(response, 400,
+            'error'             => 'invalid_request',
+            'error_description' => 'Bad request: must not send client credentials in the URI'
           )
         end
         

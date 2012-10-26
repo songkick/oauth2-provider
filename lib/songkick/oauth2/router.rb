@@ -65,7 +65,9 @@ module Songkick
           request = request_from(env)
           
           if Provider.enforce_ssl and not request.ssl?
-            Provider::Error.new("must make requests using HTTPS")
+            Provider::Error.new('must make requests using HTTPS')
+          elsif request.GET['client_secret']
+            Provider::Error.new('must not send client credentials in the URI')
           end
         end
       end

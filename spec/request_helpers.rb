@@ -1,9 +1,12 @@
 module RequestHelpers
   require 'net/http'
   
+  def querystring(params)
+    params.map { |k,v| "#{ CGI.escape k.to_s }=#{ CGI.escape v.to_s }" }.join('&')
+  end
+  
   def get(query_params)
-    qs  = params.map { |k,v| "#{ CGI.escape k.to_s }=#{ CGI.escape v.to_s }" }.join('&')
-    uri = URI.parse('http://localhost:8000/authorize?' + qs)
+    uri = URI.parse('http://localhost:8000/authorize?' + querystring(query_params))
     Net::HTTP.get_response(uri)
   end
   
@@ -16,8 +19,8 @@ module RequestHelpers
     Net::HTTP.post_form(URI.parse(url), query_params)
   end
   
-  def post(query_params)
-    Net::HTTP.post_form(URI.parse('http://localhost:8000/authorize'), query_params)
+  def post(body_params, query_params = {})
+    Net::HTTP.post_form(URI.parse('http://localhost:8000/authorize?' + querystring(query_params)), body_params)
   end
   
   def validate_response(response, status, body)
