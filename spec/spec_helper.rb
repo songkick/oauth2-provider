@@ -9,13 +9,13 @@ case ENV['DB']
     ActiveRecord::Base.establish_connection(
         :adapter  => 'mysql',
         :host     => '127.0.0.1',
-        :user     => 'root',
+        :username => 'root',
         :database => 'oauth2_test')
   when 'postgres'
     ActiveRecord::Base.establish_connection(
         :adapter  => 'postgresql',
         :host     => '127.0.0.1',
-        :user     => 'postgres',
+        :username => 'postgres',
         :database => 'oauth2_test')
   else
     dbfile = File.expand_path('../test.sqlite3', __FILE__)

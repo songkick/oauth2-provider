@@ -19,8 +19,9 @@ module Songkick
       
       # ActiveRecord::RecordNotUnique was introduced in Rails 3.0 so referring
       # to it while running earlier versions will raise an error. The above
-      # error strings should match MySQL and SQLite errors on Rails 2. If you're
-      # running a different adapter, add a suitable regex to the list:
+      # error strings should match PostgreSQL, MySQL and SQLite errors on
+      # Rails 2. If you're running a different adapter, add a suitable regex to
+      # the list:
       # 
       #     Songkick::OAuth2::Model::DUPLICATE_RECORD_ERRORS << /DB2 found a dup/
       # 
