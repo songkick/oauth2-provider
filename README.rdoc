@@ -96,14 +96,17 @@ behavior:
 === Schema
 
 Add the <tt>Songkick::OAuth2::Provider</tt> tables to your app's schema. This is
-done using <tt>Songkick::OAuth2::Model::Schema.up</tt>, which can be used inside
-an <tt>ActiveRecord</tt> migration like so:
+done using <tt>Songkick::OAuth2::Model::Schema.migrate</tt>, which will run all
+the gem's migrations that have not yet been applied to your database.
 
-  class CreateOauth2ProviderModels < ActiveRecord::Migration
-    def up
-      Songkick::OAuth2::Model::Schema.up
-    end
-  end
+  Songkick::OAuth2::Model::Schema.migrate
+  I, [2012-10-31T14:52:33.801428 #7002]  INFO -- : Migrating to SongkickOauth2SchemaOriginalSchema (20120828112156)
+  ==  SongkickOauth2SchemaOriginalSchema: migrating =============================
+  -- create_table(:oauth2_clients)
+     -> 0.0029s
+  -- add_index(:oauth2_clients, [:client_id])
+     -> 0.0009s
+  ...
 
 
 === Model Mixins
