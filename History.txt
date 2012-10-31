@@ -1,3 +1,9 @@
+=== 0.10.2 / 2012-10-31
+
+* Stop Model::Authorization#scope being set to an empty string and returned as
+  such in Provider::Exchange responses
+
+
 === 0.10.1 / 2012-10-29
 
 * Add uniqueness constraints to the database for various Authorization properties
