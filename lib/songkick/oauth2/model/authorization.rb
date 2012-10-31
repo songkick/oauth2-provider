@@ -79,7 +79,7 @@ module Songkick
           
           scopes = instance.scopes + (attributes[:scopes] || [])
           scopes += attributes[:scope].split(/\s+/) if attributes[:scope]
-          instance.scope = scopes.entries.join(' ')
+          instance.scope = scopes.empty? ? nil : scopes.entries.join(' ')
           
           instance.save && instance
           
