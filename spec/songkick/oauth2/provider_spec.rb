@@ -1,7 +1,9 @@
 require 'spec_helper'
 
 describe Songkick::OAuth2::Provider do
-  before(:all) { TestApp::Provider.start(8000) }
+  include RequestHelpers
+
+  before(:all) { TestApp::Provider.start(RequestHelpers::SERVER_PORT) }
   after(:all)  { TestApp::Provider.stop }
   
   let(:params) { { 'response_type' => 'code',
@@ -13,8 +15,6 @@ describe Songkick::OAuth2::Provider do
     @client = Factory(:client, :name => 'Test client')
     @owner  = TestApp::User['Bob']
   end
-  
-  include RequestHelpers
   
   describe "access grant request" do
     shared_examples_for "asks for user permission" do
@@ -530,7 +530,7 @@ describe Songkick::OAuth2::Provider do
     describe "for header-based requests" do
       def request(path, params = {})
         access_token = params.delete('oauth_token')
-        http   = Net::HTTP.new('localhost', 8000)
+        http   = Net::HTTP.new('localhost', RequestHelpers::SERVER_PORT)
         qs     = params.map { |k,v| "#{ CGI.escape k.to_s }=#{ CGI.escape v.to_s }" }.join('&')
         header = {'Authorization' => "OAuth #{access_token}"}
         http.request_get(path + '?' + qs, header)
@@ -542,7 +542,7 @@ describe Songkick::OAuth2::Provider do
     describe "for GET requests" do
       def request(path, params = {})
         qs  = params.map { |k,v| "#{ CGI.escape k.to_s }=#{ CGI.escape v.to_s }" }.join('&')
-        uri = URI.parse('http://localhost:8000' + path + '?' + qs)
+        uri = URI.parse("http://localhost:#{RequestHelpers::SERVER_PORT}" + path + '?' + qs)
         Net::HTTP.get_response(uri)
       end
       
@@ -551,7 +551,7 @@ describe Songkick::OAuth2::Provider do
     
     describe "for POST requests" do
       def request(path, params = {})
-        Net::HTTP.post_form(URI.parse('http://localhost:8000' + path), params)
+        Net::HTTP.post_form(URI.parse("http://localhost:#{RequestHelpers::SERVER_PORT}" + path), params)
       end
       
       it_should_behave_like "protected resource"
