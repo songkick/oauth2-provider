@@ -189,7 +189,68 @@ describe OAuth2::Provider::Exchange do
       end
     end
     
-    it_should_behave_like "validates required parameters"
+    describe "missing grant_type" do
+      before { params.delete('client_id') }
+      
+      it "is invalid" do
+        exchange.error.should == "invalid_request"
+        exchange.error_description.should == "Missing required parameter client_id"
+      end
+    end
+    
+    describe "with an unknown grant type" do
+      before { params['grant_type'] = 'unknown' }
+      
+      it "is invalid" do
+        exchange.error.should == "unsupported_grant_type"
+        exchange.error_description.should == "The grant type unknown is not recognized"
+      end
+    end
+    
+    describe "missing client_id" do
+      before { params.delete('client_id') }
+      
+      it "is invalid" do
+        exchange.error.should == "invalid_request"
+        exchange.error_description.should == "Missing required parameter client_id"
+      end
+    end
+    
+    describe "with an unknown client_id" do
+      before { params['client_id'] = "unknown" }
+      
+      it "is invalid" do
+        exchange.error.should == "invalid_client"
+        exchange.error_description.should == "Unknown client ID unknown"
+      end
+    end
+    
+    describe "with a mismatched client_secret" do
+      before { params['client_secret'] = "nosoupforyou" }
+      
+      it "is invalid" do
+        exchange.error.should == "invalid_client"
+        exchange.error_description.should == "Parameter client_secret does not match"
+      end
+    end
+    
+    describe "with lesser scope than the authorization code represents" do
+      before { params['scope'] = 'bar' }
+      
+      it "is valid" do
+        exchange.error.should be_nil
+      end
+    end
+    
+    describe "with scopes not covered by the authorization code" do
+      before { params['scope'] = 'qux' }
+      
+      it "is invalid" do
+        exchange.error.should == 'invalid_scope'
+        exchange.error_description.should == 'The request scope was never granted by the user'
+      end
+    end
+
     it_should_behave_like "valid token request"
     
     describe "missing username" do

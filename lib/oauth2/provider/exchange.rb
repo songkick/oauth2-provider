@@ -101,7 +101,7 @@ module OAuth2
       def validate_required_params
         REQUIRED_PARAMS.each do |param|
           next if @params.has_key?(param)
-          next if param == CLIENT_SECRET && @grant_type == ASSERTION
+          next if param == CLIENT_SECRET && ([ASSERTION, PASSWORD].include?(@grant_type))
           @error = INVALID_REQUEST
           @error_description = "Missing required parameter #{param}"
         end
