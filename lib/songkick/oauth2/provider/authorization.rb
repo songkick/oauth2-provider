@@ -84,15 +84,16 @@ module Songkick
         def redirect_uri
           return nil unless @client
           base_redirect_uri = @client.redirect_uri
+          q = (base_redirect_uri =~ /\?/) ? '&' : '?'
           
           if not valid?
             query = to_query_string(ERROR, ERROR_DESCRIPTION, STATE)
-            "#{ base_redirect_uri }?#{ query }"
+            "#{ base_redirect_uri }#{ q }#{ query }"
           
           elsif @params[RESPONSE_TYPE] == CODE_AND_TOKEN
             query    = to_query_string(CODE, STATE)
             fragment = to_query_string(ACCESS_TOKEN, EXPIRES_IN, SCOPE)
-            "#{ base_redirect_uri }#{ query.empty? ? '' : '?' + query }##{ fragment }"
+            "#{ base_redirect_uri }#{ query.empty? ? '' : q + query }##{ fragment }"
           
           elsif @params[RESPONSE_TYPE] == 'token'
             fragment = to_query_string(ACCESS_TOKEN, EXPIRES_IN, SCOPE, STATE)
