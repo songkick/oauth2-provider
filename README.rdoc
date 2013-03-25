@@ -298,8 +298,7 @@ provider side you can handle this using the <tt>handle_client_credentials</tt> a
     owner.grant_access!(client, :scopes => scopes, :duration => 1.day)
   end
 
-The block receives the <tt>Client</tt> making the request, the owner
- and a <tt>Set</tt> of the requested scopes. It must return
+The block receives the <tt>Client</tt> making the request, the owner and a <tt>Set</tt> of the requested scopes. It must return
 <tt>owner.grant_access!(client)</tt>
 
 
