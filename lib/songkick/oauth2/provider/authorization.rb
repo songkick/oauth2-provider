@@ -101,7 +101,7 @@ module Songkick
           
           else
             query = to_query_string(CODE, SCOPE, STATE)
-            "#{ base_redirect_uri }?#{ query }"
+            "#{ base_redirect_uri }#{ q }#{ query }"
           end
         end
         

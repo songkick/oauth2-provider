@@ -132,6 +132,17 @@ describe Songkick::OAuth2::Provider::Authorization do
     end
   end
   
+  describe "with a redirect_uri with parameters" do
+    before do
+      authorization.client.redirect_uri = "http://songkick.com?some_parameter"
+      params['redirect_uri'] = "http://songkick.com?some_parameter"
+    end
+
+    it "adds the extra parameters with & instead of ?" do
+      authorization.redirect_uri.should == "http://songkick.com?some_parameter&"
+    end
+  end
+
   # http://en.wikipedia.org/wiki/HTTP_response_splitting
   # scope and state values are passed back in the redirect
   
