@@ -95,7 +95,7 @@ module Songkick
             fragment = to_query_string(ACCESS_TOKEN, EXPIRES_IN, SCOPE)
             "#{ base_redirect_uri }#{ query.empty? ? '' : q + query }##{ fragment }"
           
-          elsif @params[RESPONSE_TYPE] == 'token'
+          elsif @params[RESPONSE_TYPE] == TOKEN
             fragment = to_query_string(ACCESS_TOKEN, EXPIRES_IN, SCOPE, STATE)
             "#{ base_redirect_uri }##{ fragment }"
           
