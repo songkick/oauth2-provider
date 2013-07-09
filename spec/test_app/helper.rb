@@ -1,16 +1,20 @@
 module TestApp
-  
+
   class User < ActiveRecord::Base
     self.table_name = :users
-    
+
     include Songkick::OAuth2::Model::ResourceOwner
     include Songkick::OAuth2::Model::ClientOwner
-    
+
     def self.[](name)
-      where(:name => name).first || create(:name => name)
+      if respond_to?(:find_or_create_by)
+        find_or_create_by(:name => name)
+      else
+        find_or_create_by_name(name)
+      end
     end
   end
-  
+
   module Helper
     module RackRunner
       def start(port)
@@ -20,7 +24,7 @@ module TestApp
         end
         sleep 0.1 until @server
       end
-      
+
       def stop
         @server.stop if @server
         @server = nil
@@ -28,6 +32,6 @@ module TestApp
       end
     end
   end
-  
+
 end
 
