@@ -7,7 +7,7 @@ module TestApp
     include Songkick::OAuth2::Model::ClientOwner
     
     def self.[](name)
-      where(name: name).first || create(name: name)
+      where(:name => name).first || create(:name => name)
     end
   end
   
