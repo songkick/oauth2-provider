@@ -21,7 +21,7 @@ module Songkick
         
         def self.create_client_id
           Songkick::OAuth2.generate_id do |client_id|
-            count(:conditions => {:client_id => client_id}).zero?
+            where(:client_id => client_id).count.zero?
           end
         end
         

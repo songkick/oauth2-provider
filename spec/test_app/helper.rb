@@ -7,7 +7,7 @@ module TestApp
     include Songkick::OAuth2::Model::ClientOwner
     
     def self.[](name)
-      find_or_create_by_name(name)
+      where(name: name).first || create(name: name)
     end
   end
   
