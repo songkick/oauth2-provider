@@ -21,3 +21,11 @@ end
 appraise 'activerecord_3_2' do
   gem 'activerecord', '~> 3.2.0'
 end
+
+if RUBY_VERSION >= '1.9'
+  appraise 'activerecord_4_0' do
+    gem 'activerecord', '~> 4.0.0'
+    gem 'mysql', '~> 2.9' if ENV['DB'] == 'mysql'
+    gem "protected_attributes", "~> 1.0.3"
+  end
+end

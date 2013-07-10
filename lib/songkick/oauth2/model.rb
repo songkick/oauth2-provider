@@ -3,6 +3,7 @@ require 'active_record'
 module Songkick
   module OAuth2
     module Model
+      autoload :Helpers,       ROOT + '/oauth2/model/helpers'
       autoload :ClientOwner,   ROOT + '/oauth2/model/client_owner'
       autoload :ResourceOwner, ROOT + '/oauth2/model/resource_owner'
       autoload :Hashing,       ROOT + '/oauth2/model/hashing'

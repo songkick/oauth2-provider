@@ -28,21 +28,21 @@ module Songkick
         
         def self.create_code(client)
           Songkick::OAuth2.generate_id do |code|
-            client.authorizations.count(:conditions => {:code => code}).zero?
+            Helpers.count(client.authorizations, :code => code).zero?
           end
         end
         
         def self.create_access_token
           Songkick::OAuth2.generate_id do |token|
             hash = Songkick::OAuth2.hashify(token)
-            count(:conditions => {:access_token_hash => hash}).zero?
+            Helpers.count(self, :access_token_hash => hash).zero?
           end
         end
         
         def self.create_refresh_token(client)
           Songkick::OAuth2.generate_id do |refresh_token|
             hash = Songkick::OAuth2.hashify(refresh_token)
-            client.authorizations.count(:conditions => {:refresh_token_hash => hash}).zero?
+            Helpers.count(client.authorizations, :refresh_token_hash => hash).zero?
           end
         end
         
