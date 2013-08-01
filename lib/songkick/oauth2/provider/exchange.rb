@@ -6,7 +6,7 @@ module Songkick
         attr_reader :client, :error, :error_description
         
         REQUIRED_PARAMS    = [CLIENT_ID, CLIENT_SECRET, GRANT_TYPE]
-        VALID_GRANT_TYPES  = [AUTHORIZATION_CODE, PASSWORD, ASSERTION, REFRESH_TOKEN]
+        VALID_GRANT_TYPES  = [AUTHORIZATION_CODE, PASSWORD, ASSERTION, REFRESH_TOKEN, CLIENT_CREDENTIALS]
         
         REQUIRED_PASSWORD_PARAMS  = [USERNAME, PASSWORD]
         REQUIRED_ASSERTION_PARAMS = [ASSERTION_TYPE, ASSERTION]
@@ -169,6 +169,15 @@ module Songkick
           @error_description = 'The access grant you supplied is invalid'
         end
         
+        def validate_client_credentials
+          owner = @client.owner
+          @authorization = Provider.handle_client_credential(@client, owner, scopes)
+          return validate_authorization if @authorization
+          
+          @error = INVALID_GRANT
+          @error_description = 'The access grant you supplied is invalid'
+        end
+
         def validate_assertion
           REQUIRED_ASSERTION_PARAMS.each do |param|
             next if @params.has_key?(param)

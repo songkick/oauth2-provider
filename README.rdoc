@@ -292,6 +292,21 @@ password and a <tt>Set</tt> of the requested scopes. It must return
 should return <tt>nil</tt>.
 
 
+=== Using client credentials
+
+If you like, OAuth lets you use client credentials to authenticate with
+a provider. In this case the client application must post credentials to the exchange endpoint. On the
+provider side you can handle this using the <tt>handle_client_credentials</tt> and
+<tt>grant_access!</tt> API methods, for example:
+
+  Songkick::OAuth2::Provider.handle_client_credentials do |client, owner, scopes|
+    owner.grant_access!(client, :scopes => scopes, :duration => 1.day)
+  end
+
+The block receives the <tt>Client</tt> making the request, the owner and a <tt>Set</tt> of the requested scopes. It must return
+<tt>owner.grant_access!(client)</tt>
+
+
 === Using assertions
 
 Assertions provide a way to access your OAuth services using user credentials
