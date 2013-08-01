@@ -44,7 +44,7 @@ module RequestHelpers
   end
   
   def mock_request(request_class, stubs = {})
-    mock_request = mock(request_class)
+    mock_request = double(request_class)
     method_stubs = {
       :redirect?        => false,
       :response_body    => nil,

@@ -205,9 +205,9 @@ describe Songkick::OAuth2::Provider do
   
   describe "authorization confirmation from the user" do
     let(:mock_auth) do
-      mock = mock Songkick::OAuth2::Provider::Authorization,
-                  :redirect_uri    => 'http://example.com/',
-                  :response_status => 302
+      mock = double Songkick::OAuth2::Provider::Authorization,
+                    :redirect_uri    => 'http://example.com/',
+                    :response_status => 302
       
       Songkick::OAuth2::Provider::Authorization.stub(:new).and_return(mock)
       mock
@@ -469,7 +469,7 @@ describe Songkick::OAuth2::Provider do
       
     shared_examples_for "protected resource" do
       it "creates an AccessToken response" do
-        mock_token = mock(Songkick::OAuth2::Provider::AccessToken)
+        mock_token = double(Songkick::OAuth2::Provider::AccessToken)
         mock_token.should_receive(:response_headers).and_return({})
         mock_token.should_receive(:response_status).and_return(200)
         mock_token.should_receive(:valid?).and_return(true)

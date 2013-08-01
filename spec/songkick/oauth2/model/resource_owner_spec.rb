@@ -17,7 +17,7 @@ describe Songkick::OAuth2::Model::ResourceOwner do
       @owner.grant_access!(@client)
     end
     
-    # This is hacky, but mocking ActiveRecord turns out to get messy
+    # This is hacky, but doubleing ActiveRecord turns out to get messy
     it "creates an Authorization" do
       Songkick::OAuth2::Model::Authorization.count.should == 0
       @owner.grant_access!(@client)
