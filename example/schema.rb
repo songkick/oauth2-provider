@@ -10,7 +10,7 @@ ActiveRecord::Schema.define do |version|
     t.timestamps
     t.string :username
   end
-  
+
   create_table :notes, :force => true do |t|
     t.timestamps
     t.belongs_to :user

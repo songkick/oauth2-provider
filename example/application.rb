@@ -65,14 +65,14 @@ end
   __send__ method, '/oauth/authorize' do
     @user = User.find_by_id(session[:user_id])
     @oauth2 = Songkick::OAuth2::Provider.parse(@user, env)
-    
+
     if @oauth2.redirect?
       redirect @oauth2.redirect_uri, @oauth2.response_status
     end
-    
+
     headers @oauth2.response_headers
     status  @oauth2.response_status
-    
+
     if body = @oauth2.response_body
       body
     elsif @oauth2.valid?
@@ -108,7 +108,7 @@ get '/me' do
   authorization = Songkick::OAuth2::Provider.access_token(nil, [], env)
   headers authorization.response_headers
   status  authorization.response_status
-  
+
   if authorization.valid?
     user = authorization.owner
     JSON.unparse('username' => user.username)
@@ -141,15 +141,15 @@ helpers do
   def verify_access(scope)
     user  = User.find_by_username(params[:username])
     token = Songkick::OAuth2::Provider.access_token(user, [scope.to_s], env)
-    
+
     headers token.response_headers
     status  token.response_status
-    
+
     return ERROR_RESPONSE unless token.valid?
-    
+
     yield user
   end
-  
+
   #================================================================
   # Return the full app domain
   def host

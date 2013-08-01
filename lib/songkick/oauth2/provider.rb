@@ -15,11 +15,11 @@ module Songkick
   module OAuth2
     ROOT = File.expand_path(File.dirname(__FILE__) + '/..')
     TOKEN_SIZE = 160
-    
+
     autoload :Model,  ROOT + '/oauth2/model'
     autoload :Router, ROOT + '/oauth2/router'
     autoload :Schema, ROOT + '/oauth2/schema'
-    
+
     def self.random_string
       if defined? SecureRandom
         SecureRandom.hex(TOKEN_SIZE / 8).to_i(16).to_s(36)
@@ -27,18 +27,18 @@ module Songkick
         rand(2 ** TOKEN_SIZE).to_s(36)
       end
     end
-    
+
     def self.generate_id(&predicate)
       id = random_string
       id = random_string until predicate.call(id)
       id
     end
-    
+
     def self.hashify(token)
       return nil unless String === token
       Digest::SHA1.hexdigest(token)
     end
-    
+
     ACCESS_TOKEN           = 'access_token'
     ASSERTION              = 'assertion'
     ASSERTION_TYPE         = 'assertion_type'
@@ -61,7 +61,7 @@ module Songkick
     STATE                  = 'state'
     TOKEN                  = 'token'
     USERNAME               = 'username'
-    
+
     INVALID_REQUEST        = 'invalid_request'
     UNSUPPORTED_RESPONSE   = 'unsupported_response_type'
     REDIRECT_MISMATCH      = 'redirect_uri_mismatch'
@@ -74,7 +74,7 @@ module Songkick
     EXPIRED_TOKEN          = 'expired_token'
     INSUFFICIENT_SCOPE     = 'insufficient_scope'
     ACCESS_DENIED          = 'access_denied'
-    
+
     class Provider
       EXPIRY_TIME = 3600
 
@@ -86,42 +86,42 @@ module Songkick
       class << self
         attr_accessor :realm, :enforce_ssl
       end
-      
+
       def self.clear_assertion_handlers!
         @password_handler   = nil
         @assertion_handlers = {}
         @assertion_filters  = []
       end
-      
+
       clear_assertion_handlers!
-      
+
       def self.handle_passwords(&block)
         @password_handler = block
       end
-      
+
       def self.handle_password(client, username, password, scopes)
         return nil unless @password_handler
         @password_handler.call(client, username, password, scopes)
       end
-      
+
       def self.filter_assertions(&filter)
         @assertion_filters.push(filter)
       end
-      
+
       def self.handle_assertions(assertion_type, &handler)
         @assertion_handlers[assertion_type] = handler
       end
-      
+
       def self.handle_assertion(client, assertion, scopes)
         return nil unless @assertion_filters.all? { |f| f.call(client) }
         handler = @assertion_handlers[assertion.type]
         handler ? handler.call(client, assertion.value, scopes) : nil
       end
-      
+
       def self.parse(*args)
         Router.parse(*args)
       end
-      
+
       def self.access_token(*args)
         Router.access_token(*args)
       end

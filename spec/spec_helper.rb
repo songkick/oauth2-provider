@@ -22,7 +22,7 @@ case ENV['DB']
   else
     dbfile = File.expand_path('../test.sqlite3', __FILE__)
     File.unlink(dbfile) if File.file?(dbfile)
-    
+
     ActiveRecord::Base.establish_connection(
         :adapter  => 'sqlite3',
         :database => dbfile)
@@ -62,12 +62,12 @@ RSpec.configure do |config|
     time = Time.now
     Time.stub(:now).and_return time
   end
-  
+
   config.after do
     [ Songkick::OAuth2::Model::Client,
       Songkick::OAuth2::Model::Authorization,
       TestApp::User
-      
+
     ].each { |k| k.delete_all }
   end
 end

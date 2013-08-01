@@ -10,10 +10,10 @@
   <% @oauth2.params.each do |key, value| %>
     <input type="hidden" name="<%= key %>" value="<%= value %>">
   <% end %>
-  
+
   <input type="checkbox" name="allow" id="allow" value="1">
   <label for="allow">Allow this application</label>
-  
+
   <input type="submit" value="Go!">
 </form>
 

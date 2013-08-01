@@ -7,12 +7,12 @@
   <% @oauth2.params.each do |key, value| %>
     <input type="hidden" name="<%= key %>" value="<%= value %>">
   <% end %>
-  
+
   <fieldset>
     <label for="username">Username</label>
     <input type="text" name="username" id="username">
   </fieldset>
-  
+
   <fieldset>
     <input type="submit" value="Sign in">
   </fieldset>

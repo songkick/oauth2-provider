@@ -201,14 +201,14 @@ the client:
     __send__ method, '/oauth/authorize' do
       @owner  = User.find_by_id(session[:user_id])
       @oauth2 = Songkick::OAuth2::Provider.parse(@owner, env)
-      
+
       if @oauth2.redirect?
         redirect @oauth2.redirect_uri, @oauth2.response_status
       end
-          
+
       headers @oauth2.response_headers
       status  @oauth2.response_status
-      
+
       if body = @oauth2.response_body
         body
       elsif @oauth2.valid?
@@ -233,7 +233,7 @@ You may also want to use scopes to provide granular access to your domain using
 asked for so you can display them to the user:
 
   <p>The application <%= @oauth2.client.name %> wants the following permissions:</p>
-  
+
   <ul>
     <% @oauth2.scopes.each do |scope| %>
       <li><%= PERMISSION_UI_STRINGS[scope] %></li>
@@ -256,7 +256,7 @@ user checks a box before posting a form to indicate their intent:
   post '/oauth/allow' do
     @user = User.find_by_id(session[:user_id])
     @auth = Songkick::OAuth2::Provider::Authorization.new(@user, params)
-    
+
     if params['allow'] == '1'
       @auth.grant_access!
     else
@@ -316,10 +316,10 @@ requested scopes.
   Songkick::OAuth2::Provider.handle_assertions 'https://graph.facebook.com/me' do |client, assertion, scopes|
     facebook = URI.parse('https://graph.facebook.com/me?access_token=' + assertion)
     response = Net::HTTP.get_response(facebook)
-    
+
     user_data = JSON.parse(response.body)
     account   = User.from_facebook_data(user_data)
-    
+
     account.grant_access!(client, :scopes => scopes)
   end
 
@@ -342,10 +342,10 @@ simple, for example a call to get a user's notes:
   get '/user/:username/notes' do
     user  = User.find_by_username(params[:username])
     token = Songkick::OAuth2::Provider.access_token(user, ['read_notes'], env)
-    
+
     headers token.response_headers
     status  token.response_status
-    
+
     if token.valid?
       JSON.unparse('notes' => user.notes)
     else

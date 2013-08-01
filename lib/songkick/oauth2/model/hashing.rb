@@ -1,7 +1,7 @@
 module Songkick
   module OAuth2
     module Model
-      
+
       module Hashing
         def hashes_attributes(*attributes)
           attributes.each do |attribute|
@@ -11,7 +11,7 @@ module Songkick
             end
             attr_reader attribute
           end
-          
+
           class_eval <<-RUBY
             def reload(*args)
               super
@@ -22,7 +22,7 @@ module Songkick
           RUBY
         end
       end
-      
+
     end
   end
 end
