@@ -105,7 +105,7 @@ end
 # Domain API
 
 get '/me' do
-  authorization = Songkick::OAuth2::Provider.access_token(nil, [], env)
+  authorization = Songkick::OAuth2::Provider.access_token(:implicit, [], env)
   headers authorization.response_headers
   status  authorization.response_status
 

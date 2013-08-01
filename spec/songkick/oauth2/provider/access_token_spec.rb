@@ -52,11 +52,23 @@ describe Songkick::OAuth2::Provider::AccessToken do
     it_should_behave_like "valid token"
   end
 
+  describe "with an implicit user" do
+    let :token do
+      Songkick::OAuth2::Provider::AccessToken.new(:implicit, ['profile'], 'magic-key')
+    end
+    it_should_behave_like "valid token"
+  end
+
   describe "with no user" do
     let :token do
       Songkick::OAuth2::Provider::AccessToken.new(nil, ['profile'], 'magic-key')
     end
-    it_should_behave_like "valid token"
+    it_should_behave_like "invalid token"
+
+    it "returns an error response" do
+      token.response_headers['WWW-Authenticate'].should == "OAuth realm='Demo App', error='invalid_token'"
+      token.response_status.should == 401
+    end
   end
 
   describe "with less scope than was granted" do

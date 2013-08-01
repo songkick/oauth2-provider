@@ -362,10 +362,10 @@ determine whether to serve the request or not.
 
 It is also common to provide a dynamic resource for getting some basic data
 about a user by supplying their access token. This can be done by passing
-<tt>nil</tt> as the resource owner:
+<tt>:implicit</tt> as the resource owner:
 
   get '/me' do
-    token = Songkick::OAuth2::Provider.access_token(nil, [], env)
+    token = Songkick::OAuth2::Provider.access_token(:implicit, [], env)
     if token.valid?
       JSON.unparse('username' => token.owner.username)
     else
