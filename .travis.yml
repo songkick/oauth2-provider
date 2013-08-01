@@ -2,19 +2,22 @@ language: ruby
 
 matrix:
   include:
+    # default build
     - { rvm: 1.9.3, gemfile: gemfiles/activerecord_3_2.gemfile, env: DB=mysql    }
 
+    # different databases
     - { rvm: 1.9.3, gemfile: gemfiles/activerecord_3_2.gemfile, env: DB=postgres }
 
+    # different ruby versions
     - { rvm: 1.8.7, gemfile: gemfiles/activerecord_3_2.gemfile, env: DB=mysql    }
     - { rvm: 1.9.2, gemfile: gemfiles/activerecord_3_2.gemfile, env: DB=mysql    }
     - { rvm: 2.0.0, gemfile: gemfiles/activerecord_3_2.gemfile, env: DB=mysql    }
 
+    # different activerecord versions
     - { rvm: 1.8.7, gemfile: gemfiles/activerecord_2_2.gemfile, env: DB=mysql    }
     - { rvm: 1.9.3, gemfile: gemfiles/activerecord_2_3.gemfile, env: DB=mysql    }
     - { rvm: 1.9.3, gemfile: gemfiles/activerecord_3_0.gemfile, env: DB=mysql    }
     - { rvm: 1.9.3, gemfile: gemfiles/activerecord_3_1.gemfile, env: DB=mysql    }
-
     - { rvm: 1.9.3, gemfile: gemfiles/activerecord_4_0.gemfile, env: DB=mysql    }
 
 before_script:
