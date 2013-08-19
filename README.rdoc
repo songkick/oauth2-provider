@@ -113,6 +113,8 @@ the gem's migrations that have not yet been applied to your database.
      -> 0.0009s
   ...
 
+To rollback migrations, use <tt>Songkick::OAuth2::Model::Schema.rollback</tt>.
+
 
 === Model Mixins
 

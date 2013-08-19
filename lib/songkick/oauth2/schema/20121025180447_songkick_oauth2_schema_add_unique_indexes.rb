@@ -26,7 +26,7 @@ class SongkickOauth2SchemaAddUniqueIndexes < ActiveRecord::Migration
     remove_index :oauth2_clients, [:client_id]
     add_index :oauth2_clients, [:client_id]
 
-    remove_clients :oauth2_clients, [:name]
+    remove_index :oauth2_clients, [:name]
   end
 end
 
