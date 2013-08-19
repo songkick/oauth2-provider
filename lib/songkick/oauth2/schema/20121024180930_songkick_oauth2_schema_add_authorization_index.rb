@@ -7,7 +7,7 @@ class SongkickOauth2SchemaAddAuthorizationIndex < ActiveRecord::Migration
   end
 
   def self.down
-    remove_index :oauth2_authorizations, INDEX_NAME
+    remove_index :oauth2_authorizations, :name => INDEX_NAME
     add_index :oauth2_authorizations, [:client_id, :access_token_hash]
   end
 end
