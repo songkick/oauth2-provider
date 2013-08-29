@@ -30,6 +30,13 @@ module RequestHelpers
     end
   end
 
+  def json_post(body_params, query_params = {})
+    uri = URI.parse("http://localhost:#{SERVER_PORT}/authorize?" + querystring(query_params))
+    Net::HTTP.start(uri.host, uri.port) do |http|
+      http.post(uri.path + "?" + uri.query.to_s, body_params.to_json, {'Content-Type' => 'application/json'})
+    end
+  end
+
   def validate_response(response, status, body)
     response.code.to_i.should == status
     response.body.should == body

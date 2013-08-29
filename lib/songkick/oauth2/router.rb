@@ -51,6 +51,15 @@ module Songkick
         def request_from(env_or_request)
           env = env_or_request.respond_to?(:env) ? env_or_request.env : env_or_request
           env = Rack::MockRequest.env_for(env['REQUEST_URI'] || '', :input => env['RAW_POST_DATA']).merge(env)
+
+          media_type = env['CONTENT_TYPE'].split(/\s*[;,]\s*/, 2).first.downcase
+          if media_type  == 'application/json'
+            input = env['rack.input']
+            input.rewind
+            env.update('rack.request.form_hash' => JSON.parse(input.read), 'rack.request.form_input' => input)
+            input.rewind
+          end
+
           Rack::Request.new(env)
         end
 

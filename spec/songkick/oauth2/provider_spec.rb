@@ -387,6 +387,12 @@ describe Songkick::OAuth2::Provider do
           post(params)
         end
 
+        it "creates a Token when passing params in the POST body as JSON" do
+          token = mock_request(Songkick::OAuth2::Provider::Exchange, :response_body => 'Hello')
+          Songkick::OAuth2::Provider::Exchange.should_receive(:new).with(@owner, params, nil).and_return(token)
+          json_post(params)
+        end
+
         it "returns a successful response" do
           Songkick::OAuth2.stub(:random_string).and_return('random_access_token')
           response = post_basic_auth(auth_params, query_params)
