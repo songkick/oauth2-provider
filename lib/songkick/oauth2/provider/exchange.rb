@@ -17,9 +17,10 @@ module Songkick
         }
 
         def initialize(resource_owner, params, transport_error = nil)
-          @params     = params
-          @scope      = params[SCOPE]
-          @grant_type = @params[GRANT_TYPE]
+          @params          = params
+          @scope           = params[SCOPE]
+          @grant_type      = @params[GRANT_TYPE]
+          @resource_owner  = resource_owner
 
           @transport_error = transport_error
 
@@ -187,7 +188,7 @@ module Songkick
           return if @error
 
           assertion = Assertion.new(@params)
-          @authorization = Provider.handle_assertion(@client, assertion, scopes)
+          @authorization = Provider.handle_assertion(@client, assertion, scopes, @resource_owner)
           return validate_authorization if @authorization
 
           @error = UNAUTHORIZED_CLIENT
@@ -224,4 +225,3 @@ module Songkick
     end
   end
 end
-
