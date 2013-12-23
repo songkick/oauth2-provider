@@ -114,7 +114,12 @@ module Songkick
 
         def generate_access_token
           self.access_token ||= self.class.create_access_token
-          save && access_token
+          save && self.access_token
+        end
+
+        def generate_refresh_token
+          self.refresh_token ||= self.class.create_refresh_token self.client
+          save && self.refresh_token
         end
 
         def grants_access?(user, *scopes)
