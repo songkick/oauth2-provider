@@ -41,9 +41,7 @@ module Songkick
           params  = request.params
           header  = request.env['HTTP_AUTHORIZATION']
 
-          header && header =~ /^OAuth\s+/ ?
-              header.gsub(/^OAuth\s+/, '') :
-              params[OAUTH_TOKEN]
+          if header and header =~ /^(?:OAuth|Bearer)\s+(.+)/ then $1 else params[OAUTH_TOKEN] end
         end
 
       private
