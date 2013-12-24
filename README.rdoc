@@ -169,8 +169,8 @@ since they are the client's access credentials. When you've created the client,
 you should show its details to the user registering the client: its
 <tt>name</tt>, <tt>redirect_uri</tt>, <tt>client_id</tt> and
 <tt>client_secret</tt> (the last two are generated for you).
-<tt>client_secret</tt> is not stored in plain text so you can only read it when
-you initially create the client object.
+<tt>client_secret</tt> is stored in plain text so you can pass it to your
+client's application so that they can authenticate with your provider.
 
 
 === OAuth request endpoint
