@@ -93,8 +93,8 @@ module Songkick
 
         def exchange!
           self.code          = nil
-          self.access_token  = self.class.create_access_token
-          self.refresh_token = nil
+          self.access_token  = self.generate_access_token
+          self.refresh_token = self.generate_refresh_token
           save!
         end
 
