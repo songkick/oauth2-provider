@@ -11,7 +11,7 @@ describe Songkick::OAuth2::Model::Authorization do
     create_authorization(:owner => tester, :client => client)
   end
 
-  it "is vaid" do
+  it "is valid" do
     authorization.should be_valid
   end
 
