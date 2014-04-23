@@ -43,8 +43,8 @@ module Songkick
         def check_format_of_redirect_uri
           uri = URI.parse(redirect_uri)
           errors.add(:redirect_uri, 'must be an absolute URI') unless uri.absolute?
-        rescue
-          errors.add(:redirect_uri, 'must be a URI')
+        rescue Exception => error
+          errors.add(:redirect_uri, "must be a URI: #{error.message}")
         end
 
         def generate_credentials

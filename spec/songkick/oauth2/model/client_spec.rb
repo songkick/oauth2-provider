@@ -16,6 +16,12 @@ describe Songkick::OAuth2::Model::Client do
     @client.should_not be_valid
   end
 
+  it "gives an appropriate message for an invalid uri" do
+    @client.redirect_uri = "http://underscore_uri_not_valid/receive_token"
+    @client.should_not be_valid
+    @client.errors[:redirect_uri].first.should eq("must be a URI: the scheme http does not accept registry part: underscore_uri_not_valid (or bad hostname?)")
+  end
+
   it "is invalid without a redirect_uri" do
     @client.redirect_uri = nil
     @client.should_not be_valid
