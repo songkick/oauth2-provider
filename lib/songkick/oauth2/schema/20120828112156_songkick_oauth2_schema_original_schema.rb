@@ -16,7 +16,7 @@ class SongkickOauth2SchemaOriginalSchema < ActiveRecord::Migration
       t.string     :oauth2_resource_owner_type
       t.integer    :oauth2_resource_owner_id
       t.belongs_to :client
-      t.string     :scope
+      t.text     :scope
       t.string     :code,               :limit => 40
       t.string     :access_token_hash,  :limit => 40
       t.string     :refresh_token_hash, :limit => 40
