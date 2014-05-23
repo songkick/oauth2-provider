@@ -25,7 +25,7 @@ class SongkickOauth2SchemaOriginalSchema < ActiveRecord::Migration
     add_index :oauth2_authorizations, [:client_id, :code]
     add_index :oauth2_authorizations, [:access_token_hash]
     add_index :oauth2_authorizations, [:client_id, :access_token_hash]
-    add_index :oauth2_authorizations, [:client_id, :refresh_token_hash]
+    add_index :oauth2_authorizations, [:client_id, :refresh_token_hash], :name => 'index_oauth2_authorizations_client_id_refresh_token_hash' # Name must be <= 62 chars
   end
 
   def self.down
