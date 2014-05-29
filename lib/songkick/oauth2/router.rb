@@ -14,7 +14,7 @@ module Songkick
           params  = request.params
           auth    = auth_params(env)
 
-          if auth[CLIENT_ID] and auth[CLIENT_ID] != params[CLIENT_ID]
+          if auth[CLIENT_ID] and auth[CLIENT_ID] != params[CLIENT_ID] and params[GRANT_TYPE] != CLIENT_CREDENTIALS
             error ||= Provider::Error.new("#{CLIENT_ID} from Basic Auth and request body do not match")
           end
 
