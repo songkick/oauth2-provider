@@ -19,7 +19,7 @@ module Songkick
 
         attr_accessible nil
 
-        #serialize :scope, Hash # we stuff a hash in the db as a string
+        serialize :scope, Hash # we stuff a hash in the db as a string
 
         class << self
           private :create, :new
@@ -127,13 +127,11 @@ module Songkick
           [*request_scope].all?(&scopes.method(:include?))
         end
 
-=begin
         def in_scopes?(request_scope, tenant_id)
           tenant_scopes = scope[tenant_id]
           scopes = tenant_scopes ? tenant_scopes.split(/\s+/) : []
           [*request_scope].all?(&Set.new(scopes).method(:include?))
         end
-=end
 
         def scopes
           scopes = scope ? scope.split(/\s+/) : []
