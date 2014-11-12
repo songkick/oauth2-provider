@@ -6,7 +6,7 @@ module Songkick
         attr_reader :client, :error, :error_description
 
         REQUIRED_PARAMS    = [CLIENT_ID, CLIENT_SECRET, GRANT_TYPE]
-        VALID_GRANT_TYPES  = [AUTHORIZATION_CODE, PASSWORD, ASSERTION, REFRESH_TOKEN]
+        VALID_GRANT_TYPES  = [AUTHORIZATION_CODE, PASSWORD, ASSERTION, REFRESH_TOKEN,CLIENT_CREDENTIALS]
 
         REQUIRED_PASSWORD_PARAMS  = [USERNAME, PASSWORD]
         REQUIRED_ASSERTION_PARAMS = [ASSERTION_TYPE, ASSERTION]
@@ -100,7 +100,7 @@ module Songkick
           return if @error
 
           __send__("validate_#{@grant_type}")
-          validate_scope
+          validate_scope unless @grant_type == Songkick::OAuth2::CLIENT_CREDENTIALS #No scopes for client flow , maybe enhance in future
         end
 
         def validate_required_params
@@ -109,6 +109,14 @@ module Songkick
             @error = INVALID_REQUEST
             @error_description = "Missing required parameter #{param}"
           end
+        end
+
+        def validate_client_credentials
+          @authorization = Provider.handle_client_credential(@params[CLIENT_ID], @params[CLIENT_SECRET], scopes)
+          return validate_authorization if @authorization
+
+          @error = INVALID_GRANT
+          @error_description = 'The access grant you supplied is invalid'
         end
 
         def validate_client
