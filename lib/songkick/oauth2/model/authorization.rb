@@ -79,7 +79,7 @@ module Songkick
             instance.expires_at = nil
           end
 
-          scopes = instance.scopes + (attributes[:scopes] || [])
+          scopes = instance.scopes(0) + (attributes[:scopes] || [])
           scopes += attributes[:scope].split(/\s+/) if attributes[:scope]
           instance.scope = scopes.empty? ? nil : scopes.entries.join(' ')
 
@@ -87,7 +87,7 @@ module Songkick
 
         rescue Object => error
           if Model.duplicate_record_error?(error)
-            retry
+            raise error
           else
             raise error
           end
@@ -133,8 +133,9 @@ module Songkick
           [*request_scope].all?(&Set.new(scopes).method(:include?))
         end
 
-        def scopes
-          scopes = scope ? scope.split(/\s+/) : []
+        def scopes(tenant_id)
+          tenant_scopes = scope[tenant_id] || ""
+          scopes = scope ? tenant_scopes.split(/\s+/) : []
           Set.new(scopes)
         end
       end

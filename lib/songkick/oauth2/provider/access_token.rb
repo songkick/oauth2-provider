@@ -56,7 +56,9 @@ module Songkick
           return @error = ''                 unless @access_token
           return @error = INVALID_TOKEN      unless @authorization
           return @error = EXPIRED_TOKEN      if @authorization.expired?
-          return @error = INSUFFICIENT_SCOPE unless @authorization.in_scopes?(@scopes, owner.current_tenant.id )
+          if owner.instance_of?(User)
+            return @error = INSUFFICIENT_SCOPE unless @authorization.in_scopes?(@scopes, owner.current_tenant.id )  #only check scopes if user not client
+          end
 
           if @resource_owner and @authorization.owner != @resource_owner
             @error = INSUFFICIENT_SCOPE

@@ -43,6 +43,7 @@ module Songkick
     ASSERTION              = 'assertion'
     ASSERTION_TYPE         = 'assertion_type'
     AUTHORIZATION_CODE     = 'authorization_code'
+    CLIENT_CREDENTIALS     = 'client_credentials'
     CLIENT_ID              = 'client_id'
     CLIENT_SECRET          = 'client_secret'
     CODE                   = 'code'
@@ -89,6 +90,7 @@ module Songkick
 
       def self.clear_assertion_handlers!
         @password_handler   = nil
+        @client_credential_handler = nil
         @assertion_handlers = {}
         @assertion_filters  = []
       end
@@ -97,6 +99,15 @@ module Songkick
 
       def self.handle_passwords(&block)
         @password_handler = block
+      end
+
+      def self.handle_client_credentials (&block)
+        @client_credential_handler = block
+      end
+
+      def self.handle_client_credential(client_id, client_secret, scopes)
+        return nil unless @client_credential_handler
+        @client_credential_handler.call(client_id, client_secret, scopes)
       end
 
       def self.handle_password(client, username, password, scopes)
