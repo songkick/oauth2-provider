@@ -94,7 +94,7 @@ module Songkick
         def exchange!
           self.code          = nil
           self.access_token  = self.class.create_access_token
-          self.refresh_token = nil
+          self.refresh_token = self.class.create_refresh_token(client)
           save!
         end
 
