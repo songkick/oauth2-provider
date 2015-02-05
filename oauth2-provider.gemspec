@@ -1,7 +1,7 @@
 spec = Gem::Specification.new do |s|
   s.name              = 'songkick-oauth2-provider'
-  s.version           = '0.10.3'
-  s.summary           = 'Simple OAuth 2.0 provider toolkit, altered for tokyo'
+  s.version           = '0.10.5'
+  s.summary           = 'Simple OAuth 2.0 provider toolkit, altered for CyberU'
   s.author            = 'James Coglan'
   s.email             = 'james@songkick.com'
   s.homepage          = 'http://github.com/songkick/oauth2-provider'
