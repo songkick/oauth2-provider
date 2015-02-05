@@ -16,7 +16,6 @@ spec = Gem::Specification.new do |s|
   s.add_dependency 'bcrypt-ruby'
   s.add_dependency 'json'
   s.add_dependency 'rack'
-  s.add_dependency 'protected_attributes'
 
   s.add_development_dependency 'appraisal', '~> 0.4.0'
   s.add_development_dependency 'mysql', '~> 2.8.0' if ENV['DB'] == 'mysql' # version locked by ActiveRecord
