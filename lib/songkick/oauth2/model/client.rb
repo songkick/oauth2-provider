@@ -34,7 +34,7 @@ module Songkick
         end
 
         def valid_client_secret?(secret)
-          BCrypt::Password.new(client_secret_hash) == secret
+          BCrypt::Password.new(client_secret_hash).to_s == secret
         end
 
         def oauth2_authorization_for(client)
