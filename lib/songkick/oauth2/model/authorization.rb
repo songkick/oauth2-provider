@@ -17,8 +17,6 @@ module Songkick
         validates_uniqueness_of :refresh_token_hash, :scope => :client_id, :allow_nil => true
         validates_uniqueness_of :access_token_hash,                        :allow_nil => true
 
-        attr_accessible nil
-
         serialize :scope, Hash # we stuff a hash in the db as a string
 
         class << self
