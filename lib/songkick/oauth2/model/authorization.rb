@@ -17,8 +17,6 @@ module Songkick
         validates_uniqueness_of :refresh_token_hash, :scope => :client_id, :allow_nil => true
         validates_uniqueness_of :access_token_hash,                        :allow_nil => true
 
-        serialize :scope, Hash # we stuff a hash in the db as a string
-
         class << self
           private :create, :new
         end
@@ -77,9 +75,9 @@ module Songkick
             instance.expires_at = nil
           end
 
-          scopes = instance.scopes(0) + (attributes[:scopes] || [])
+          scopes = instance.scopes + (attributes[:scopes] || [])
           scopes += attributes[:scope].split(/\s+/) if attributes[:scope]
-          instance.scope = scopes.empty? ? nil : Hash[scopes.map { |key| [key, true]}]
+          instance.scope = scopes.empty? ? nil : scopes.entries.join(' ')
 
           instance.save && instance
 
@@ -125,15 +123,8 @@ module Songkick
           [*request_scope].all?(&scopes.method(:include?))
         end
 
-        def in_scopes?(request_scope, tenant_id)
-          tenant_scopes = scope[tenant_id]
-          scopes = tenant_scopes ? tenant_scopes.split(/\s+/) : []
-          [*request_scope].all?(&Set.new(scopes).method(:include?))
-        end
-
         def scopes(tenant_id)
-          tenant_scopes = scope[tenant_id] || ""
-          scopes = scope ? tenant_scopes.split(/\s+/) : []
+          scopes = scope ? scope.split(/\s+/) : []
           Set.new(scopes)
         end
       end

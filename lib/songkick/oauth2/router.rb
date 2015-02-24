@@ -14,10 +14,10 @@ module Songkick
           params  = request.params
           auth    = auth_params(env)
 
-          #Password flow not used conflicts with client credentials flow
-          #if auth[CLIENT_ID] and auth[CLIENT_ID] != params[CLIENT_ID]
-          #  error ||= Provider::Error.new("#{CLIENT_ID} from Basic Auth and request body do not match")
-          #end
+          # Avoid this check on client credential grant
+          if auth[CLIENT_ID] and auth[CLIENT_ID] != params[CLIENT_ID] and params[GRANT_TYPE] != CLIENT_CREDENTIALS
+            error ||= Provider::Error.new("#{CLIENT_ID} from Basic Auth and request body do not match")
+          end
 
           if (request.post?)
             params = JSON.parse(request.body.read)
