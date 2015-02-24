@@ -123,7 +123,7 @@ module Songkick
           [*request_scope].all?(&scopes.method(:include?))
         end
 
-        def scopes(tenant_id)
+        def scopes
           scopes = scope ? scope.split(/\s+/) : []
           Set.new(scopes)
         end

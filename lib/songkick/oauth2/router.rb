@@ -29,8 +29,10 @@ module Songkick
             error ||= Provider::Error.new('must be a POST request') unless request.post?
             begin
               Provider::Exchange.new(resource_owner, params, error)
-            rescue StandardError
+            rescue ActiveRecord::RecordNotUnique
               error = Provider::Error.new('Already authorized, invalidate old token first')
+            rescue StandardError
+              error = Provider::Error.new('Unknown error occured')
             end
           else
             Provider::Authorization.new(resource_owner, params, error)
