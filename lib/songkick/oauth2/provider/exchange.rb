@@ -39,10 +39,13 @@ module Songkick
           update_authorization
 
           response = {}
-          [ACCESS_TOKEN, REFRESH_TOKEN, SCOPE].each do |key|
+          [ACCESS_TOKEN, REFRESH_TOKEN].each do |key|
             value = @authorization.__send__(key)
             response[key] = value if value
           end
+
+          response[SCOPE] = @authorization.scopes
+
           if expiry = @authorization.expires_in
             response[EXPIRES_IN] = expiry
           end
