@@ -96,7 +96,13 @@ module Songkick
           save!
         end
 
+        def expire!
+          self.expires_at = 0
+          save!
+        end
+
         def expired?
+          puts expires_at
           return false unless expires_at
           expires_at < Time.now
         end
