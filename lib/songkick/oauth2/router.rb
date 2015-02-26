@@ -14,15 +14,26 @@ module Songkick
           params  = request.params
           auth    = auth_params(env)
 
-          if auth[CLIENT_ID] and auth[CLIENT_ID] != params[CLIENT_ID]
+          # Avoid this check on client credential grant
+          if auth[CLIENT_ID] and auth[CLIENT_ID] != params[CLIENT_ID] and params[GRANT_TYPE] != CLIENT_CREDENTIALS
             error ||= Provider::Error.new("#{CLIENT_ID} from Basic Auth and request body do not match")
+          end
+
+          if (request.post?)
+            params = JSON.parse(request.body.read)
           end
 
           params = params.merge(auth)
 
           if params[GRANT_TYPE]
             error ||= Provider::Error.new('must be a POST request') unless request.post?
-            Provider::Exchange.new(resource_owner, params, error)
+            begin
+              Provider::Exchange.new(resource_owner, params, error)
+            rescue ActiveRecord::RecordNotUnique
+              error = Provider::Error.new('Already authorized, invalidate old token first')
+            rescue StandardError
+              error = Provider::Error.new('Unknown error occured')
+            end
           else
             Provider::Authorization.new(resource_owner, params, error)
           end
@@ -41,12 +52,12 @@ module Songkick
           params  = request.params
           header  = request.env['HTTP_AUTHORIZATION']
 
-          header && header =~ /^OAuth\s+/ ?
-              header.gsub(/^OAuth\s+/, '') :
-              params[OAUTH_TOKEN]
+          header && header =~ /^Bearer\s+/ ?
+              header.gsub(/^Bearer\s+/, '') :
+              params[ACCESS_TOKEN]
         end
 
-      private
+        private
 
         def request_from(env_or_request)
           env = env_or_request.respond_to?(:env) ? env_or_request.env : env_or_request

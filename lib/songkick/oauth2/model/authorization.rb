@@ -17,8 +17,6 @@ module Songkick
         validates_uniqueness_of :refresh_token_hash, :scope => :client_id, :allow_nil => true
         validates_uniqueness_of :access_token_hash,                        :allow_nil => true
 
-        attr_accessible nil
-
         class << self
           private :create, :new
         end
@@ -85,7 +83,7 @@ module Songkick
 
         rescue Object => error
           if Model.duplicate_record_error?(error)
-            retry
+            raise error
           else
             raise error
           end
@@ -94,11 +92,17 @@ module Songkick
         def exchange!
           self.code          = nil
           self.access_token  = self.class.create_access_token
-          self.refresh_token = nil
+          self.refresh_token = self.class.create_refresh_token(client)
+          save!
+        end
+
+        def expire!
+          self.expires_at = 0
           save!
         end
 
         def expired?
+          puts expires_at
           return false unless expires_at
           expires_at < Time.now
         end

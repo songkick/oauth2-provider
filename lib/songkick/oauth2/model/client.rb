@@ -3,6 +3,7 @@ module Songkick
     module Model
 
       class Client < ActiveRecord::Base
+        include Songkick::OAuth2::Model::ResourceOwner
         self.table_name = :oauth2_clients
 
         belongs_to :oauth2_client_owner, :polymorphic => true
@@ -14,8 +15,6 @@ module Songkick
         validates_uniqueness_of :client_id, :name
         validates_presence_of   :name, :redirect_uri
         validate :check_format_of_redirect_uri
-
-        attr_accessible :name, :redirect_uri
 
         before_create :generate_credentials
 
@@ -35,7 +34,12 @@ module Songkick
         end
 
         def valid_client_secret?(secret)
-          BCrypt::Password.new(client_secret_hash) == secret
+          BCrypt::Password.new(client_secret_hash).to_s == secret
+        end
+
+        def oauth2_authorization_for(client)
+          #authorizations.find_by_client_id_and_oauth2_resource_owner_type(client.id,self.class)
+          nil
         end
 
       private
