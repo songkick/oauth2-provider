@@ -159,6 +159,8 @@ example in a Sinatra app:
   end
 
   post '/oauth/apps' do
+    # Note: The following assumes protected_attributes.  For Rails 4 and above,
+    #  use: @client = Songkick::OAuth2::Model::Client.new(params.require(:client).permit(:name, :redirect_uri))
     @client = Songkick::OAuth2::Model::Client.new(params)
     @client.save ? erb(:show_client) : erb(:new_client)
   end
