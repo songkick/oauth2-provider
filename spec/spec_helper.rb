@@ -2,7 +2,6 @@ require 'rubygems'
 require 'bundler/setup'
 
 require 'active_record'
-require 'protected_attributes' if defined?(ActiveRecord::VERSION) && ActiveRecord::VERSION::MAJOR > 3
 
 require 'songkick/oauth2/provider'
 

@@ -12,6 +12,7 @@ matrix:
     - { rvm: 1.8.7, gemfile: gemfiles/activerecord_3_2.gemfile, env: DB=mysql    }
     - { rvm: 1.9.2, gemfile: gemfiles/activerecord_3_2.gemfile, env: DB=mysql    }
     - { rvm: 2.0.0, gemfile: gemfiles/activerecord_3_2.gemfile, env: DB=mysql    }
+    - { rvm: 2.1.1, gemfile: gemfiles/activerecord_3_2.gemfile, env: DB=mysql    }
 
     # different activerecord versions
     - { rvm: 1.8.7, gemfile: gemfiles/activerecord_2_2.gemfile, env: DB=mysql    }
@@ -19,6 +20,7 @@ matrix:
     - { rvm: 1.9.3, gemfile: gemfiles/activerecord_3_0.gemfile, env: DB=mysql    }
     - { rvm: 1.9.3, gemfile: gemfiles/activerecord_3_1.gemfile, env: DB=mysql    }
     - { rvm: 1.9.3, gemfile: gemfiles/activerecord_4_0.gemfile, env: DB=mysql    }
+    - { rvm: 2.1.1, gemfile: gemfiles/activerecord_4_1.gemfile, env: DB=mysql    }
 
 before_script:
   - sh -c "if [ '$DB' = 'mysql' ]; then mysql -e 'create database if not exists oauth2_test;'; fi"

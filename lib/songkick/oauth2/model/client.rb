@@ -15,7 +15,7 @@ module Songkick
         validates_presence_of   :name, :redirect_uri
         validate :check_format_of_redirect_uri
 
-        attr_accessible :name, :redirect_uri
+        attr_accessible :name, :redirect_uri if (defined?(ActiveRecord::VERSION) && ActiveRecord::VERSION::MAJOR <= 3) || defined?(ProtectedAttributes)
 
         before_create :generate_credentials
 

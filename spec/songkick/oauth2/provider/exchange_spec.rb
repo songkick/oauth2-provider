@@ -349,5 +349,23 @@ describe Songkick::OAuth2::Provider::Exchange do
     end
 
   end
+
+  describe "using client_credentials grant type" do
+    let(:params) { { 'client_id' => @client.client_id,
+                     'client_secret' => @client.client_secret,
+                     'grant_type'    => 'client_credentials' }
+                 }
+
+    before do
+      Songkick::OAuth2::Provider.handle_client_credentials do |client, owner, scopes|
+        owner.grant_access!(client, :scopes => scopes.reject { |s| s == 'qux' })
+      end
+    end
+
+    let(:authorization) { Songkick::OAuth2::Model::Authorization.find_by_oauth2_resource_owner_id(@client.owner.id) }
+
+    it_should_behave_like "validates required parameters"
+    it_should_behave_like "valid token request"   
+  end
 end
 

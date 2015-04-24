@@ -24,6 +24,12 @@ describe Songkick::OAuth2::Model::ResourceOwner do
       Songkick::OAuth2::Model::Authorization.count.should == 1
     end
 
+    it "creates an Authorization" do
+      Songkick::OAuth2::Model::Authorization.count.should == 0
+      @owner.grant_access!(@client)
+      Songkick::OAuth2::Model::Authorization.count.should == 1
+    end
+
     it "returns the authorization" do
       @owner.grant_access!(@client).should be_kind_of(Songkick::OAuth2::Model::Authorization)
     end

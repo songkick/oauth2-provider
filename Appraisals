@@ -26,6 +26,10 @@ if RUBY_VERSION >= '1.9'
   appraise 'activerecord_4_0' do
     gem 'activerecord', '~> 4.0.0'
     gem 'mysql', '~> 2.9.0' if ENV['DB'] == 'mysql'
-    gem 'protected_attributes', '~> 1.0.0'
+  end
+
+  appraise 'activerecord_4_1' do
+    gem 'activerecord', '~> 4.1.0'
+    gem 'mysql', '~> 2.9.0' if ENV['DB'] == 'mysql'
   end
 end

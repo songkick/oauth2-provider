@@ -17,7 +17,7 @@ module Songkick
         validates_uniqueness_of :refresh_token_hash, :scope => :client_id, :allow_nil => true
         validates_uniqueness_of :access_token_hash,                        :allow_nil => true
 
-        attr_accessible nil
+        attr_accessible nil if (defined?(ActiveRecord::VERSION) && ActiveRecord::VERSION::MAJOR <= 3) || defined?(ProtectedAttributes)
 
         class << self
           private :create, :new

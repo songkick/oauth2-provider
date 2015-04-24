@@ -528,15 +528,29 @@ describe Songkick::OAuth2::Provider do
     end
 
     describe "for header-based requests" do
-      def request(path, params = {})
-        access_token = params.delete('oauth_token')
-        http   = Net::HTTP.new('localhost', RequestHelpers::SERVER_PORT)
-        qs     = params.map { |k,v| "#{ CGI.escape k.to_s }=#{ CGI.escape v.to_s }" }.join('&')
-        header = {'Authorization' => "OAuth #{access_token}"}
-        http.request_get(path + '?' + qs, header)
+      context "for OAuth headers" do
+        def request(path, params = {})
+          access_token = params.delete('oauth_token')
+          http   = Net::HTTP.new('localhost', RequestHelpers::SERVER_PORT)
+          qs     = params.map { |k,v| "#{ CGI.escape k.to_s }=#{ CGI.escape v.to_s }" }.join('&')
+          header = {'Authorization' => "OAuth #{access_token}"}
+          http.request_get(path + '?' + qs, header)
+        end
+
+        it_should_behave_like "protected resource"
       end
 
-      it_should_behave_like "protected resource"
+      context "for Bearer headers" do
+        def request(path, params = {})
+          access_token = params.delete('oauth_token')
+          http   = Net::HTTP.new('localhost', RequestHelpers::SERVER_PORT)
+          qs     = params.map { |k,v| "#{ CGI.escape k.to_s }=#{ CGI.escape v.to_s }" }.join('&')
+          header = {'Authorization' => "Bearer #{access_token}"}
+          http.request_get(path + '?' + qs, header)
+        end
+
+        it_should_behave_like "protected resource"
+      end
     end
 
     describe "for GET requests" do
