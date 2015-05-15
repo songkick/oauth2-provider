@@ -167,7 +167,7 @@ module Songkick
             @error_description = "Unknown client ID #{@params[CLIENT_ID]}"
           end
 
-          if @client and @client.redirect_uri and @client.redirect_uri != @params[REDIRECT_URI]
+          if @client and @client.redirect_uri and !RedirectURIMatcher.match?(@client.redirect_uri, @params[REDIRECT_URI])
             @error = REDIRECT_MISMATCH
             @error_description = "Parameter #{REDIRECT_URI} does not match registered URI"
           end
