@@ -143,6 +143,17 @@ describe Songkick::OAuth2::Provider::Authorization do
     end
   end
 
+  describe "with a wildcard redirect uri" do
+    before do
+      authorization.client.redirect_uri = "*.wildcard.uri"
+      params['redirect_uri'] = "http://songkick.wildcard.uri"
+    end
+
+    it "uses the parameter uri" do
+      authorization.redirect_uri.should == "http://songkick.wildcard.uri?"
+    end
+  end
+
   # http://en.wikipedia.org/wiki/HTTP_response_splitting
   # scope and state values are passed back in the redirect
 

@@ -83,7 +83,7 @@ module Songkick
 
         def redirect_uri
           return nil unless @client
-          base_redirect_uri = @client.redirect_uri
+
           q = (base_redirect_uri =~ /\?/) ? '&' : '?'
 
           if not valid?
@@ -179,6 +179,18 @@ module Songkick
             value = value.join(' ') if Array === value
             value ? "#{ key }=#{ CGI.escape(value.to_s) }" : nil
           }.compact.join('&')
+        end
+
+        def client_contains_wildcard?
+          @client.redirect_uri.include?('*')
+        end
+
+        def base_redirect_uri
+          if client_contains_wildcard?
+            @params[REDIRECT_URI]
+          else
+            @client.redirect_uri
+          end
         end
       end
 
