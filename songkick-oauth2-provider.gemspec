@@ -1,4 +1,4 @@
-spec = Gem::Specification.new do |s|
+Gem::Specification.new do |s|
   s.name              = 'songkick-oauth2-provider'
   s.version           = '0.10.2'
   s.summary           = 'Simple OAuth 2.0 provider toolkit'
@@ -28,4 +28,3 @@ spec = Gem::Specification.new do |s|
   s.add_development_dependency 'thin'
   s.add_development_dependency 'factory_girl', '~> 2.0'
 end
-
