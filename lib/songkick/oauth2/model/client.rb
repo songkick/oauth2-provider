@@ -25,17 +25,8 @@ module Songkick
           end
         end
 
-        attr_reader :client_secret
-
-        def client_secret=(secret)
-          @client_secret = secret
-          hash = BCrypt::Password.create(secret)
-          hash.force_encoding('UTF-8') if hash.respond_to?(:force_encoding)
-          self.client_secret_hash = hash
-        end
-
         def valid_client_secret?(secret)
-          BCrypt::Password.new(client_secret_hash) == secret
+          self.client_secret == secret
         end
 
       private

@@ -1,5 +1,4 @@
 require 'base64'
-require 'bcrypt'
 require 'cgi'
 require 'digest/sha1'
 require 'json'

@@ -4,4 +4,4 @@ Gemfile.lock
 gemfiles/*.lock
 pkg
 rdoc
-
+*.swp
