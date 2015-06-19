@@ -12,7 +12,7 @@ spec = Gem::Specification.new do |s|
   s.files             = %w[History.txt README.rdoc] + Dir.glob('{example,lib,spec}/**/*.{css,erb,rb,rdoc,ru}')
   s.require_paths     = ['lib']
 
-  s.add_dependency 'activerecord'
+  s.add_dependency 'activerecord', '~> 3.2.0', '>= 0'
   s.add_dependency 'json'
   s.add_dependency 'rack'
 
