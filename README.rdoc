@@ -172,6 +172,13 @@ you should show its details to the user registering the client: its
 <tt>client_secret</tt> is not stored in plain text so you can only read it when
 you initially create the client object.
 
+==== Note on protecting Client attributes
+
+It is important to make sure to protect the <tt>Client</tt> model attributes from mass-assigning. Either using
+<tt>protected attributes</tt> (Rails < 4) or <tt>strong parameters</tt> (Rails >= 4).
+
+Do not allow the attributes <tt>client_id</tt> and <tt>client_secret</tt> to be mass-assigned. Usually, you'll only allow
+the attributes <tt>name</tt> and <tt>redirect_uri</tt> to be mass-assigned.
 
 === OAuth request endpoint
 
@@ -401,4 +408,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
-
