@@ -14,7 +14,7 @@ module Songkick
         RESPONSE_HEADERS = {
           'Cache-Control' => 'no-store',
           'Content-Type'  => 'application/json'
-        }
+        }.freeze
 
         def initialize(resource_owner, params, transport_error = nil)
           @params     = params
