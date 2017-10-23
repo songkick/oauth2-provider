@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'mysql', '~> 2.8.0' if ENV['DB'] == 'mysql' # version locked by ActiveRecord
   s.add_development_dependency 'pg' if ENV['DB'] == 'postgres'
   s.add_development_dependency 'rspec'
-  s.add_development_dependency 'sinatra', '>= 1.3.0'
+  s.add_development_dependency 'sinatra', '~> 1.3'
   s.add_development_dependency 'sqlite3'
   s.add_development_dependency 'thin'
 end
