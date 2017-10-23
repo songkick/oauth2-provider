@@ -1,3 +1,10 @@
+=== 0.10.3
+
+* Add support for query strings in the client redirect uri
+* Do not allow the user arg for Provider.access_token() to be nil
+  (Use `:implicit` for implicit user lookup)
+
+
 === 0.10.2 / 2012-10-31
 
 * Stop Model::Authorization#scope being set to an empty string and returned as
