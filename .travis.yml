@@ -21,6 +21,9 @@ matrix:
     - { rvm: 1.9.3, gemfile: gemfiles/activerecord_4_0.gemfile, env: DB=mysql    }
     - { rvm: 1.9.3, gemfile: gemfiles/activerecord_4_1.gemfile, env: DB=mysql    }
 
+before_install:
+  - gem install bundler
+
 before_script:
   - sh -c "if [ '$DB' = 'mysql' ]; then mysql -e 'create database if not exists oauth2_test;'; fi"
   - sh -c "if [ '$DB' = 'postgres' ]; then psql -c 'create database oauth2_test;' -U postgres; fi"
