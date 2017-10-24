@@ -269,6 +269,15 @@ describe Songkick::OAuth2::Provider::Exchange do
     it_should_behave_like "validates required parameters"
     it_should_behave_like "valid token request"
 
+    it "provides the resource_owner to the assertion handler" do
+      Songkick::OAuth2::Provider.handle_assertions('https://graph.facebook.com/me') do |client, assertion, scopes, resource_owner|
+        resource_owner.should be_a TestApp::User
+        user = TestApp::User[assertion]
+        user.grant_access!(client, :scopes => ['foo', 'bar'])
+      end
+      exchange
+    end
+
     describe "missing assertion_type" do
       before { params.delete('assertion_type') }
 
@@ -350,4 +359,3 @@ describe Songkick::OAuth2::Provider::Exchange do
 
   end
 end
-
