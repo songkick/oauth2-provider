@@ -32,16 +32,6 @@ describe Songkick::OAuth2::Model::Client do
     @client.should_not be_valid
   end
 
-  it "cannot mass-assign client_id" do
-    @client.update_attributes(:client_id => 'foo')
-    @client.client_id.should_not == 'foo'
-  end
-
-  it "cannot mass-assign client_secret" do
-    @client.update_attributes(:client_secret => 'foo')
-    @client.client_secret.should_not == 'foo'
-  end
-
   it "has client_id and client_secret filled in" do
     @client.client_id.should_not be_nil
     @client.client_secret.should_not be_nil
