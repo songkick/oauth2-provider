@@ -1,4 +1,4 @@
-=== 0.10.3
+=== 0.10.3 / 2017-10-24
 
 * Add support for query strings in the client redirect uri
 * Do not allow the user arg for Provider.access_token() to be nil
