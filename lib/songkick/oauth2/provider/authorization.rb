@@ -161,12 +161,6 @@ module Songkick
             @error_description = "Response type #{@params[RESPONSE_TYPE]} is not supported"
           end
 
-          @client = Model::Client.find_by_client_id(@params[CLIENT_ID])
-          unless @client
-            @error = INVALID_CLIENT
-            @error_description = "Unknown client ID #{@params[CLIENT_ID]}"
-          end
-
           if @client and @client.redirect_uri and @client.redirect_uri != @params[REDIRECT_URI]
             @error = REDIRECT_MISMATCH
             @error_description = "Parameter #{REDIRECT_URI} does not match registered URI"
