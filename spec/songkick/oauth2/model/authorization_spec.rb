@@ -135,22 +135,24 @@ describe Songkick::OAuth2::Model::Authorization do
   end
 
   describe "#exchange!" do
+    before { authorization }
+
     it "saves the record" do
       authorization.should_receive(:save!)
       authorization.exchange!
     end
 
     it "uses its helpers to find unique tokens" do
-      Songkick::OAuth2::Model::Authorization.should_receive(:create_access_token).and_return('access_token')
+      Songkick::OAuth2.stub(:random_string).and_return('access_token', 'refresh_token')
       authorization.exchange!
       authorization.access_token.should == 'access_token'
+      authorization.refresh_token.should == 'refresh_token'
     end
 
     it "updates the tokens correctly" do
       authorization.exchange!
       authorization.should be_valid
       authorization.code.should be_nil
-      authorization.refresh_token.should be_nil
     end
   end
 

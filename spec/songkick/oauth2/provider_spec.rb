@@ -388,9 +388,13 @@ describe Songkick::OAuth2::Provider do
         end
 
         it "returns a successful response" do
-          Songkick::OAuth2.stub(:random_string).and_return('random_access_token')
+          Songkick::OAuth2.stub(:random_string).and_return('random_access_token', 'random_refresh_token')
           response = post_basic_auth(auth_params, query_params)
-          validate_json_response(response, 200, 'access_token' => 'random_access_token', 'expires_in' => 10800)
+          validate_json_response(response, 200,
+            'access_token'  => 'random_access_token',
+            'refresh_token' => 'random_refresh_token',
+            'expires_in'    => 10800
+          )
         end
 
         describe "with a scope parameter" do
@@ -399,10 +403,11 @@ describe Songkick::OAuth2::Provider do
           end
 
           it "passes the scope back in the success response" do
-            Songkick::OAuth2.stub(:random_string).and_return('random_access_token')
+            Songkick::OAuth2.stub(:random_string).and_return('random_access_token', 'random_refresh_token')
             response = post_basic_auth(auth_params, query_params)
             validate_json_response(response, 200,
               'access_token'  => 'random_access_token',
+              'refresh_token' => 'random_refresh_token',
               'scope'         => 'foo bar',
               'expires_in'    => 10800
             )
@@ -437,13 +442,14 @@ describe Songkick::OAuth2::Provider do
       describe "when there is an Authorization with code and token" do
         before do
           @authorization.update_attributes(:code => 'pending_code', :access_token => 'working_token')
-          Songkick::OAuth2.stub(:random_string).and_return('random_access_token')
+          Songkick::OAuth2.stub(:random_string).and_return('random_access_token', 'random_refresh_token')
         end
 
         it "returns a new access token" do
           response = post(params)
           validate_json_response(response, 200,
             'access_token' => 'random_access_token',
+            'refresh_token' => 'random_refresh_token',
             'expires_in'   => 10800
           )
         end
