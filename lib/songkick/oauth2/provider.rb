@@ -5,6 +5,7 @@ require 'digest/sha1'
 require 'json'
 require 'logger'
 require 'rack'
+require 'vendor/globber'
 
 begin
   require 'securerandom'
@@ -19,6 +20,7 @@ module Songkick
     autoload :Model,  ROOT + '/oauth2/model'
     autoload :Router, ROOT + '/oauth2/router'
     autoload :Schema, ROOT + '/oauth2/schema'
+    autoload :RedirectURIMatcher, ROOT + '/oauth2/redirect_uri_matcher'
 
     def self.random_string
       if defined? SecureRandom

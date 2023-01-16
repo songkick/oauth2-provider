@@ -137,7 +137,7 @@ module Songkick
             @error_description = "Missing required parameter code"
           end
 
-          if @client.redirect_uri and @client.redirect_uri != @params[REDIRECT_URI]
+          if @client.redirect_uri and !RedirectURIMatcher.match?(@client.redirect_uri, @params[REDIRECT_URI])
             @error = REDIRECT_MISMATCH
             @error_description = "Parameter redirect_uri does not match registered URI"
           end
