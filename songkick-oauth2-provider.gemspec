@@ -17,8 +17,8 @@ Gem::Specification.new do |s|
   s.add_dependency 'json'
   s.add_dependency 'rack'
 
-  s.add_development_dependency 'appraisal', '~> 0.4.0'
-  s.add_development_dependency 'factory_girl', '~> 2.0'
+  s.add_development_dependency 'appraisal', '2.4.1'
+  s.add_development_dependency 'factory_bot'
   s.add_development_dependency 'i18n', '~> 0.6.4'
   s.add_development_dependency 'mysql', '~> 2.8.0' if ENV['DB'] == 'mysql' # version locked by ActiveRecord
   s.add_development_dependency 'pg', '~> 0.18.4' if ENV['DB'] == 'postgres'

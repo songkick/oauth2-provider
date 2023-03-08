@@ -6,10 +6,6 @@ if RUBY_VERSION < '1.9'
   end
 end
 
-appraise 'activerecord_2_3' do
-  gem 'activerecord', '~> 2.3.0'
-end
-
 appraise 'activerecord_3_0' do
   gem 'activerecord', '~> 3.0.0'
 end
