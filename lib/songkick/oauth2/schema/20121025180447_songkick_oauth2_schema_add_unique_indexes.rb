@@ -1,4 +1,4 @@
-class SongkickOauth2SchemaAddUniqueIndexes < ActiveRecord::Migration
+class SongkickOauth2SchemaAddUniqueIndexes < ActiveRecord::Migration[6.1]
   def self.up
     remove_index :oauth2_authorizations, column: [:client_id, :code]
     remove_index :oauth2_authorizations, column: [:client_id, :refresh_token_hash], name: 'index_client_refresh'
