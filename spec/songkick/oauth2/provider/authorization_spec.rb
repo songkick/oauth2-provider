@@ -11,7 +11,7 @@ describe Songkick::OAuth2::Provider::Authorization do
                }
 
   before do
-    @client = Factory(:client)
+    @client = FactoryBot.create(:client)
     Songkick::OAuth2.stub(:random_string).and_return('s1', 's2', 's3')
   end
 

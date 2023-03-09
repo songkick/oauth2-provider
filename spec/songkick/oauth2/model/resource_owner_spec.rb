@@ -2,8 +2,8 @@ require 'spec_helper'
 
 describe Songkick::OAuth2::Model::ResourceOwner do
   before do
-    @owner  = Factory(:owner)
-    @client = Factory(:client)
+    @owner  = FactoryBot.create(:owner)
+    @client = FactoryBot.create(:client)
   end
 
   describe "#grant_access!" do

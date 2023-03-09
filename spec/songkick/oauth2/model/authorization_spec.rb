@@ -1,11 +1,11 @@
 require 'spec_helper'
 
 describe Songkick::OAuth2::Model::Authorization do
-  let(:client)   { Factory :client }
-  let(:impostor) { Factory :client }
-  let(:owner)    { Factory :owner }
-  let(:user)     { Factory :owner }
-  let(:tester)   { Factory(:owner) }
+  let(:client)   { FactoryBot.create(:client) }
+  let(:impostor) { FactoryBot.create(:client) }
+  let(:owner)    { FactoryBot.create(:owner)  }
+  let(:user)     { FactoryBot.create(:owner) }
+  let(:tester)   { FactoryBot.create(:owner) }
 
   let(:authorization) do
     create_authorization(:owner => tester, :client => client)

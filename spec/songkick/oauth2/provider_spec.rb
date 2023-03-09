@@ -12,7 +12,7 @@ describe Songkick::OAuth2::Provider do
                }
 
   before do
-    @client = Factory(:client, :name => 'Test client')
+    @client = FactoryBot.create(:client, :name => 'Test client')
     @owner  = TestApp::User['Bob']
   end
 
@@ -321,7 +321,7 @@ describe Songkick::OAuth2::Provider do
 
   describe "access token request" do
     before do
-      @client = Factory(:client)
+      @client = FactoryBot.create(:client)
       @authorization = create_authorization(
           :owner      => @owner,
           :client     => @client,
@@ -436,7 +436,7 @@ describe Songkick::OAuth2::Provider do
 
       describe "when there is an Authorization with code and token" do
         before do
-          @authorization.update_attributes(:code => 'pending_code', :access_token => 'working_token')
+          @authorization.update!(:code => 'pending_code', :access_token => 'working_token')
           Songkick::OAuth2.stub(:random_string).and_return('random_access_token')
         end
 

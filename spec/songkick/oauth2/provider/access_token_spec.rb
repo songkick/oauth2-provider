@@ -7,13 +7,13 @@ describe Songkick::OAuth2::Provider::AccessToken do
 
     create_authorization(
       :owner        => @alice,
-      :client       => Factory(:client),
+      :client       => FactoryBot.create(:client),
       :scope        => 'profile',
       :access_token => 'sesame')
 
     @authorization = create_authorization(
       :owner        => @bob,
-      :client       => Factory(:client),
+      :client       => FactoryBot.create(:client),
       :scope        => 'profile',
       :access_token => 'magic-key')
 

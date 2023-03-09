@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Songkick::OAuth2::Provider::Exchange do
   before do
-    @client = Factory(:client)
+    @client = FactoryBot.create(:client)
     @alice  = TestApp::User['Alice']
     @bob    = TestApp::User['Bob']
     @authorization = create_authorization(:client => @client, :owner => @bob, :code => 'a_fake_code', :scope => 'foo bar')
@@ -307,7 +307,7 @@ describe Songkick::OAuth2::Provider::Exchange do
 
     describe "with a client unauthorized to use the assertion scheme" do
       before do
-        client = Factory(:client)
+        client = FactoryBot.create(:client)
         params['client_id'] = client.client_id
         params['client_secret'] = client.client_secret
       end

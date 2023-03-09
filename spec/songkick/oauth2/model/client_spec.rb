@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Songkick::OAuth2::Model::Client do
   before do
     @client = Songkick::OAuth2::Model::Client.create(:name => 'App', :redirect_uri => 'http://example.com/cb')
-    @owner  = Factory(:owner)
+    @owner  = FactoryBot.create(:owner)
     Songkick::OAuth2::Model::Authorization.for(@owner, @client)
   end
 
@@ -33,12 +33,12 @@ describe Songkick::OAuth2::Model::Client do
   end
 
   it "cannot mass-assign client_id" do
-    @client.update_attributes(:client_id => 'foo')
+    @client.update!(:client_id => 'foo')
     @client.client_id.should_not == 'foo'
   end
 
   it "cannot mass-assign client_secret" do
-    @client.update_attributes(:client_secret => 'foo')
+    @client.update!(:client_secret => 'foo')
     @client.client_secret.should_not == 'foo'
   end
 

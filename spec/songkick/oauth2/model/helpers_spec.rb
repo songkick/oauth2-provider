@@ -4,10 +4,10 @@ describe Songkick::OAuth2::Model::Helpers do
   subject { Songkick::OAuth2::Model::Helpers }
 
   describe '.count' do
-    let(:owner) { Factory(:owner) }
+    let(:owner) { FactoryBot.create(:owner) }
 
     before do
-      3.times { Factory(:client, :owner => owner) }
+      3.times { FactoryBot.create(:client, :owner => owner) }
     end
 
     context 'when conditions are not passed' do
