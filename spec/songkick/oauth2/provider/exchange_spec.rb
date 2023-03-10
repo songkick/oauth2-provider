@@ -6,7 +6,7 @@ describe Songkick::OAuth2::Provider::Exchange do
     @alice  = TestApp::User['Alice']
     @bob    = TestApp::User['Bob']
     @authorization = create_authorization(:client => @client, :owner => @bob, :code => 'a_fake_code', :scope => 'foo bar')
-    Songkick::OAuth2.stub(:random_string).and_return('random_string')
+    allow(Songkick::OAuth2).to receive(:random_string).and_return('random_string')
   end
 
   let(:exchange) { Songkick::OAuth2::Provider::Exchange.new(@bob, params) }
@@ -16,8 +16,8 @@ describe Songkick::OAuth2::Provider::Exchange do
       before { params.delete('client_id') }
 
       it "is invalid" do
-        exchange.error.should == "invalid_request"
-        exchange.error_description.should == "Missing required parameter client_id"
+        expect(exchange.error).to eq("invalid_request")
+        expect(exchange.error_description).to eq("Missing required parameter client_id")
       end
     end
 
@@ -25,8 +25,8 @@ describe Songkick::OAuth2::Provider::Exchange do
       before { params['grant_type'] = 'unknown' }
 
       it "is invalid" do
-        exchange.error.should == "unsupported_grant_type"
-        exchange.error_description.should == "The grant type unknown is not recognized"
+        expect(exchange.error).to eq("unsupported_grant_type")
+        expect(exchange.error_description).to eq("The grant type unknown is not recognized")
       end
     end
 
@@ -34,8 +34,8 @@ describe Songkick::OAuth2::Provider::Exchange do
       before { params.delete('client_id') }
 
       it "is invalid" do
-        exchange.error.should == "invalid_request"
-        exchange.error_description.should == "Missing required parameter client_id"
+        expect(exchange.error).to eq("invalid_request")
+        expect(exchange.error_description).to eq("Missing required parameter client_id")
       end
     end
 
@@ -43,8 +43,8 @@ describe Songkick::OAuth2::Provider::Exchange do
       before { params['client_id'] = "unknown" }
 
       it "is invalid" do
-        exchange.error.should == "invalid_client"
-        exchange.error_description.should == "Unknown client ID unknown"
+        expect(exchange.error).to eq("invalid_client")
+        expect(exchange.error_description).to eq("Unknown client ID unknown")
       end
     end
 
@@ -52,8 +52,8 @@ describe Songkick::OAuth2::Provider::Exchange do
       before { params.delete('client_secret') }
 
       it "is invalid" do
-        exchange.error.should == "invalid_request"
-        exchange.error_description.should == "Missing required parameter client_secret"
+        expect(exchange.error).to eq("invalid_request")
+        expect(exchange.error_description).to eq("Missing required parameter client_secret")
       end
     end
 
@@ -61,8 +61,8 @@ describe Songkick::OAuth2::Provider::Exchange do
       before { params['client_secret'] = "nosoupforyou" }
 
       it "is invalid" do
-        exchange.error.should == "invalid_client"
-        exchange.error_description.should == "Parameter client_secret does not match"
+        expect(exchange.error).to eq("invalid_client")
+        expect(exchange.error_description).to eq("Parameter client_secret does not match")
       end
     end
 
@@ -70,7 +70,7 @@ describe Songkick::OAuth2::Provider::Exchange do
       before { params['scope'] = 'bar' }
 
       it "is valid" do
-        exchange.error.should be_nil
+        expect(exchange.error).to be_nil
       end
     end
 
@@ -78,27 +78,27 @@ describe Songkick::OAuth2::Provider::Exchange do
       before { params['scope'] = 'qux' }
 
       it "is invalid" do
-        exchange.error.should == 'invalid_scope'
-        exchange.error_description.should == 'The request scope was never granted by the user'
+        expect(exchange.error).to eq('invalid_scope')
+        expect(exchange.error_description).to eq('The request scope was never granted by the user')
       end
     end
   end
 
   shared_examples_for "valid token request" do
     before do
-      Songkick::OAuth2.stub(:random_string).and_return('random_access_token')
+      allow(Songkick::OAuth2).to receive(:random_string).and_return('random_access_token')
     end
 
     it "is valid" do
-      exchange.error.should be_nil
+      expect(exchange.error).to be_nil
     end
 
     it "updates the Authorization with tokens" do
       exchange.update_authorization
       authorization.reload
-      authorization.code.should be_nil
-      authorization.access_token_hash.should == Songkick::OAuth2.hashify('random_access_token')
-      authorization.refresh_token.should be_nil
+      expect(authorization.code).to be_nil
+      expect(authorization.access_token_hash).to eq(Songkick::OAuth2.hashify('random_access_token'))
+      expect(authorization.refresh_token).to be_nil
     end
   end
 
@@ -119,8 +119,8 @@ describe Songkick::OAuth2::Provider::Exchange do
       before { params.delete('redirect_uri') }
 
       it "is invalid" do
-        exchange.error.should == "invalid_request"
-        exchange.error_description.should == "Missing required parameter redirect_uri"
+        expect(exchange.error).to eq("invalid_request")
+        expect(exchange.error_description).to eq("Missing required parameter redirect_uri")
       end
     end
 
@@ -128,15 +128,15 @@ describe Songkick::OAuth2::Provider::Exchange do
       before { params['redirect_uri'] = "http://songkick.com" }
 
       it "is invalid" do
-        exchange.error.should == "redirect_uri_mismatch"
-        exchange.error_description.should == "Parameter redirect_uri does not match registered URI"
+        expect(exchange.error).to eq("redirect_uri_mismatch")
+        expect(exchange.error_description).to eq("Parameter redirect_uri does not match registered URI")
       end
 
       describe "when the client has not registered a redirect_uri" do
         before { @client.update_attribute(:redirect_uri, nil) }
 
         it "is valid" do
-          exchange.error.should be_nil
+          expect(exchange.error).to be_nil
         end
       end
     end
@@ -145,8 +145,8 @@ describe Songkick::OAuth2::Provider::Exchange do
       before { params.delete('code') }
 
       it "is invalid" do
-        exchange.error.should == "invalid_request"
-        exchange.error_description.should == "Missing required parameter code"
+        expect(exchange.error).to eq("invalid_request")
+        expect(exchange.error_description).to eq("Missing required parameter code")
       end
     end
 
@@ -154,8 +154,8 @@ describe Songkick::OAuth2::Provider::Exchange do
       before { params['code'] = "unknown" }
 
       it "is invalid" do
-        exchange.error.should == "invalid_grant"
-        exchange.error_description.should == "The access grant you supplied is invalid"
+        expect(exchange.error).to eq("invalid_grant")
+        expect(exchange.error_description).to eq("The access grant you supplied is invalid")
       end
     end
 
@@ -163,8 +163,8 @@ describe Songkick::OAuth2::Provider::Exchange do
       before { @authorization.update_attribute(:expires_at, 1.day.ago) }
 
       it "is invalid" do
-        exchange.error.should == "invalid_grant"
-        exchange.error_description.should == "The access grant you supplied is invalid"
+        expect(exchange.error).to eq("invalid_grant")
+        expect(exchange.error_description).to eq("The access grant you supplied is invalid")
       end
     end
   end
@@ -198,8 +198,8 @@ describe Songkick::OAuth2::Provider::Exchange do
         before { params.delete('username') }
 
         it "is invalid" do
-          exchange.error.should == 'invalid_request'
-          exchange.error_description.should == 'Missing required parameter username'
+          expect(exchange.error).to eq('invalid_request')
+          expect(exchange.error_description).to eq('Missing required parameter username')
         end
       end
 
@@ -207,8 +207,8 @@ describe Songkick::OAuth2::Provider::Exchange do
         before { params.delete('password') }
 
         it "is invalid" do
-          exchange.error.should == 'invalid_request'
-          exchange.error_description.should == 'Missing required parameter password'
+          expect(exchange.error).to eq('invalid_request')
+          expect(exchange.error_description).to eq('Missing required parameter password')
         end
       end
 
@@ -216,8 +216,8 @@ describe Songkick::OAuth2::Provider::Exchange do
         before { params['password'] = 'bad' }
 
         it "is invalid" do
-          exchange.error.should == 'invalid_grant'
-          exchange.error_description.should == 'The access grant you supplied is invalid'
+          expect(exchange.error).to eq('invalid_grant')
+          expect(exchange.error_description).to eq('The access grant you supplied is invalid')
         end
       end
     end
@@ -237,7 +237,7 @@ describe Songkick::OAuth2::Provider::Exchange do
         it "sets the scope from the request" do
           exchange.update_authorization
           authorization.reload
-          authorization.scopes.should == Set.new(['lol'])
+          expect(authorization.scopes).to eq(Set.new(['lol']))
         end
       end
     end
@@ -273,8 +273,8 @@ describe Songkick::OAuth2::Provider::Exchange do
       before { params.delete('assertion_type') }
 
       it "is invalid" do
-        exchange.error.should == 'invalid_request'
-        exchange.error_description.should == 'Missing required parameter assertion_type'
+        expect(exchange.error).to eq('invalid_request')
+        expect(exchange.error_description).to eq('Missing required parameter assertion_type')
       end
     end
 
@@ -282,8 +282,8 @@ describe Songkick::OAuth2::Provider::Exchange do
       before { params['assertion_type'] = 'invalid' }
 
       it "is invalid" do
-        exchange.error.should == 'invalid_request'
-        exchange.error_description.should == 'Parameter assertion_type must be an absolute URI'
+        expect(exchange.error).to eq('invalid_request')
+        expect(exchange.error_description).to eq('Parameter assertion_type must be an absolute URI')
       end
     end
 
@@ -291,8 +291,8 @@ describe Songkick::OAuth2::Provider::Exchange do
       before { params.delete('assertion') }
 
       it "is invalid" do
-        exchange.error.should == 'invalid_request'
-        exchange.error_description.should == 'Missing required parameter assertion'
+        expect(exchange.error).to eq('invalid_request')
+        expect(exchange.error_description).to eq('Missing required parameter assertion')
       end
     end
 
@@ -300,8 +300,8 @@ describe Songkick::OAuth2::Provider::Exchange do
       before { params['assertion_type'] = 'https://oauth.what.com/ohai' }
 
       it "is invalid" do
-        exchange.error.should == 'unauthorized_client'
-        exchange.error_description.should == 'Client cannot use the given assertion type'
+        expect(exchange.error).to eq('unauthorized_client')
+        expect(exchange.error_description).to eq('Client cannot use the given assertion type')
       end
     end
 
@@ -313,8 +313,8 @@ describe Songkick::OAuth2::Provider::Exchange do
       end
 
       it "is invalid" do
-        exchange.error.should == 'unauthorized_client'
-        exchange.error_description.should == 'Client cannot use the given assertion type'
+        expect(exchange.error).to eq('unauthorized_client')
+        expect(exchange.error_description).to eq('Client cannot use the given assertion type')
       end
     end
   end
@@ -343,8 +343,8 @@ describe Songkick::OAuth2::Provider::Exchange do
       before { params['refresh_token'] = 'woops' }
 
       it "is invalid" do
-        exchange.error.should == "invalid_grant"
-        exchange.error_description.should == "The access grant you supplied is invalid"
+        expect(exchange.error).to eq("invalid_grant")
+        expect(exchange.error_description).to eq("The access grant you supplied is invalid")
       end
     end
 

@@ -26,25 +26,25 @@ describe Songkick::OAuth2::Provider::AccessToken do
 
   shared_examples_for "valid token" do
     it "is valid" do
-      token.should be_valid
+      expect(token).to be_valid
     end
     it "does not add headers" do
-      token.response_headers.should == {}
+      expect(token.response_headers).to eq({})
     end
     it "has an OK status code" do
-      token.response_status.should == 200
+      expect(token.response_status).to eq(200)
     end
     it "returns the owner who granted the authorization" do
-      token.owner.should == @bob
+      expect(token.owner).to eq(@bob)
     end
   end
 
   shared_examples_for "invalid token" do
     it "is not valid" do
-      token.should_not be_valid
+      expect(token).to_not be_valid
     end
     it "does not return the owner" do
-      token.owner.should be_nil
+      expect(token.owner).to be_nil
     end
   end
 
@@ -66,8 +66,8 @@ describe Songkick::OAuth2::Provider::AccessToken do
     it_should_behave_like "invalid token"
 
     it "returns an error response" do
-      token.response_headers['WWW-Authenticate'].should == "OAuth realm='Demo App', error='invalid_token'"
-      token.response_status.should == 401
+      expect(token.response_headers['WWW-Authenticate']).to eq("OAuth realm='Demo App', error='invalid_token'")
+      expect(token.response_status).to eq(401)
     end
   end
 
@@ -83,8 +83,8 @@ describe Songkick::OAuth2::Provider::AccessToken do
     it_should_behave_like "invalid token"
 
     it "returns an error response" do
-      token.response_headers['WWW-Authenticate'].should == "OAuth realm='Demo App', error='expired_token'"
-      token.response_status.should == 401
+      expect(token.response_headers['WWW-Authenticate']).to eq("OAuth realm='Demo App', error='expired_token'")
+      expect(token.response_status).to eq(401)
     end
   end
 
@@ -95,8 +95,8 @@ describe Songkick::OAuth2::Provider::AccessToken do
     it_should_behave_like "invalid token"
 
     it "returns an error response" do
-      token.response_headers['WWW-Authenticate'].should == "OAuth realm='Demo App', error='invalid_token'"
-      token.response_status.should == 401
+      expect(token.response_headers['WWW-Authenticate']).to eq("OAuth realm='Demo App', error='invalid_token'")
+      expect(token.response_status).to eq(401)
     end
   end
 
@@ -107,8 +107,8 @@ describe Songkick::OAuth2::Provider::AccessToken do
     it_should_behave_like "invalid token"
 
     it "returns an error response" do
-      token.response_headers['WWW-Authenticate'].should == "OAuth realm='Demo App', error='insufficient_scope'"
-      token.response_status.should == 403
+      expect(token.response_headers['WWW-Authenticate']).to eq("OAuth realm='Demo App', error='insufficient_scope'")
+      expect(token.response_status).to eq(403)
     end
   end
 
@@ -119,8 +119,8 @@ describe Songkick::OAuth2::Provider::AccessToken do
     it_should_behave_like "invalid token"
 
     it "returns an error response" do
-      token.response_headers['WWW-Authenticate'].should == "OAuth realm='Demo App', error='insufficient_scope'"
-      token.response_status.should == 403
+      expect(token.response_headers['WWW-Authenticate']).to eq("OAuth realm='Demo App', error='insufficient_scope'")
+      expect(token.response_status).to eq(403)
     end
   end
 
@@ -131,8 +131,8 @@ describe Songkick::OAuth2::Provider::AccessToken do
     it_should_behave_like "invalid token"
 
     it "returns an error response" do
-      token.response_headers['WWW-Authenticate'].should == "OAuth realm='Demo App'"
-      token.response_status.should == 401
+      expect(token.response_headers['WWW-Authenticate']).to eq("OAuth realm='Demo App'")
+      expect(token.response_status).to eq(401)
     end
   end
 end

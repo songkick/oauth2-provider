@@ -31,16 +31,16 @@ module RequestHelpers
   end
 
   def validate_response(response, status, body)
-    response.code.to_i.should == status
-    response.body.should == body
-    response["Cache-Control"].should == "no-store"
+    expect(response.code.to_i).to eq(status)
+    expect(response.body).to eq(body)
+    expect(response["Cache-Control"]).to eq("no-store")
   end
 
   def validate_json_response(response, status, body)
-    response.code.to_i.should == status
-    JSON.parse(response.body).should == body
-    response["Content-Type"].should == "application/json"
-    response["Cache-Control"].should == "no-store"
+    expect(response.code.to_i).to eq(status)
+    expect(JSON.parse(response.body)).to eq(body)
+    expect(response["Content-Type"]).to eq("application/json")
+    expect(response["Cache-Control"]).to eq("no-store")
   end
 
   def mock_request(request_class, stubs = {})
@@ -53,7 +53,7 @@ module RequestHelpers
     }.merge(stubs)
 
     method_stubs.each do |method, value|
-      mock_request.should_receive(method).and_return(value)
+      expect(mock_request).to receive(method).and_return(value)
     end
 
     mock_request

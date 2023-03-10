@@ -56,7 +56,7 @@ RSpec.configure do |config|
   config.before do
     Songkick::OAuth2::Provider.enforce_ssl = false
     time = Time.now
-    Time.stub(:now).and_return time
+    allow(Time).to receive(:now).and_return time
   end
 
   config.after do
