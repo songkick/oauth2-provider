@@ -83,7 +83,12 @@ module Songkick
 
         def redirect_uri
           return nil unless @client
-          base_redirect_uri = @client.redirect_uri
+          redirect_uris = @client.redirect_uri.split(';')
+          base_redirect_uri = if redirect_uris.count > 1
+                                @params[REDIRECT_URI]
+                              else
+                                redirect_uris.first
+                              end
           q = (base_redirect_uri =~ /\?/) ? '&' : '?'
 
           if not valid?
@@ -167,7 +172,7 @@ module Songkick
             @error_description = "Unknown client ID #{@params[CLIENT_ID]}"
           end
 
-          if @client and @client.redirect_uri and @client.redirect_uri != @params[REDIRECT_URI]
+          if @client and @client.redirect_uri and !@client.redirect_uri.split(';').include?(@params[REDIRECT_URI])
             @error = REDIRECT_MISMATCH
             @error_description = "Parameter #{REDIRECT_URI} does not match registered URI"
           end
