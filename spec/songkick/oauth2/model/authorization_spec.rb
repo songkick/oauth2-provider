@@ -1,28 +1,28 @@
 require 'spec_helper'
 
 describe Songkick::OAuth2::Model::Authorization do
-  let(:client)   { Factory :client }
-  let(:impostor) { Factory :client }
-  let(:owner)    { Factory :owner }
-  let(:user)     { Factory :owner }
-  let(:tester)   { Factory(:owner) }
+  let(:client)   { FactoryBot.create(:client) }
+  let(:impostor) { FactoryBot.create(:client) }
+  let(:owner)    { FactoryBot.create(:owner)  }
+  let(:user)     { FactoryBot.create(:owner) }
+  let(:tester)   { FactoryBot.create(:owner) }
 
   let(:authorization) do
     create_authorization(:owner => tester, :client => client)
   end
 
   it "is valid" do
-    authorization.should be_valid
+    expect(authorization).to be_valid
   end
 
   it "is not valid without a client" do
     authorization.client = nil
-    authorization.should_not be_valid
+    expect(authorization).to_not be_valid
   end
 
   it "is not valid without an owner" do
     authorization.owner = nil
-    authorization.should_not be_valid
+    expect(authorization).to_not be_valid
   end
 
   describe "when there are existing authorizations" do
@@ -44,147 +44,147 @@ describe Songkick::OAuth2::Model::Authorization do
     end
 
     it "is valid if its access_token is unique" do
-      authorization.should be_valid
+      expect(authorization).to be_valid
     end
 
     it "is valid if both access_tokens are nil" do
       Songkick::OAuth2::Model::Authorization.first.update_attribute(:access_token, nil)
       authorization.access_token = nil
-      authorization.should be_valid
+      expect(authorization).to be_valid
     end
 
     it "is not valid if its access_token is not unique" do
       authorization.access_token = 'existing_access_token'
-      authorization.should_not be_valid
+      expect(authorization).to_not be_valid
     end
 
     it "is valid if it has a unique code for its client" do
       authorization.client = impostor
       authorization.code = 'existing_code'
-      authorization.should be_valid
+      expect(authorization).to be_valid
     end
 
     it "is not valid if it does not have a unique client and code" do
       authorization.code = 'existing_code'
-      authorization.should_not be_valid
+      expect(authorization).to_not be_valid
     end
 
     it "is valid if it has a unique refresh_token for its client" do
       authorization.client = impostor
       authorization.refresh_token = 'existing_refresh_token'
-      authorization.should be_valid
+      expect(authorization).to be_valid
     end
 
     it "is not valid if it does not have a unique client and refresh_token" do
       authorization.refresh_token = 'existing_refresh_token'
-      authorization.should_not be_valid
+      expect(authorization).to_not be_valid
     end
 
     describe ".create_code" do
-      before { Songkick::OAuth2.stub(:random_string).and_return('existing_code', 'new_code') }
+      before { allow(Songkick::OAuth2).to receive(:random_string).and_return('existing_code', 'new_code') }
 
       it "returns the first code the client has not used" do
-        Songkick::OAuth2::Model::Authorization.create_code(client).should == 'new_code'
+        expect(Songkick::OAuth2::Model::Authorization.create_code(client)).to eq('new_code')
       end
 
       it "returns the first code another client has not used" do
-        Songkick::OAuth2::Model::Authorization.create_code(impostor).should == 'existing_code'
+        expect(Songkick::OAuth2::Model::Authorization.create_code(impostor)).to eq('existing_code')
       end
     end
 
     describe ".create_access_token" do
-      before { Songkick::OAuth2.stub(:random_string).and_return('existing_access_token', 'new_access_token') }
+      before { allow(Songkick::OAuth2).to receive(:random_string).and_return('existing_access_token', 'new_access_token') }
 
       it "returns the first unused token it can find" do
-        Songkick::OAuth2::Model::Authorization.create_access_token.should == 'new_access_token'
+        expect(Songkick::OAuth2::Model::Authorization.create_access_token).to eq('new_access_token')
       end
     end
 
     describe ".create_refresh_token" do
-      before { Songkick::OAuth2.stub(:random_string).and_return('existing_refresh_token', 'new_refresh_token') }
+      before { allow(Songkick::OAuth2).to receive(:random_string).and_return('existing_refresh_token', 'new_refresh_token') }
 
       it "returns the first refresh_token the client has not used" do
-        Songkick::OAuth2::Model::Authorization.create_refresh_token(client).should == 'new_refresh_token'
+        expect(Songkick::OAuth2::Model::Authorization.create_refresh_token(client)).to eq('new_refresh_token')
       end
 
       it "returns the first refresh_token another client has not used" do
-        Songkick::OAuth2::Model::Authorization.create_refresh_token(impostor).should == 'existing_refresh_token'
+        expect(Songkick::OAuth2::Model::Authorization.create_refresh_token(impostor)).to eq('existing_refresh_token')
       end
     end
 
     describe "duplicate records" do
       it "raises an error if a duplicate authorization is created" do
-        lambda {
+        expect {
           authorization = Songkick::OAuth2::Model::Authorization.__send__(:new)
           authorization.owner = user
           authorization.client = client
           authorization.save
-        }.should raise_error
+        }.to raise_error
       end
 
       it "finds an existing record after a race" do
-        user.stub(:oauth2_authorization_for) do
-          user.unstub(:oauth2_authorization_for)
+        allow(user).to receive(:oauth2_authorization_for) do
+          allow(user).to receive(:oauth2_authorization_for).and_call_original
           raise TypeError, 'Mysql::Error: Duplicate entry'
         end
         authorization = Songkick::OAuth2::Model::Authorization.for(user, client)
-        authorization.owner.should == user
-        authorization.client.should == client
+        expect(authorization.owner).to eq(user)
+        expect(authorization.client).to eq(client)
       end
     end
   end
 
   describe "#exchange!" do
     it "saves the record" do
-      authorization.should_receive(:save!)
+      expect(authorization).to receive(:save!)
       authorization.exchange!
     end
 
     it "uses its helpers to find unique tokens" do
-      Songkick::OAuth2::Model::Authorization.should_receive(:create_access_token).and_return('access_token')
+      expect(Songkick::OAuth2::Model::Authorization).to receive(:create_access_token).and_return('access_token')
       authorization.exchange!
-      authorization.access_token.should == 'access_token'
+      expect(authorization.access_token).to eq('access_token')
     end
 
     it "updates the tokens correctly" do
       authorization.exchange!
-      authorization.should be_valid
-      authorization.code.should be_nil
-      authorization.refresh_token.should be_nil
+      expect(authorization).to be_valid
+      expect(authorization.code).to be_nil
+      expect(authorization.refresh_token).to be_nil
     end
   end
 
   describe "#expired?" do
     it "returns false when not expiry is set" do
-      authorization.should_not be_expired
+      expect(authorization).to_not be_expired
     end
 
     it "returns false when expiry is in the future" do
       authorization.expires_at = 2.days.from_now
-      authorization.should_not be_expired
+      expect(authorization).to_not be_expired
     end
 
     it "returns true when expiry is in the past" do
       authorization.expires_at = 2.days.ago
-      authorization.should be_expired
+      expect(authorization).to be_expired
     end
   end
 
   describe "#grants_access?" do
     it "returns true given the right user" do
-      authorization.grants_access?(tester).should be(true)
+      expect(authorization.grants_access?(tester)).to be(true)
     end
 
     it "returns false given the wrong user" do
-      authorization.grants_access?(user).should be(false)
+      expect(authorization.grants_access?(user)).to be(false)
     end
 
     describe "when the authorization is expired" do
       before { authorization.expires_at = 2.days.ago }
 
       it "returns false in all cases" do
-        authorization.grants_access?(tester).should be(false)
-        authorization.grants_access?(user).should be(false)
+        expect(authorization.grants_access?(tester)).to be(false)
+        expect(authorization.grants_access?(user)).to be(false)
       end
     end
   end
@@ -194,43 +194,43 @@ describe Songkick::OAuth2::Model::Authorization do
 
     describe "#in_scope?" do
       it "returns true for authorized scopes" do
-        authorization.should be_in_scope('foo')
-        authorization.should be_in_scope('bar')
+        expect(authorization).to be_in_scope('foo')
+        expect(authorization).to be_in_scope('bar')
       end
 
       it "returns false for unauthorized scopes" do
-        authorization.should_not be_in_scope('qux')
-        authorization.should_not be_in_scope('fo')
+        expect(authorization).to_not be_in_scope('qux')
+        expect(authorization).to_not be_in_scope('fo')
       end
     end
 
     describe "#grants_access?" do
       it "returns true given the right user and all authorization scopes" do
-        authorization.grants_access?(tester, 'foo', 'bar').should be(true)
+        expect(authorization.grants_access?(tester, 'foo', 'bar')).to be(true)
       end
 
       it "returns true given the right user and some authorization scopes" do
-        authorization.grants_access?(tester, 'bar').should be(true)
+        expect(authorization.grants_access?(tester, 'bar')).to be(true)
       end
 
       it "returns false given the right user and some unauthorization scopes" do
-        authorization.grants_access?(tester, 'foo', 'bar', 'qux').should be(false)
+        expect(authorization.grants_access?(tester, 'foo', 'bar', 'qux')).to be(false)
       end
 
       it "returns false given an unauthorized scope" do
-        authorization.grants_access?(tester, 'qux').should be(false)
+        expect(authorization.grants_access?(tester, 'qux')).to be(false)
       end
 
       it "returns true given the right user" do
-        authorization.grants_access?(tester).should be(true)
+        expect(authorization.grants_access?(tester)).to be(true)
       end
 
       it "returns false given the wrong user" do
-        authorization.grants_access?(user).should be(false)
+        expect(authorization.grants_access?(user)).to be(false)
       end
 
       it "returns false given the wrong user and an authorized scope" do
-        authorization.grants_access?(user, 'foo').should be(false)
+        expect(authorization.grants_access?(user, 'foo')).to be(false)
       end
     end
   end

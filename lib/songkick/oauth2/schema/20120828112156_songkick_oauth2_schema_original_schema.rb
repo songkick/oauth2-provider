@@ -1,4 +1,4 @@
-class SongkickOauth2SchemaOriginalSchema < ActiveRecord::Migration
+class SongkickOauth2SchemaOriginalSchema < ActiveRecord::Migration[6.1]
   def self.up
     create_table :oauth2_clients do |t|
       t.timestamps
@@ -25,7 +25,7 @@ class SongkickOauth2SchemaOriginalSchema < ActiveRecord::Migration
     add_index :oauth2_authorizations, [:client_id, :code]
     add_index :oauth2_authorizations, [:access_token_hash]
     add_index :oauth2_authorizations, [:client_id, :access_token_hash]
-    add_index :oauth2_authorizations, [:client_id, :refresh_token_hash]
+    add_index :oauth2_authorizations, [:client_id, :refresh_token_hash], name: 'index_client_refresh'
   end
 
   def self.down

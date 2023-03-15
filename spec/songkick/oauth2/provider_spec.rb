@@ -12,7 +12,7 @@ describe Songkick::OAuth2::Provider do
                }
 
   before do
-    @client = Factory(:client, :name => 'Test client')
+    @client = FactoryBot.create(:client, :name => 'Test client')
     @owner  = TestApp::User['Bob']
   end
 
@@ -20,15 +20,15 @@ describe Songkick::OAuth2::Provider do
     shared_examples_for "asks for user permission" do
       it "creates an authorization" do
         auth = mock_request(Songkick::OAuth2::Provider::Authorization, :client => @client, :params => {}, :scopes => [], :valid? => true)
-        Songkick::OAuth2::Provider::Authorization.should_receive(:new).with(@owner, params, nil).and_return(auth)
+        expect(Songkick::OAuth2::Provider::Authorization).to receive(:new).with(@owner, params, nil).and_return(auth)
         get(params)
       end
 
       it "displays an authorization page" do
         response = get(params)
-        response.code.to_i.should == 200
-        response.body.should =~ /Do you want to allow Test client/
-        response['Content-Type'].should =~ /text\/html/
+        expect(response.code.to_i).to eq(200)
+        expect(response.body).to match(/Do you want to allow Test client/)
+        expect(response['Content-Type']).to match(/text\/html/)
       end
     end
 
@@ -66,8 +66,8 @@ describe Songkick::OAuth2::Provider do
 
       it "immediately redirects with the code" do
         response = get(params)
-        response.code.to_i.should == 302
-        response['location'].should == 'https://client.example.com/cb?code=pending_code'
+        expect(response.code.to_i).to eq(302)
+        expect(response['location']).to eq('https://client.example.com/cb?code=pending_code')
       end
 
       describe "when the client is requesting scopes it already has access to" do
@@ -75,8 +75,8 @@ describe Songkick::OAuth2::Provider do
 
         it "immediately redirects with the code" do
           response = get(params)
-          response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb?code=pending_code&scope=offline_access'
+          expect(response.code.to_i).to eq(302)
+          expect(response['location']).to eq('https://client.example.com/cb?code=pending_code&scope=offline_access')
         end
       end
 
@@ -89,12 +89,12 @@ describe Songkick::OAuth2::Provider do
         before { @authorization.update_attribute(:code, nil) }
 
         it "generates a new code and redirects" do
-          Songkick::OAuth2::Model::Authorization.should_not_receive(:create)
-          Songkick::OAuth2::Model::Authorization.should_not_receive(:new)
-          Songkick::OAuth2.should_receive(:random_string).and_return('new_code')
+          expect(Songkick::OAuth2::Model::Authorization).to_not receive(:create)
+          expect(Songkick::OAuth2::Model::Authorization).to_not receive(:new)
+          expect(Songkick::OAuth2).to receive(:random_string).and_return('new_code')
           response = get(params)
-          response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb?code=new_code'
+          expect(response.code.to_i).to eq(302)
+          expect(response['location']).to eq('https://client.example.com/cb?code=new_code')
         end
       end
 
@@ -114,27 +114,27 @@ describe Songkick::OAuth2::Provider do
       end
 
       it "immediately redirects with a new code" do
-        Songkick::OAuth2.should_receive(:random_string).and_return('new_code')
+        expect(Songkick::OAuth2).to receive(:random_string).and_return('new_code')
         response = get(params)
-        response.code.to_i.should == 302
-        response['location'].should == 'https://client.example.com/cb?code=new_code'
+        expect(response.code.to_i).to eq(302)
+        expect(response['location']).to eq('https://client.example.com/cb?code=new_code')
       end
 
       describe "for token requests" do
         before { params['response_type'] = 'token' }
 
         it "immediately redirects with a new token" do
-          Songkick::OAuth2.should_receive(:random_string).and_return('new_access_token')
+          expect(Songkick::OAuth2).to receive(:random_string).and_return('new_access_token')
           response = get(params)
-          response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb#access_token=new_access_token'
+          expect(response.code.to_i).to eq(302)
+          expect(response['location']).to eq('https://client.example.com/cb#access_token=new_access_token')
         end
 
         describe "with an invalid client_id" do
           before { params['client_id'] = 'unknown_id' }
 
           it "does not generate any new tokens" do
-            Songkick::OAuth2.should_not_receive(:random_string)
+            expect(Songkick::OAuth2).to_not receive(:random_string)
             get(params)
           end
         end
@@ -142,14 +142,14 @@ describe Songkick::OAuth2::Provider do
 
       it "does not create a new Authorization" do
         get(params)
-        Songkick::OAuth2::Model::Authorization.count.should == 1
+        expect(Songkick::OAuth2::Model::Authorization.count).to eq(1)
       end
 
       it "keeps the code and access token on the Authorization" do
         get(params)
         authorization = Songkick::OAuth2::Model::Authorization.first
-        authorization.code.should_not be_nil
-        authorization.access_token_hash.should_not be_nil
+        expect(authorization.code).to_not be_nil
+        expect(authorization.access_token_hash).to_not be_nil
       end
     end
 
@@ -177,8 +177,8 @@ describe Songkick::OAuth2::Provider do
 
       it "redirects to the client's registered redirect_uri" do
         response = get(params)
-        response.code.to_i.should == 302
-        response['location'].should == 'https://client.example.com/cb?error=invalid_request&error_description=Missing+required+parameter+response_type'
+        expect(response.code.to_i).to eq(302)
+        expect(response['location']).to eq('https://client.example.com/cb?error=invalid_request&error_description=Missing+required+parameter+response_type')
       end
     end
 
@@ -187,8 +187,8 @@ describe Songkick::OAuth2::Provider do
 
       it "redirects to the client's redirect_uri on error" do
         response = get(params)
-        response.code.to_i.should == 302
-        response['location'].should == 'https://client.example.com/cb?error=invalid_request&error_description=Missing+required+parameter+response_type'
+        expect(response.code.to_i).to eq(302)
+        expect(response['location']).to eq('https://client.example.com/cb?error=invalid_request&error_description=Missing+required+parameter+response_type')
       end
 
       describe "with a state parameter" do
@@ -196,8 +196,8 @@ describe Songkick::OAuth2::Provider do
 
         it "redirects to the client, including the state param" do
           response = get(params)
-          response.code.to_i.should == 302
-          response['location'].should == "https://client.example.com/cb?error=invalid_request&error_description=Missing+required+parameter+response_type&state=Facebook%0Amesses+this%0Aup"
+          expect(response.code.to_i).to eq(302)
+          expect(response['location']).to eq("https://client.example.com/cb?error=invalid_request&error_description=Missing+required+parameter+response_type&state=Facebook%0Amesses+this%0Aup")
         end
       end
     end
@@ -209,7 +209,7 @@ describe Songkick::OAuth2::Provider do
                     :redirect_uri    => 'http://example.com/',
                     :response_status => 302
 
-      Songkick::OAuth2::Provider::Authorization.stub(:new).and_return(mock)
+      allow(Songkick::OAuth2::Provider::Authorization).to receive(:new).and_return(mock)
       mock
     end
 
@@ -217,45 +217,45 @@ describe Songkick::OAuth2::Provider do
       before { params['allow'] = '' }
 
       it "does not grant access" do
-        mock_auth.should_receive(:deny_access!)
+        expect(mock_auth).to receive(:deny_access!)
         allow_or_deny(params)
       end
 
       it "redirects to the client with an error" do
         response = allow_or_deny(params)
-        response.code.to_i.should == 302
-        response['location'].should == 'https://client.example.com/cb?error=access_denied&error_description=The+user+denied+you+access'
+        expect(response.code.to_i).to eq(302)
+        expect(response['location']).to eq('https://client.example.com/cb?error=access_denied&error_description=The+user+denied+you+access')
       end
     end
 
     describe "with valid parameters and user permission" do
-      before { Songkick::OAuth2.stub(:random_string).and_return('foo') }
+      before { allow(Songkick::OAuth2).to receive(:random_string).and_return('foo') }
       before { params['allow'] = '1' }
 
       describe "for code requests" do
         it "grants access" do
-          mock_auth.should_receive(:grant_access!)
+          expect(mock_auth).to receive(:grant_access!)
           allow_or_deny(params)
         end
 
         it "redirects to the client with an authorization code" do
           response = allow_or_deny(params)
-          response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb?code=foo'
+          expect(response.code.to_i).to eq(302)
+          expect(response['location']).to eq('https://client.example.com/cb?code=foo')
         end
 
         it "passes the state parameter through" do
           params['state'] = 'illinois'
           response = allow_or_deny(params)
-          response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb?code=foo&state=illinois'
+          expect(response.code.to_i).to eq(302)
+          expect(response['location']).to eq('https://client.example.com/cb?code=foo&state=illinois')
         end
 
         it "passes the scope parameter through" do
           params['scope'] = 'foo bar'
           response = allow_or_deny(params)
-          response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb?code=foo&scope=foo+bar'
+          expect(response.code.to_i).to eq(302)
+          expect(response['location']).to eq('https://client.example.com/cb?code=foo&scope=foo+bar')
         end
       end
 
@@ -263,28 +263,28 @@ describe Songkick::OAuth2::Provider do
         before { params['response_type'] = 'token' }
 
         it "grants access" do
-          mock_auth.should_receive(:grant_access!)
+          expect(mock_auth).to receive(:grant_access!)
           allow_or_deny(params)
         end
 
         it "redirects to the client with an access token" do
           response = allow_or_deny(params)
-          response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb#access_token=foo&expires_in=10800'
+          expect(response.code.to_i).to eq(302)
+          expect(response['location']).to eq('https://client.example.com/cb#access_token=foo&expires_in=10800')
         end
 
         it "passes the state parameter through" do
           params['state'] = 'illinois'
           response = allow_or_deny(params)
-          response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb#access_token=foo&expires_in=10800&state=illinois'
+          expect(response.code.to_i).to eq(302)
+          expect(response['location']).to eq('https://client.example.com/cb#access_token=foo&expires_in=10800&state=illinois')
         end
 
         it "passes the scope parameter through" do
           params['scope'] = 'foo bar'
           response = allow_or_deny(params)
-          response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb#access_token=foo&expires_in=10800&scope=foo+bar'
+          expect(response.code.to_i).to eq(302)
+          expect(response['location']).to eq('https://client.example.com/cb#access_token=foo&expires_in=10800&scope=foo+bar')
         end
       end
 
@@ -292,28 +292,28 @@ describe Songkick::OAuth2::Provider do
         before { params['response_type'] = 'code_and_token' }
 
         it "grants access" do
-          mock_auth.should_receive(:grant_access!)
+          expect(mock_auth).to receive(:grant_access!)
           allow_or_deny(params)
         end
 
         it "redirects to the client with an access token" do
           response = allow_or_deny(params)
-          response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb?code=foo#access_token=foo&expires_in=10800'
+          expect(response.code.to_i).to eq(302)
+          expect(response['location']).to eq('https://client.example.com/cb?code=foo#access_token=foo&expires_in=10800')
         end
 
         it "passes the state parameter through" do
           params['state'] = 'illinois'
           response = allow_or_deny(params)
-          response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb?code=foo&state=illinois#access_token=foo&expires_in=10800'
+          expect(response.code.to_i).to eq(302)
+          expect(response['location']).to eq('https://client.example.com/cb?code=foo&state=illinois#access_token=foo&expires_in=10800')
         end
 
         it "passes the scope parameter through" do
           params['scope'] = 'foo bar'
           response = allow_or_deny(params)
-          response.code.to_i.should == 302
-          response['location'].should == 'https://client.example.com/cb?code=foo#access_token=foo&expires_in=10800&scope=foo+bar'
+          expect(response.code.to_i).to eq(302)
+          expect(response['location']).to eq('https://client.example.com/cb?code=foo#access_token=foo&expires_in=10800&scope=foo+bar')
         end
       end
     end
@@ -321,7 +321,7 @@ describe Songkick::OAuth2::Provider do
 
   describe "access token request" do
     before do
-      @client = Factory(:client)
+      @client = FactoryBot.create(:client)
       @authorization = create_authorization(
           :owner      => @owner,
           :client     => @client,
@@ -344,7 +344,7 @@ describe Songkick::OAuth2::Provider do
 
       describe "with valid parameters" do
         it "does not respond to GET" do
-          Songkick::OAuth2::Provider::Authorization.should_not_receive(:new)
+          expect(Songkick::OAuth2::Provider::Authorization).to_not receive(:new)
           params.delete('client_secret')
           response = get(params)
           validate_json_response(response, 400,
@@ -354,7 +354,7 @@ describe Songkick::OAuth2::Provider do
         end
 
         it "does not allow client credentials to be passed in the query string" do
-          Songkick::OAuth2::Provider::Authorization.should_not_receive(:new)
+          expect(Songkick::OAuth2::Provider::Authorization).to_not receive(:new)
           query_string = {'client_id' => params.delete('client_id'), 'client_secret' => params.delete('client_secret')}
           response = post(params, query_string)
           validate_json_response(response, 400,
@@ -377,18 +377,18 @@ describe Songkick::OAuth2::Provider do
 
         it "creates a Token when using Basic Auth" do
           token = mock_request(Songkick::OAuth2::Provider::Exchange, :response_body => 'Hello')
-          Songkick::OAuth2::Provider::Exchange.should_receive(:new).with(@owner, params, nil).and_return(token)
+          expect(Songkick::OAuth2::Provider::Exchange).to receive(:new).with(@owner, params, nil).and_return(token)
           post_basic_auth(auth_params, query_params)
         end
 
         it "creates a Token when passing params in the POST body" do
           token = mock_request(Songkick::OAuth2::Provider::Exchange, :response_body => 'Hello')
-          Songkick::OAuth2::Provider::Exchange.should_receive(:new).with(@owner, params, nil).and_return(token)
+          expect(Songkick::OAuth2::Provider::Exchange).to receive(:new).with(@owner, params, nil).and_return(token)
           post(params)
         end
 
         it "returns a successful response" do
-          Songkick::OAuth2.stub(:random_string).and_return('random_access_token')
+          allow(Songkick::OAuth2).to receive(:random_string).and_return('random_access_token')
           response = post_basic_auth(auth_params, query_params)
           validate_json_response(response, 200, 'access_token' => 'random_access_token', 'expires_in' => 10800)
         end
@@ -399,7 +399,7 @@ describe Songkick::OAuth2::Provider do
           end
 
           it "passes the scope back in the success response" do
-            Songkick::OAuth2.stub(:random_string).and_return('random_access_token')
+            allow(Songkick::OAuth2).to receive(:random_string).and_return('random_access_token')
             response = post_basic_auth(auth_params, query_params)
             validate_json_response(response, 200,
               'access_token'  => 'random_access_token',
@@ -436,8 +436,8 @@ describe Songkick::OAuth2::Provider do
 
       describe "when there is an Authorization with code and token" do
         before do
-          @authorization.update_attributes(:code => 'pending_code', :access_token => 'working_token')
-          Songkick::OAuth2.stub(:random_string).and_return('random_access_token')
+          @authorization.update!(:code => 'pending_code', :access_token => 'working_token')
+          allow(Songkick::OAuth2).to receive(:random_string).and_return('random_access_token')
         end
 
         it "returns a new access token" do
@@ -451,8 +451,8 @@ describe Songkick::OAuth2::Provider do
         it "exchanges the code for the new token on the existing Authorization" do
           post(params)
           @authorization.reload
-          @authorization.code.should be_nil
-          @authorization.access_token_hash.should == Songkick::OAuth2.hashify('random_access_token')
+          expect(@authorization.code).to be_nil
+          expect(@authorization.access_token_hash).to eq(Songkick::OAuth2.hashify('random_access_token'))
         end
       end
     end
@@ -470,31 +470,31 @@ describe Songkick::OAuth2::Provider do
     shared_examples_for "protected resource" do
       it "creates an AccessToken response" do
         mock_token = double(Songkick::OAuth2::Provider::AccessToken)
-        mock_token.should_receive(:response_headers).and_return({})
-        mock_token.should_receive(:response_status).and_return(200)
-        mock_token.should_receive(:valid?).and_return(true)
-        Songkick::OAuth2::Provider::AccessToken.should_receive(:new).with(TestApp::User['Bob'], ['profile'], 'magic-key', nil).and_return(mock_token)
+        expect(mock_token).to receive(:response_headers).and_return({})
+        expect(mock_token).to receive(:response_status).and_return(200)
+        expect(mock_token).to receive(:valid?).and_return(true)
+        expect(Songkick::OAuth2::Provider::AccessToken).to receive(:new).with(TestApp::User['Bob'], ['profile'], 'magic-key', nil).and_return(mock_token)
         request('/user_profile', 'oauth_token' => 'magic-key')
       end
 
       it "allows access when the key is passed" do
         response = request('/user_profile', 'oauth_token' => 'magic-key')
-        JSON.parse(response.body)['data'].should == 'Top secret'
-        response.code.to_i.should == 200
+        expect(JSON.parse(response.body)['data']).to eq('Top secret')
+        expect(response.code.to_i).to eq(200)
       end
 
       it "blocks access when the wrong key is passed" do
         response = request('/user_profile', 'oauth_token' => 'is-the-password-books')
-        JSON.parse(response.body)['data'].should == 'No soup for you'
-        response.code.to_i.should == 401
-        response['WWW-Authenticate'].should == "OAuth realm='Demo App', error='invalid_token'"
+        expect(JSON.parse(response.body)['data']).to eq('No soup for you')
+        expect(response.code.to_i).to eq(401)
+        expect(response['WWW-Authenticate']).to eq("OAuth realm='Demo App', error='invalid_token'")
       end
 
       it "blocks access when the no key is passed" do
         response = request('/user_profile')
-        JSON.parse(response.body)['data'].should == 'No soup for you'
-        response.code.to_i.should == 401
-        response['WWW-Authenticate'].should == "OAuth realm='Demo App'"
+        expect(JSON.parse(response.body)['data']).to eq('No soup for you')
+        expect(response.code.to_i).to eq(401)
+        expect(response['WWW-Authenticate']).to eq("OAuth realm='Demo App'")
       end
 
       describe "enforcing SSL" do
@@ -506,23 +506,23 @@ describe Songkick::OAuth2::Provider do
 
         it "blocks access when not using HTTPS" do
           response = request('/user_profile', 'oauth_token' => 'magic-key')
-          JSON.parse(response.body)['data'].should == 'No soup for you'
-          response.code.to_i.should == 401
-          response['WWW-Authenticate'].should == "OAuth realm='Demo App', error='invalid_request'"
+          expect(JSON.parse(response.body)['data']).to eq('No soup for you')
+          expect(response.code.to_i).to eq(401)
+          expect(response['WWW-Authenticate']).to eq("OAuth realm='Demo App', error='invalid_request'")
         end
 
         it "destroys the access token since it's been leaked" do
-          authorization.access_token_hash.should == Songkick::OAuth2.hashify('magic-key')
+          expect(authorization.access_token_hash).to eq(Songkick::OAuth2.hashify('magic-key'))
           request('/user_profile', 'oauth_token' => 'magic-key')
           authorization.reload
-          authorization.access_token_hash.should be_nil
+          expect(authorization.access_token_hash).to be_nil
         end
 
         it "keeps the access token if the wrong key is passed" do
-          authorization.access_token_hash.should == Songkick::OAuth2.hashify('magic-key')
+          expect(authorization.access_token_hash).to eq(Songkick::OAuth2.hashify('magic-key'))
           request('/user_profile', 'oauth_token' => 'is-the-password-books')
           authorization.reload
-          authorization.access_token_hash.should == Songkick::OAuth2.hashify('magic-key')
+          expect(authorization.access_token_hash).to eq(Songkick::OAuth2.hashify('magic-key'))
         end
       end
     end
