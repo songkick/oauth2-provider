@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name              = 'songkick-oauth2-provider'
-  s.version           = '0.11.0'
+  s.version           = '0.10.4'
   s.summary           = 'Simple OAuth 2.0 provider toolkit'
   s.author            = 'James Coglan'
   s.email             = 'james@songkick.com'
@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'appraisal', '2.4.1'
   s.add_development_dependency 'factory_bot'
   s.add_development_dependency 'i18n', '~> 1.6'
-  s.add_development_dependency 'mysql2' if ENV['DB'] == 'mysql' # version locked by ActiveRecord
+  s.add_development_dependency 'mysql2' if ENV['DB'] == 'mysql'
   s.add_development_dependency 'pg', '~> 0.18.4' if ENV['DB'] == 'postgres'
   s.add_development_dependency 'rspec'
   s.add_development_dependency 'sinatra', '~> 1.3'
