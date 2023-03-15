@@ -143,6 +143,17 @@ describe Songkick::OAuth2::Provider::Authorization do
     end
   end
 
+  describe "with multiple redirect uris" do
+    before do
+      authorization.client.redirect_uri = "http://songkick.com?some_parameter;http://example-domain.com?some_parameter"
+      params['redirect_uri'] = "http://songkick.redirect.uri"
+    end
+
+    it "uses the parameter uri" do
+      expect(authorization.redirect_uri).to eq("http://songkick.redirect.uri?")
+    end
+  end
+
   # http://en.wikipedia.org/wiki/HTTP_response_splitting
   # scope and state values are passed back in the redirect
 

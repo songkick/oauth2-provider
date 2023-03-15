@@ -1,3 +1,10 @@
+=== 0.10.4 / 2023-03-15
+
+* Upgrade codebase for compatibility with ActiveRecord 6.1
+* Upgrade codebase for compatibility with Ruby 3
+* Upgrade specs with usage of modern RSpec expectation syntax
+* Add support for multiple redirect_uris per client using ';' as a separator
+
 === 0.10.3 / 2017-10-24
 
 * Add support for query strings in the client redirect uri
