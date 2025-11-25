@@ -4,7 +4,8 @@ module Songkick
     class Schema
       def self.migrate
         ActiveRecord::Base.logger ||= Logger.new(StringIO.new)
-        ActiveRecord::MigrationContext.new(migrations_path, ActiveRecord::Base.connection.schema_migration).migrate
+        context = ActiveRecord::MigrationContext.new(migrations_path)
+        context.migrate
       end
       class << self
         alias :up :migrate
