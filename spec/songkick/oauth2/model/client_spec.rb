@@ -34,12 +34,12 @@ describe Songkick::OAuth2::Model::Client do
 
   it "cannot mass-assign client_id" do
     @client.update!(:client_id => 'foo')
-    expect(@client.client_id).to_not eq('foo')
+    expect(@client.reload.client_id).to_not eq('foo')
   end
 
   it "cannot mass-assign client_secret" do
     @client.update!(:client_secret => 'foo')
-    expect(@client.client_secret).to_not eq('foo')
+    expect(@client.reload.client_secret).to_not eq('foo')
   end
 
   it "has client_id and client_secret filled in" do

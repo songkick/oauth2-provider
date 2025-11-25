@@ -26,5 +26,4 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'sinatra', '~> 1.3'
   s.add_development_dependency 'sqlite3', '~> 2.1'
   s.add_development_dependency 'thin'
-  s.add_development_dependency 'protected_attributes_continued'
 end
