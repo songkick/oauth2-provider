@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'bundler/setup'
 
+require 'logger'
 require 'active_record'
 
 require 'songkick/oauth2/provider'
