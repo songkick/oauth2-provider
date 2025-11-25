@@ -15,7 +15,7 @@ module Songkick
         validates_presence_of   :name, :redirect_uri
         validate :check_format_of_redirect_uri
 
-        attr_readonly :client_id, :client_secret_hash, :oauth2_client_owner_type, :oauth2_client_owner_id
+        attr_readonly :client_secret_hash, :oauth2_client_owner_type, :oauth2_client_owner_id
 
         before_create :generate_credentials
 
@@ -26,6 +26,10 @@ module Songkick
         end
 
         attr_reader :client_secret
+
+        def client_id=(client_id)
+          super unless persisted?
+        end
 
         def client_secret=(secret)
           return unless new_record?
