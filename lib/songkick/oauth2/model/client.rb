@@ -1,10 +1,10 @@
-require 'protected_attributes'
-
 module Songkick
   module OAuth2
     module Model
 
       class Client < ActiveRecord::Base
+        SAFE_ATTRS = %i[name redirect_uri].freeze
+
         self.table_name = :oauth2_clients
 
         belongs_to :oauth2_client_owner, :polymorphic => true
@@ -16,8 +16,6 @@ module Songkick
         validates_uniqueness_of :client_id, :name
         validates_presence_of   :name, :redirect_uri
         validate :check_format_of_redirect_uri
-
-        attr_accessible :name, :redirect_uri
 
         before_create :generate_credentials
 
@@ -38,6 +36,13 @@ module Songkick
 
         def valid_client_secret?(secret)
           BCrypt::Password.new(client_secret_hash) == secret
+        end
+
+        def assign_attributes(attrs)
+          attrs_hash = attrs.to_h.stringify_keys
+          safe = attrs_hash.slice(*SAFE_ATTRS.map(&:to_s))
+
+          super(safe)
         end
 
       private

@@ -1,3 +1,8 @@
+=== 0.10.5 / 2025-12-02
+
+* Upgrade codebase for compatibility with ActiveRecord 8
+* Remove deprecated protected_attributes_continued gem and dependency
+
 === 0.10.4 / 2023-03-15
 
 * Upgrade codebase for compatibility with ActiveRecord 6.1
