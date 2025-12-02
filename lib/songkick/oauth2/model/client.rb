@@ -3,6 +3,8 @@ module Songkick
     module Model
 
       class Client < ActiveRecord::Base
+        SAFE_ATTRS = %i[name redirect_uri].freeze
+
         self.table_name = :oauth2_clients
 
         belongs_to :oauth2_client_owner, :polymorphic => true
@@ -15,8 +17,6 @@ module Songkick
         validates_presence_of   :name, :redirect_uri
         validate :check_format_of_redirect_uri
 
-        attr_readonly :client_secret_hash, :oauth2_client_owner_type, :oauth2_client_owner_id
-
         before_create :generate_credentials
 
         def self.create_client_id
@@ -27,13 +27,7 @@ module Songkick
 
         attr_reader :client_secret
 
-        def client_id=(client_id)
-          super unless persisted?
-        end
-
         def client_secret=(secret)
-          return unless new_record?
-
           @client_secret = secret
           hash = BCrypt::Password.create(secret)
           hash.force_encoding('UTF-8') if hash.respond_to?(:force_encoding)
@@ -42,6 +36,13 @@ module Songkick
 
         def valid_client_secret?(secret)
           BCrypt::Password.new(client_secret_hash) == secret
+        end
+
+        def assign_attributes(attrs)
+          attrs_hash = attrs.to_h.stringify_keys
+          safe = attrs_hash.slice(*SAFE_ATTRS.map(&:to_s))
+
+          super(safe)
         end
 
       private
