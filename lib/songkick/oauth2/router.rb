@@ -10,9 +10,9 @@ module Songkick
       class << self
         def parse(resource_owner, env)
           error   = detect_transport_error(env)
-          request = request_from(env)
+          request = request_or_request_from(env)
           params  = request.params
-          auth    = auth_params(env)
+          auth    = auth_params(env_from(env))
 
           if auth[CLIENT_ID] and auth[CLIENT_ID] != params[CLIENT_ID]
             error ||= Provider::Error.new("#{CLIENT_ID} from Basic Auth and request body do not match")
@@ -48,8 +48,16 @@ module Songkick
 
       private
 
+        def request_or_request_from(env_or_request)
+          env_or_request.respond_to?(:params) ? env_or_request : request_from(env_or_request)
+        end
+
+        def env_from(env_or_request)
+          env_or_request.respond_to?(:env) ? env_or_request.env : env_or_request
+        end
+
         def request_from(env_or_request)
-          env = env_or_request.respond_to?(:env) ? env_or_request.env : env_or_request
+          env = env_from(env_or_request)
           env = Rack::MockRequest.env_for(env['REQUEST_URI'] || '', :input => env['RAW_POST_DATA']).merge(env)
           Rack::Request.new(env)
         end
@@ -62,7 +70,7 @@ module Songkick
         end
 
         def detect_transport_error(env)
-          request = request_from(env)
+          request = request_or_request_from(env)
 
           if Provider.enforce_ssl and not request.ssl?
             Provider::Error.new('must make requests using HTTPS')
