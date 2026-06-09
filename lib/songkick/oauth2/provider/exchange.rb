@@ -23,6 +23,12 @@ module Songkick
 
           @transport_error = transport_error
 
+          oauth_debug_log('exchange.initialize', {
+            grant_type: @grant_type,
+            params_keys: @params.keys.sort,
+            assertion_type: @params[ASSERTION_TYPE],
+            has_assertion: @params.key?(ASSERTION)
+          })
           validate!
         end
 
@@ -83,8 +89,7 @@ module Songkick
 
         def validate!
           if @transport_error
-            @error = @transport_error.error
-            @error_description = @transport_error.error_description
+            set_error(@transport_error.error, @transport_error.error_description, 'exchange.transport_error')
             return
           end
 
@@ -94,57 +99,86 @@ module Songkick
           validate_client
 
           unless VALID_GRANT_TYPES.include?(@grant_type)
-            @error = UNSUPPORTED_GRANT_TYPE
-            @error_description = "The grant type #{@grant_type} is not recognized"
+            set_error(
+              UNSUPPORTED_GRANT_TYPE,
+              "The grant type #{@grant_type} is not recognized",
+              'exchange.unsupported_grant_type'
+            )
           end
           return if @error
 
           __send__("validate_#{@grant_type}")
           validate_scope
+          oauth_debug_log('exchange.validate.complete', {
+            valid: @error.nil?,
+            error: @error,
+            error_description: @error_description
+          })
         end
 
         def validate_required_params
           REQUIRED_PARAMS.each do |param|
             next if @params.has_key?(param)
-            @error = INVALID_REQUEST
-            @error_description = "Missing required parameter #{param}"
+            set_error(
+              INVALID_REQUEST,
+              "Missing required parameter #{param}",
+              "exchange.required_param_missing.#{param}"
+            )
           end
         end
 
         def validate_client
           @client = Model::Client.find_by_client_id(@params[CLIENT_ID])
           unless @client
-            @error = INVALID_CLIENT
-            @error_description = "Unknown client ID #{@params[CLIENT_ID]}"
+            set_error(
+              INVALID_CLIENT,
+              "Unknown client ID #{@params[CLIENT_ID]}",
+              'exchange.client_unknown'
+            )
           end
 
           if @client and not @client.valid_client_secret?(@params[CLIENT_SECRET])
-            @error = INVALID_CLIENT
-            @error_description = 'Parameter client_secret does not match'
+            set_error(
+              INVALID_CLIENT,
+              'Parameter client_secret does not match',
+              'exchange.client_secret_mismatch'
+            )
           end
         end
 
         def validate_scope
           if @authorization and not @authorization.in_scope?(scopes)
-            @error = INVALID_SCOPE
-            @error_description = 'The request scope was never granted by the user'
+            set_error(
+              INVALID_SCOPE,
+              'The request scope was never granted by the user',
+              'exchange.scope_not_granted'
+            )
           end
         end
 
         def validate_authorization_code
           unless @params[CODE]
-            @error = INVALID_REQUEST
-            @error_description = "Missing required parameter code"
+            set_error(
+              INVALID_REQUEST,
+              "Missing required parameter code",
+              'exchange.authorization_code_missing'
+            )
           end
 
           if @client.redirect_uri and !@client.redirect_uri.split(';').include?(@params[REDIRECT_URI])
-            @error = REDIRECT_MISMATCH
-            @error_description = "Parameter redirect_uri does not match registered URI"
+            set_error(
+              REDIRECT_MISMATCH,
+              "Parameter redirect_uri does not match registered URI",
+              'exchange.redirect_uri_mismatch'
+            )
           end
 
           unless @params.has_key?(REDIRECT_URI)
-            @error = INVALID_REQUEST
-            @error_description = "Missing required parameter redirect_uri"
+            set_error(
+              INVALID_REQUEST,
+              "Missing required parameter redirect_uri",
+              'exchange.redirect_uri_missing'
+            )
           end
 
           return if @error
@@ -156,8 +190,11 @@ module Songkick
         def validate_password
           REQUIRED_PASSWORD_PARAMS.each do |param|
             next if @params.has_key?(param)
-            @error = INVALID_REQUEST
-            @error_description = "Missing required parameter #{param}"
+            set_error(
+              INVALID_REQUEST,
+              "Missing required parameter #{param}",
+              "exchange.password_param_missing.#{param}"
+            )
           end
 
           return if @error
@@ -165,22 +202,31 @@ module Songkick
           @authorization = Provider.handle_password(@client, @params[USERNAME], @params[PASSWORD], scopes)
           return validate_authorization if @authorization
 
-          @error = INVALID_GRANT
-          @error_description = 'The access grant you supplied is invalid'
+          set_error(
+            INVALID_GRANT,
+            'The access grant you supplied is invalid',
+            'exchange.password_grant_invalid'
+          )
         end
 
         def validate_assertion
           REQUIRED_ASSERTION_PARAMS.each do |param|
             next if @params.has_key?(param)
-            @error = INVALID_REQUEST
-            @error_description = "Missing required parameter #{param}"
+            set_error(
+              INVALID_REQUEST,
+              "Missing required parameter #{param}",
+              "exchange.assertion_param_missing.#{param}"
+            )
           end
 
           if @params[ASSERTION_TYPE]
             uri = URI.parse(@params[ASSERTION_TYPE]) rescue nil
             unless uri and uri.absolute?
-              @error = INVALID_REQUEST
-              @error_description = 'Parameter assertion_type must be an absolute URI'
+              set_error(
+                INVALID_REQUEST,
+                'Parameter assertion_type must be an absolute URI',
+                'exchange.assertion_type_not_absolute_uri'
+              )
             end
           end
 
@@ -190,8 +236,11 @@ module Songkick
           @authorization = Provider.handle_assertion(@client, assertion, scopes)
           return validate_authorization if @authorization
 
-          @error = UNAUTHORIZED_CLIENT
-          @error_description = 'Client cannot use the given assertion type'
+          set_error(
+            UNAUTHORIZED_CLIENT,
+            'Client cannot use the given assertion type',
+            'exchange.assertion_handler_rejected'
+          )
         end
 
         def validate_refresh_token
@@ -202,14 +251,37 @@ module Songkick
 
         def validate_authorization
           unless @authorization
-            @error = INVALID_GRANT
-            @error_description = 'The access grant you supplied is invalid'
+            set_error(
+              INVALID_GRANT,
+              'The access grant you supplied is invalid',
+              'exchange.authorization_missing'
+            )
           end
 
           if @authorization and @authorization.expired?
-            @error = INVALID_GRANT
-            @error_description = 'The access grant you supplied is invalid'
+            set_error(
+              INVALID_GRANT,
+              'The access grant you supplied is invalid',
+              'exchange.authorization_expired'
+            )
           end
+        end
+
+        def set_error(error, error_description, reason_code)
+          @error = error
+          @error_description = error_description
+          oauth_debug_log('exchange.error', {
+            reason_code: reason_code,
+            error: error,
+            error_description: error_description,
+            grant_type: @grant_type
+          })
+        end
+
+        def oauth_debug_log(event, payload)
+          $stderr.puts("[oauth2-provider] #{event} #{payload.to_json}")
+        rescue StandardError
+          # best-effort diagnostics only
         end
       end
 
