@@ -112,10 +112,10 @@ module Songkick
         @assertion_handlers[assertion_type] = handler
       end
 
-      def self.handle_assertion(client, assertion, scopes)
+      def self.handle_assertion(client, assertion, scopes, resource_owner)
         return nil unless @assertion_filters.all? { |f| f.call(client) }
         handler = @assertion_handlers[assertion.type]
-        handler ? handler.call(client, assertion.value, scopes) : nil
+        handler ? handler.call(client, assertion.value, scopes, resource_owner) : nil
       end
 
       def self.parse(*args)
@@ -133,4 +133,3 @@ module Songkick
 
   end
 end
-
